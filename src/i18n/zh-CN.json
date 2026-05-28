@@ -1,0 +1,217 @@
+{
+  "common": {
+    "confirm": "确定"
+  },
+  "welcome": {
+    "title": "ErgeMD",
+    "subtitlePrefix": "极简 Markdown 阅读器 by ",
+    "subtitleAuthor": "宝藏二哥AIA",
+    "openFile": "打开文件",
+    "openFolder": "打开文件夹",
+    "dragHint": "拖拽 Markdown 文件到窗口打开",
+    "clickToOpen": "点击打开文件",
+    "rightClickToOpenFolder": "右键打开文件夹",
+    "recentFiles": "最近打开",
+    "clearRecent": "清除",
+    "shortcuts": "快捷键",
+    "noRecentFiles": "暂无最近打开的文件",
+    "exportPdf": "导出 PDF",
+    "exportHtml": "导出 HTML",
+    "exportWord": "导出 Word",
+    "toggleSidebar": "切换侧边栏",
+    "goHome": "回到欢迎页",
+    "search": "搜索",
+    "toggleTheme": "切换主题",
+    "resetFont": "重置字体",
+    "fullscreen": "全屏切换",
+    "closeTab": "关闭标签页",
+    "switchTab": "切换标签页",
+    "timeJustNow": "刚刚",
+    "timeMinutes": "分钟前",
+    "timeHours": "小时前",
+    "timeDays": "天前",
+    "newWindow": "新建窗口",
+    "saveHint": "保存提示(只读)",
+    "pinTab": "固定/取消固定标签",
+    "settings": "设置面板",
+    "adjustFont": "调整字体大小",
+    "esc": "关闭搜索/弹窗",
+    "copyFilePath": "复制文件路径",
+    "revealInExplorer": "在资源管理器中显示"
+  },
+  "titleBar": {
+    "fileList": "文件列表",
+    "minimize": "最小化",
+    "maximize": "最大化",
+    "restore": "还原窗口",
+    "close": "关闭"
+  },
+  "statusBar": {
+    "wordCount": "{{count}} 字",
+    "progress": "{{percent}}%"
+  },
+  "settings": {
+    "title": "设置",
+    "font": "字体",
+    "fontSize": "字号",
+    "fontFamily": "阅读字体",
+    "lineHeight": "行间距",
+    "letterSpacing": "字间距",
+    "paragraphSpacing": "段落间距",
+    "pageWidth": "页面宽度",
+    "theme": "主题",
+    "language": "语言",
+    "autoSaveProgress": "自动保存阅读进度",
+    "readingOptions": "阅读选项",
+    "fontPresets": {
+      "System Default": "系统默认",
+      "Windows": "Windows",
+      "macOS": "macOS",
+      "Ubuntu/Linux": "Ubuntu/Linux",
+      "Serif": "衬线字体",
+      "Monospace": "等宽字体"
+    },
+    "fontCategory": {
+      "sansSerif": "无衬线",
+      "serif": "衬线",
+      "monospace": "等宽"
+    },
+    "searchFonts": "搜索字体...",
+    "loadingFonts": "正在加载系统字体...",
+    "noFontsFound": "未找到匹配的字体",
+    "systemFont": "选择系统字体",
+    "configLevel": "性能级别"
+  },
+  "theme": {
+    "cyberpunk": "赛博朋克",
+    "dark": "暗色",
+    "light": "亮色",
+    "system": "跟随系统",
+    "falcon": "猎鹰",
+    "aurora": "极光",
+    "cherry-blossom": "樱花",
+    "desert-sunset": "沙漠落日",
+    "forest": "森林",
+    "monochrome": "单色",
+    "ocean": "海风",
+    "solar-flare": "太阳耀斑",
+    "tokyo-night": "东京夜色",
+    "neon-cyberpunk": "霓虹赛博",
+    "solarized-light": "Solarized 护眼"
+  },
+  "themeCategory": {
+    "builtin": "内置主题",
+    "dark": "暗色主题",
+    "system": "系统"
+  },
+  "search": {
+    "placeholder": "搜索...",
+    "noResults": "无匹配结果"
+  },
+  "error": {
+    "fileNotFound": "文件不存在",
+    "permissionDenied": "权限不足",
+    "encodingError": "无法识别文件编码",
+    "readFailed": "文件读取失败"
+  },
+  "fileChange": {
+    "updated": "文件已更新，点击重新加载"
+  },
+  "toc": {
+    "title": "目录",
+    "navigation": "目录导航"
+  },
+  "chart": {
+    "clickToZoom": "点击图表放大查看"
+  },
+  "zoom": {
+    "zoomIn": "放大",
+    "zoomOut": "缩小",
+    "close": "关闭",
+    "reset": "重置"
+  },
+  "svg": {
+    "saveAs": "保存为 SVG",
+    "saveFailed": "保存 SVG 失败，请再试一次",
+    "hint": "滚轮缩放 · 拖拽平移 · 双击重置 · 右键/按钮保存 · Esc 关闭"
+  },
+  "files": {
+    "projectFiles": "项目文件",
+    "openFiles": "打开的文件"
+  },
+  "tab": {
+    "pin": "固定标签",
+    "unpin": "取消固定",
+    "close": "关闭 {{fileName}}"
+  },
+  "quickEdit": {
+    "noMatch": "未找到匹配文本",
+    "saveSuccess": "保存成功",
+    "saveFailed": "保存失败",
+    "filePathLost": "文件已失联,请重新打开",
+    "linkUpdated": "链接已更新（仅当前会话）"
+  },
+  "image": {
+    "copyImage": "复制图片",
+    "zoomView": "放大查看",
+    "click": "单击",
+    "openInNewWindow": "在新窗口打开图片",
+    "copyPath": "复制图片路径",
+    "editImage": "编辑图片",
+    "enterUrl": "输入图片地址",
+    "loadFailed": "图片加载失败"
+  },
+  "link": {
+    "open": "打开链接",
+    "copyUrl": "复制链接地址",
+    "edit": "编辑链接",
+    "enterText": "输入链接显示文本",
+    "enterUrl": "输入链接地址"
+  },
+  "reader": {
+    "copy": "复制",
+    "selectAll": "全选",
+    "editParagraph": "编辑此段落",
+    "doubleClick": "双击",
+    "openInNewWindow": "在新窗口中打开"
+  },
+  "code": {
+    "copy": "复制代码",
+    "copied": "已复制",
+    "copyFailed": "复制失败"
+  },
+  "toast": {
+    "dbInitFailed": "数据库初始化失败",
+    "exportFailed": "导出失败",
+    "folderOpenFailed": "文件夹打开失败"
+  },
+  "about": {
+    "appDescription": "ErgeMD — 极简 Markdown 阅读器\n基于 Tauri 2 构建，专注于提供沉浸式、高性能的阅读体验\n支持多主题切换、目录导航、搜索、阅读进度保存等功能",
+    "slogan": "让每一次阅读，都回归内容本身。",
+    "feature1": "Mermaid 图表",
+    "feature2": "多主题切换",
+    "feature3": "阅读进度保存",
+    "feature4": "全文搜索",
+    "feature5": "多格式导出",
+    "authorTitle": "关于作者",
+    "authorBio": "一个热衷于分享好东西的技术大叔\n深耕 AI 绘画、AI 编程、AI 办公\n全网搜罗好用的 PC 软件与提效神器\n坚持「无门槛、无套路、无保留」三无分享",
+    "authorTag1": "三无分享",
+    "authorTag2": "AI 普及大使",
+    "authorTag3": "软件安利狂魔",
+    "authorTag4": "掌管白嫖的神",
+    "authorQuote": "AI 不应该有门槛，助力百万普通人用上 AI",
+    "bilibiliTitle": "来 B 站围观一下 📺",
+    "bilibiliDesc": "分享 AI、编程、效率工具等内容\n期待与你在 B 站相遇～",
+    "bilibiliButton": "前往B站主页",
+    "findMeTitle": "找到我",
+    "footer": "© 2026 宝藏二哥AIA · Made with ♥",
+    "menuLabel": "关于 ErgeMD",
+    "qrTipPlaceholder": "二维码占位",
+    "qrTipLabel": "请二哥喝杯赛博茶 🍵",
+    "qrFriendPlaceholder": "二维码占位",
+    "qrFriendLabel": "👉 加个好友，常来唠嗑 👋",
+    "easterEggTitle": "🔍 你发现了隐藏入口！",
+    "easterEggDesc": "二哥分享放心白嫖，随喜投喂 🍵",
+    "easterEggClose": "假装没看到"
+  }
+}

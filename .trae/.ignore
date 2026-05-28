@@ -1,0 +1,8 @@
+doc\ai4
+.trae\
+.vscode\
+public\
+doc\
+src-tauri\target
+src-tauri\.gitignore
+TECH-SPEC.md

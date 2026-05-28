@@ -1,0 +1,96 @@
+/* ===== 右键菜单样式（Phase 6 Task 1） ===== */
+
+/* 菜单容器 */
+.context-menu {
+    position: fixed;
+    z-index: 70;
+    min-width: 180px;
+    max-width: 280px;
+    padding: 4px 0;
+    border-radius: 8px;
+    border: 1px solid var(--divider, rgba(100, 200, 200, 0.1));
+    background: var(--bg-sidebar, #1A1A2E);
+    backdrop-filter: blur(12px);
+    box-shadow:
+        var(--shadow-menu),
+        0 0 1px var(--border-subtle);
+    animation: context-menu-enter 100ms ease-out forwards;
+}
+
+/* 菜单项 */
+.context-menu-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 6px 12px;
+    font-size: 13px;
+    color: var(--text-primary, #C8C8C8);
+    cursor: pointer;
+    user-select: none;
+    transition: background 80ms ease-out, color 80ms ease-out;
+    white-space: nowrap;
+}
+
+.context-menu-item:hover {
+    background: var(--hover-bg, rgba(0, 255, 255, 0.1));
+    color: var(--text-heading, #E0E0E0);
+}
+
+.context-menu-item:active {
+    background: var(--selected-bg, rgba(0, 255, 255, 0.15));
+}
+
+/* 快捷键提示 */
+.context-menu-item-shortcut {
+    font-size: 11px;
+    color: var(--text-muted, #50505A);
+    flex-shrink: 0;
+}
+
+.context-menu-item:hover .context-menu-item-shortcut {
+    color: var(--text-secondary, #787882);
+}
+
+/* 禁用态 */
+.context-menu-item--disabled {
+    opacity: 0.35;
+    pointer-events: none;
+}
+
+/* 危险操作（红色） */
+.context-menu-item--danger {
+    color: var(--accent-red, #FF0040);
+}
+
+.context-menu-item--danger:hover {
+    background: var(--danger-hover-bg);
+    color: var(--accent-red, #FF0040);
+}
+
+/* 分隔线 */
+.context-menu-separator {
+    height: 1px;
+    margin: 4px 8px;
+    background: var(--divider, rgba(100, 200, 200, 0.1));
+}
+
+/* 入场动画 */
+@keyframes context-menu-enter {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* 动画降级 */
+@media (prefers-reduced-motion: reduce) {
+    .context-menu {
+        animation: none;
+    }
+}

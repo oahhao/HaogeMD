@@ -1,0 +1,31 @@
+/*
+================================================================================
+ErgeMD 主题系统 - mermaid-eventmodeling.css
+================================================================================
+
+职责：Event Modeling 事件建模图变量映射
+优先级：Mermaid 层
+
+Event Modeling 图是块状图/关系图：
+- 文本使用 --chart-text
+- 数据块背景使用 --chart-fill-*
+- 边框使用 --chart-stroke-*
+- 连接线使用 --chart-edge
+
+================================================================================
+*/
+
+[data-theme] {
+
+  /* === Event Modeling 文本 === */
+  --mermaid-eventmodeling-text: var(--chart-text);
+
+  /* === Event Modeling 数据块背景 === */
+  --mermaid-eventmodeling-data-bg: var(--chart-fill-0);
+
+  /* === Event Modeling 数据块边框 === */
+  --mermaid-eventmodeling-data-border: var(--chart-stroke-0);
+
+  /* === Event Modeling 连接线 === */
+  --mermaid-eventmodeling-line: var(--chart-edge);
+}

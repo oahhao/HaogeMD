@@ -1,0 +1,217 @@
+{
+  "common": {
+    "confirm": "Confirm"
+  },
+  "welcome": {
+    "title": "ErgeMD",
+    "subtitlePrefix": "Minimal Markdown Reader by ",
+    "subtitleAuthor": "宝藏二哥AIA",
+    "openFile": "Open File",
+    "openFolder": "Open Folder",
+    "dragHint": "Drag Markdown files to the window to open",
+    "clickToOpen": "Click to open file",
+    "rightClickToOpenFolder": "Right-click to open folder",
+    "recentFiles": "Recent Files",
+    "clearRecent": "Clear",
+    "shortcuts": "Shortcuts",
+    "noRecentFiles": "No recent files",
+    "exportPdf": "Export PDF",
+    "exportHtml": "Export HTML",
+    "exportWord": "Export Word",
+    "toggleSidebar": "Toggle Sidebar",
+    "goHome": "Go to Welcome Page",
+    "search": "Search",
+    "toggleTheme": "Toggle Theme",
+    "resetFont": "Reset Font Size",
+    "fullscreen": "Toggle Fullscreen",
+    "closeTab": "Close Tab",
+    "switchTab": "Switch Tab",
+    "timeJustNow": "Just now",
+    "timeMinutes": "m ago",
+    "timeHours": "h ago",
+    "timeDays": "d ago",
+    "newWindow": "New Window",
+    "saveHint": "Save (Read-only)",
+    "pinTab": "Pin/Unpin Tab",
+    "settings": "Settings",
+    "adjustFont": "Adjust Font Size",
+    "esc": "Close Search/Popup",
+    "copyFilePath": "Copy File Path",
+    "revealInExplorer": "Reveal in Explorer"
+  },
+  "titleBar": {
+    "fileList": "File List",
+    "minimize": "Minimize",
+    "maximize": "Maximize",
+    "restore": "Restore",
+    "close": "Close"
+  },
+  "statusBar": {
+    "wordCount": "{{count}} words",
+    "progress": "{{percent}}%"
+  },
+  "settings": {
+    "title": "Settings",
+    "font": "Font",
+    "fontSize": "Font Size",
+    "fontFamily": "Reading Font",
+    "lineHeight": "Line Height",
+    "letterSpacing": "Letter Spacing",
+    "paragraphSpacing": "Paragraph Spacing",
+    "pageWidth": "Page Width",
+    "theme": "Theme",
+    "language": "Language",
+    "autoSaveProgress": "Auto Save Reading Progress",
+    "readingOptions": "Reading Options",
+    "fontPresets": {
+      "System Default": "System Default",
+      "Windows": "Windows",
+      "macOS": "macOS",
+      "Ubuntu/Linux": "Ubuntu/Linux",
+      "Serif": "Serif",
+      "Monospace": "Monospace"
+    },
+    "fontCategory": {
+      "sansSerif": "Sans-Serif",
+      "serif": "Serif",
+      "monospace": "Monospace"
+    },
+    "searchFonts": "Search fonts...",
+    "loadingFonts": "Loading system fonts...",
+    "noFontsFound": "No fonts found",
+    "systemFont": "Choose System Font",
+    "configLevel": "Performance Level"
+  },
+  "theme": {
+    "cyberpunk": "Cyberpunk",
+    "dark": "Dark",
+    "light": "Light",
+    "system": "System",
+    "falcon": "Falcon",
+    "aurora": "Aurora Borealis",
+    "cherry-blossom": "Cherry Blossom",
+    "desert-sunset": "Desert Sunset",
+    "forest": "Forest",
+    "monochrome": "Monochrome",
+    "ocean": "Ocean Breeze",
+    "solar-flare": "Solar Flare",
+    "tokyo-night": "Tokyo Night",
+    "neon-cyberpunk": "Neon Cyberpunk",
+    "solarized-light": "Solarized Light"
+  },
+  "themeCategory": {
+    "builtin": "Built-in",
+    "dark": "Dark Themes",
+    "system": "System"
+  },
+  "search": {
+    "placeholder": "Search...",
+    "noResults": "No results"
+  },
+  "error": {
+    "fileNotFound": "File not found",
+    "permissionDenied": "Permission denied",
+    "encodingError": "Unable to detect file encoding",
+    "readFailed": "Failed to read file"
+  },
+  "fileChange": {
+    "updated": "File updated, click to reload"
+  },
+  "toc": {
+    "title": "Contents",
+    "navigation": "Table of Contents"
+  },
+  "chart": {
+    "clickToZoom": "Click to zoom"
+  },
+  "zoom": {
+    "zoomIn": "Zoom In",
+    "zoomOut": "Zoom Out",
+    "close": "Close",
+    "reset": "Reset"
+  },
+  "svg": {
+    "saveAs": "Save as SVG",
+    "saveFailed": "Failed to save SVG, please try again",
+    "hint": "Scroll to zoom · Drag to pan · Double-click to reset · Right-click/Save to save · Esc to close"
+  },
+  "files": {
+    "projectFiles": "Project Files",
+    "openFiles": "Open Files"
+  },
+  "tab": {
+    "pin": "Pin Tab",
+    "unpin": "Unpin Tab",
+    "close": "Close {{fileName}}"
+  },
+  "quickEdit": {
+    "noMatch": "No matching text found",
+    "saveSuccess": "Saved successfully",
+    "saveFailed": "Save failed",
+    "filePathLost": "File disconnected. Please reopen it.",
+    "linkUpdated": "Link updated (current session only)"
+  },
+  "image": {
+    "copyImage": "Copy Image",
+    "zoomView": "Zoom View",
+    "click": "Click",
+    "openInNewWindow": "Open in New Window",
+    "copyPath": "Copy Image Path",
+    "editImage": "Edit Image",
+    "enterUrl": "Enter image URL",
+    "loadFailed": "Image load failed"
+  },
+  "link": {
+    "open": "Open Link",
+    "copyUrl": "Copy Link URL",
+    "edit": "Edit Link",
+    "enterText": "Enter link text",
+    "enterUrl": "Enter link URL"
+  },
+  "reader": {
+    "copy": "Copy",
+    "selectAll": "Select All",
+    "editParagraph": "Edit Paragraph",
+    "doubleClick": "Double-click",
+    "openInNewWindow": "Open in New Window"
+  },
+  "code": {
+    "copy": "Copy Code",
+    "copied": "Copied",
+    "copyFailed": "Copy failed"
+  },
+  "toast": {
+    "dbInitFailed": "Database initialization failed",
+    "exportFailed": "Export failed",
+    "folderOpenFailed": "Failed to open folder"
+  },
+  "about": {
+    "appDescription": "ErgeMD — A Minimalist Markdown Reader\nBuilt with Tauri 2, focused on immersive, high-performance reading\nSupports multiple themes, TOC navigation, search, and progress saving",
+    "slogan": "Let every reading return to the content itself.",
+    "feature1": "Mermaid Charts",
+    "feature2": "Multi-Theme",
+    "feature3": "Progress Saving",
+    "feature4": "Full-Text Search",
+    "feature5": "Multi-Format Export",
+    "authorTitle": "About the Author",
+    "authorBio": "A tech enthusiast who loves sharing great things\nDeeply involved in AI art, AI programming, and AI productivity\nCurating useful PC software and efficiency tools across the web\nCommitted to sharing with no barriers, no gimmicks, no reservations",
+    "authorTag1": "No-Barrier Sharing",
+    "authorTag2": "AI Evangelist",
+    "authorTag3": "Software Recommender",
+    "authorTag4": "Master of Free Stuff",
+    "authorQuote": "AI should have no barriers — empowering millions of ordinary people to use AI",
+    "bilibiliTitle": "Check out my Bilibili 📺",
+    "bilibiliDesc": "Sharing AI, programming, productivity tools & more\nHope to see you on Bilibili!",
+    "bilibiliButton": "Visit Bilibili",
+    "findMeTitle": "Find Me",
+    "footer": "© 2026 宝藏二哥AIA · Made with ♥",
+    "menuLabel": "About ErgeMD",
+    "qrTipPlaceholder": "QR Placeholder",
+    "qrTipLabel": "Buy Erge a cyber tea 🍵",
+    "qrFriendPlaceholder": "QR Placeholder",
+    "qrFriendLabel": "👉 Add friend, let's chat 👋",
+    "easterEggTitle": "🔍 You found the hidden entrance!",
+    "easterEggDesc": "Feel free to enjoy, tip if you like 🍵",
+    "easterEggClose": "Pretend I saw nothing"
+  }
+}

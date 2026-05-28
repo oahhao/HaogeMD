@@ -1,0 +1,229 @@
+# ErgeMD 项目 AI 档案
+
+> 本文件用于指导 AI Agent 在本项目中工作，参考 [AGENTS.md 最佳实践](https://agentsmd.io/agents-md-best-practices)。
+
+***
+
+## 项目概述
+
+ErgeMD 是一款专注于 Markdown 阅读的桌面应用，核心理念：**极致的渲染美感 + 丝滑的阅读体验**。
+
+### 核心功能
+
+- Markdown 渲染：支持 GFM、数学公式（KaTeX）、代码高亮、Mermaid 图表、任务列表
+- 阅读体验：虚拟滚动、进度追踪、14+ 主题、浮动目录
+- 工作区管理：多标签页、文件树
+- 导出：DOCX、PDF、HTML
+- 轻量高效：Rust 后端 + React 前端，原生桌面体验
+
+### 开发模式
+
+纯 AI Agent 驱动开发（开发者扮演 PM 角色，负责架构把控与需求定义）。
+
+***
+
+## 技术栈
+
+| 层级 | 技术选型 | 版本约束 |
+|------|----------|----------|
+| 桌面框架 | Tauri 2 | >= 2.0 |
+| 前端框架 | React 19 + TypeScript | React >= 19, TypeScript ~5.8 |
+| 构建工具 | Vite | >= 7.0 |
+| 状态管理 | Zustand | >= 5.0 |
+| 样式方案 | Tailwind CSS 4 + CSS 变量 | Tailwind >= 4.0 |
+| Markdown | react-markdown + remark/rehype 插件链 | 最新 |
+| 代码高亮 | highlight.js | ^11.11.1 |
+| 数学公式 | KaTeX | ^0.16.44 |
+| 图表 | Mermaid | 11.14.0 |
+| 虚拟滚动 | @tanstack/react-virtual | ^3.13.24 |
+| 数据库 | SQLite (sqlx) | 0.8.6 |
+| 后端语言 | Rust | edition 2021 |
+| 包管理器 | pnpm | >= 8 |
+
+***
+
+## 关键命令
+
+| 操作 | 命令 | 说明 |
+|------|------|------|
+| 开发 | `pnpm dev` | 启动 Vite 开发服务器 |
+| Tauri 开发 | `pnpm tauri dev` | 启动 Tauri 应用开发模式 |
+| 前端构建 | `pnpm build` | 构建前端生产包 |
+| 同步版本 | `pnpm sync-version` | 从 package.json 同步版本到 Cargo.toml 和 tauri.conf.json |
+| 打包发布 | `pnpm tauri:build` | 自动同步版本 + 编译 Rust + 打包 + 重命名（输出 ErgeMD-v{x}.exe） |
+| 代码检查 | `pnpm lint` | 运行 ESLint 检查 |
+| 预览 | `pnpm preview` | 预览构建后的前端 |
+
+> **打包产物**：`src-tauri/target/release/ErgeMD-v{x}.exe`（独立可执行文件）、`src-tauri/target/release/bundle/nsis/ErgeMD-v{x}-setup.exe`（NSIS 安装包）
+
+***
+
+## 安全边界
+
+### AI 可自行执行
+
+- 读取文件、列出目录
+- TypeScript 类型检查（单文件）
+- ESLint / Prettier 格式化（单文件）
+- 运行构建命令验证
+
+### AI 必须先询问
+
+- 安装依赖（`pnpm add`）
+- Git 操作（push、commit、branch）
+- 删除文件
+- 运行完整构建
+
+### 禁止操作
+
+未经明确授权，不得执行：
+
+- `git push`、`git commit --amend`、`rm -rf`
+- 数据库迁移
+- 部署命令
+- 修改 CI 配置
+
+***
+
+## 编码规范
+
+### 命名规范
+
+- **组件文件**：PascalCase（如 `MermaidDiagram.tsx`）
+- **其他文件**：camelCase（如 `fileStore.ts`）
+- **Rust 命令**：snake_case（如 `read_file`）
+- **CSS 变量**：kebab-case（如 `--mermaid-text`）
+
+### 必须遵循
+
+- **前后端分离**：前端负责 UI 渲染，所有文件 IO、编码检测、数据库操作必须下沉至 Rust 后端
+- **状态管理**：使用 Zustand 选择器订阅，严禁订阅整个 store
+- **React 性能**：所有子组件用 `React.memo` 包裹，计算结果用 `useMemo`/`useCallback` 缓存
+- **动画性能**：只动画 `transform` 和 `opacity`，绝不触发布局重排
+- **虚拟滚动**：长文档必须使用 `@tanstack/react-virtual`
+
+### 禁止操作
+
+- 禁止使用 DOM drag 事件（`onDragEnter`/`onDragOver`/`onDrop`），必须使用 Tauri 的 `onDragDropEvent`
+- 禁止在 Tauri 无边框窗口中使用会创建 stacking context 的 CSS 属性（`overflow`、`transform`、`filter` 等）
+- 禁止在 React 合成事件中使用 `e.stopPropagation()` 阻止原生事件传播，必须使用原生 `addEventListener`
+
+### 禁止修改的文件
+
+- 不要修改 `.trae/rules/` 下的规则文件
+- 不要修改 `docs/phase/` 下的阶段计划文件
+- 不要修改 `tsconfig.json`、`vite.config.ts` 等构建配置（除非明确授权）
+
+### 文件写入规范
+
+**铁律**：写文件仅允许使用 SearchReplace 或 Write 工具，禁止其他写入方式。
+
+修改既有高风险文件：必须使用最小精确补丁，禁止整文件重写。
+
+### 不确定即问
+
+编码不明、old_str 多处匹配、需求歧义时必须停下提问。
+
+***
+
+## 项目结构
+
+### 核心路径
+
+```
+src/
+├── main.tsx              # App 入口
+├── App.tsx               # 主 UI
+├── components/           # React 组件
+│   ├── common/          # 通用组件（ErrorBoundary、Toast、ProgressBar）
+│   ├── context-menu/    # 右键菜单
+│   ├── layout/         # 布局组件（TitleBar、TabBar、StatusBar）
+│   ├── panels/         # 面板组件（FileList、LeftPanel、RightPanel）
+│   ├── reader/          # 阅读器核心组件
+│   │   ├── MarkdownView.tsx          # 小文档渲染
+│   │   ├── VirtualMarkdownView.tsx   # 大文档虚拟滚动
+│   │   ├── MermaidDiagram.tsx        # Mermaid 图表
+│   │   └── ...
+│   ├── settings/       # 设置相关
+│   └── welcome/         # 欢迎页
+├── stores/              # Zustand stores
+│   ├── fileStore.ts    # 文件、标签页、TOC
+│   ├── readerStore.ts  # 搜索、Toast、图片预览
+│   └── settingsStore.ts # 阅读设置（持久化）
+├── styles/              # 样式
+│   ├── themes/         # 14+ 主题文件
+│   │   ├── *.css       # 各主题
+│   │   └── core/       # 核心样式（globals.css、markdown.css）
+│   └── ...
+├── hooks/               # 自定义 hooks
+├── utils/               # 工具函数
+├── config/              # 配置
+│   └── readerConfig.ts # 阅读器配置
+└── i18n/               # 国际化
+
+src-tauri/
+├── src/
+│   ├── lib.rs          # Tauri 主入口
+│   ├── main.rs         # Rust main
+│   ├── commands/       # Tauri 命令
+│   │   ├── mod.rs      # 命令入口
+│   │   ├── fonts.rs    # 字体相关
+│   │   └── window.rs   # 窗口管理
+│   └── db/             # 数据库
+│       ├── mod.rs      # 数据库初始化
+│       └── models.rs   # 数据模型
+└── tauri.conf.json     # Tauri 配置
+```
+
+### 关键文件索引
+
+| 功能 | 文件 |
+|------|------|
+| Tauri 配置 | `src-tauri/tauri.conf.json` |
+| 数据库初始化 | `src-tauri/src/db/mod.rs` |
+| Markdown 解析 | `src/utils/markdownBlocks.ts` |
+| Mermaid 组件 | `src/components/reader/MermaidDiagram.tsx` |
+| 阅读器配置 | `src/config/readerConfig.ts` |
+
+### 构建脚本
+
+- `scripts/sync-version.js` → 从 package.json 同步版本
+- `scripts/rename-bundle.js` → 打包后重命名产物
+
+### 参考文档
+
+- **ERROR_LOG.md** → 开发错误记录和修复经验
+- **CHANGELOG.md** → 版本更新日志
+
+***
+
+## 关键架构决策
+
+| 决策 | 原因 |
+|------|------|
+| 选择 Tauri 2 而非 Electron | 更小的安装包、更好的性能、Rust 安全性 |
+| 选择 Zustand 而非 Redux | 更轻量、API 简洁、基于选择器的订阅机制 |
+| 选择 CSS 变量主题系统 | 主题切换零重渲染、支持动态主题 |
+| 选择 @tanstack/react-virtual | 更现代的 API、更好的 TypeScript 支持 |
+| 前后端严格分离 | 确保 Rust 处理所有 IO、前端专注 UI |
+| 阅读进度存入 SQLite | 持久化、跨窗口同步、支持历史记录 |
+| 三种性能模式预设 | 满足不同设备配置和阅读场景需求 |
+
+***
+
+## 协作规则
+
+### 本地 IDE 场景
+
+- AI 运行在本地 IDE 中，具备文件读写与终端执行能力
+- 任何文件改动必须先经用户在 diff 视图中审核并 accept 后才生效
+- 每个阶段完成后，必须由用户在本地确认测试通过
+- 每次响应只处理一个阶段或一个聚焦问题
+
+### 高风险操作前必须询问
+
+跨 >3 文件或 >100 行变更前，先检查 git status。
+
+***
+
+*最后更新：2026-05-22*

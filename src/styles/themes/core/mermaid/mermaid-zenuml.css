@@ -1,0 +1,27 @@
+/*
+================================================================================
+ErgeMD 主题系统 - mermaid-zenuml.css
+================================================================================
+
+职责：ZenUML 序列图变量映射
+优先级：Mermaid 层
+
+ZenUML 是块状图：
+- 文本使用 --chart-text
+- 框/卡片背景使用 --chart-fill-*
+- 边框使用 --chart-stroke-*
+
+================================================================================
+*/
+
+[data-theme] {
+
+  /* === ZenUML 文本 === */
+  --mermaid-zenuml-text: var(--chart-text);
+
+  /* === ZenUML 边框 === */
+  --mermaid-zenuml-border: var(--chart-stroke-0);
+
+  /* === ZenUML 背景 === */
+  --mermaid-zenuml-bg: var(--chart-fill-0);
+}
