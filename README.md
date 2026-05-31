@@ -2,34 +2,44 @@
 
 一款专注于 Markdown 阅读的桌面应用，核心理念：**极致的渲染美感 + 丝滑的阅读体验**。
 
-![GitHub stars](https://img.shields.io/github/stars/ErgeAIA/ergeMD?style=flat-square)
-![Tauri](https://img.shields.io/badge/Tauri-2.0-cyan)
-![React](https://img.shields.io/badge/React-19-blue)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue)
-![Tailwind](https://img.shields.io/badge/Tailwind-4.0-cyan)
-![License](https://img.shields.io/github/license/ErgeAIA/ergeMD?style=flat-square)
-![Release](https://img.shields.io/github/v/release/ErgeAIA/ergeMD?style=flat-square)
-![Downloads](https://img.shields.io/github/downloads/ErgeAIA/ergeMD/total?style=flat-square)
-![Rust](https://img.shields.io/badge/Rust-stable-orange?style=flat-square)
-[![Bilibili](https://img.shields.io/badge/Bilibili-主页-blue?style=flat-square&logo=bilibili)](https://space.bilibili.com/67221461)
+[![BILIBILI](https://img.shields.io/badge/BILIBILI-宝藏二哥AIA-00D4FF?style=for-the-badge&logo=bilibili&logoColor=white)](https://space.bilibili.com/67221461)
+[![ZHIHU](https://img.shields.io/badge/ZHIHU-宝藏二哥AIA-0084FF?style=for-the-badge&logo=zhihu&logoColor=white)](https://www.zhihu.com/people/meli55a/posts)
+[![WECHAT](https://img.shields.io/badge/WECHAT-宝藏二哥AIA-07C160?style=for-the-badge&logo=wechat&logoColor=white)](mailto:ergeaia@gmail.com)
+[![EMAIL](https://img.shields.io/badge/EMAIL-ergeaia@gmail.com-A855F7?style=for-the-badge&logo=gmail&logoColor=white)](mailto:ergeaia@gmail.com)
+![GitHub stars](https://img.shields.io/github/stars/ErgeAIA/ErgeMD?style=for-the-badge&logo=github&logoColor=white)
+![License](https://img.shields.io/github/license/ErgeAIA/ErgeMD?style=for-the-badge&logo=github&logoColor=white)
+![Release](https://img.shields.io/github/v/release/ErgeAIA/ErgeMD?style=for-the-badge&logo=github&logoColor=white)
+![Downloads](https://img.shields.io/github/downloads/ErgeAIA/ErgeMD/total?style=for-the-badge&logo=github&logoColor=white)
+![Tauri](https://img.shields.io/badge/Tauri-2.0-FFC131?style=for-the-badge&logo=tauri&logoColor=white)
+![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![Tailwind](https://img.shields.io/badge/Tailwind-4.0-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
+![Rust](https://img.shields.io/badge/Rust-stable-DEA584?style=for-the-badge&logo=rust&logoColor=black)
 
 [English README](./README.en.md) 
+
+![ErgeMD 封面](./public/images/ergemd-cover.png)
 
 ## 核心功能
 
 - **Markdown 渲染**：支持 GFM、数学公式（KaTeX）、代码高亮、Mermaid 图表、任务列表
 - **阅读体验**：虚拟滚动、进度追踪、14 种主题、自动生成浮动章节
+- **Obsidian 语法兼容**：支持 Callout、Wiki 链接、嵌入引用、高亮标记、注释隐藏、块 ID 等 Obsidian 专属语法
 - **工作区管理**：多标签页、文件树、书签；快速打开原文件位置
 - **导出**：文档可导出 HTML、DOCX、PDF；Mermaid 图表一键保存为 SVG 图
 - **轻量高效**：Rust 后端 + React 前端，原生桌面体验
 
 ## 下载
 
-预构建安装包可在 Releases 页面获取：
+最新版本 **v0.2.2**：
 
-| 平台    | 格式                                                   |
-| ------- | ------------------------------------------------------ |
-| Windows | 便携版 `.zip` / NSIS 安装包 `.exe` / MSI 安装包 `.msi` |
+| 类型 | 下载链接 |
+|------|----------|
+| 便携版（免安装） | [ErgeMD-v0.2.2-portable.zip](https://github.com/ErgeAIA/ErgeMD/releases/download/v0.2.2/ErgeMD-v0.2.2-portable.zip) |
+| NSIS 安装包 | [ErgeMD_0.2.2_x64-setup.exe](https://github.com/ErgeAIA/ErgeMD/releases/download/v0.2.2/ErgeMD_0.2.2_x64-setup.exe) |
+| MSI 安装包 | [ErgeMD_0.2.2_x64_en-US.msi](https://github.com/ErgeAIA/ErgeMD/releases/download/v0.2.2/ErgeMD_0.2.2_x64_en-US.msi) |
+
+更多历史版本请访问 [Releases 页面](https://github.com/ErgeAIA/ErgeMD/releases)。
 
 ## 从源码构建
 

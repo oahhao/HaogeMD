@@ -2,34 +2,44 @@
 
 A desktop application focused on Markdown reading, with the core philosophy: **ultimate rendering beauty + silky smooth reading experience**.
 
-![GitHub stars](https://img.shields.io/github/stars/ErgeAIA/ergeMD?for-the-badge)
-![Tauri](https://img.shields.io/badge/Tauri-2.0-cyan)
-![React](https://img.shields.io/badge/React-19-blue)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue)
-![Tailwind](https://img.shields.io/badge/Tailwind-4.0-cyan)
-![License](https://img.shields.io/github/license/ErgeAIA/ergeMD?for-the-badge)
-![Release](https://img.shields.io/github/v/release/ErgeAIA/ergeMD?for-the-badge)
-![Downloads](https://img.shields.io/github/downloads/ErgeAIA/ergeMD/total?for-the-badge)
-![Rust](https://img.shields.io/badge/Rust-stable-orange?for-the-badge)
-[![Bilibili](https://img.shields.io/badge/Bilibili-主页-blue?for-the-badge&logo=bilibili)](https://space.bilibili.com/67221461)
+[![BILIBILI](https://img.shields.io/badge/BILIBILI-宝藏二哥AIA-00D4FF?style=for-the-badge&logo=bilibili&logoColor=white)](https://space.bilibili.com/67221461)
+[![ZHIHU](https://img.shields.io/badge/ZHIHU-宝藏二哥AIA-0084FF?style=for-the-badge&logo=zhihu&logoColor=white)](https://www.zhihu.com/people/meli55a/posts)
+[![WECHAT](https://img.shields.io/badge/WECHAT-宝藏二哥AIA-07C160?style=for-the-badge&logo=wechat&logoColor=white)](mailto:ergeaia@gmail.com)
+[![EMAIL](https://img.shields.io/badge/EMAIL-ergeaia@gmail.com-A855F7?style=for-the-badge&logo=gmail&logoColor=white)](mailto:ergeaia@gmail.com)
+![GitHub stars](https://img.shields.io/github/stars/ErgeAIA/ErgeMD?style=for-the-badge&logo=github&logoColor=white)
+![License](https://img.shields.io/github/license/ErgeAIA/ErgeMD?style=for-the-badge&logo=github&logoColor=white)
+![Release](https://img.shields.io/github/v/release/ErgeAIA/ErgeMD?style=for-the-badge&logo=github&logoColor=white)
+![Downloads](https://img.shields.io/github/downloads/ErgeAIA/ErgeMD/total?style=for-the-badge&logo=github&logoColor=white)
+![Tauri](https://img.shields.io/badge/Tauri-2.0-FFC131?style=for-the-badge&logo=tauri&logoColor=white)
+![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![Tailwind](https://img.shields.io/badge/Tailwind-4.0-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
+![Rust](https://img.shields.io/badge/Rust-stable-DEA584?style=for-the-badge&logo=rust&logoColor=black)
 
 [中文 README](./README.md)
+
+![ErgeMD Cover](./public/images/ergemd-cover.png)
 
 ## Core Features
 
 - **Markdown Rendering**: GFM, Math formulas (KaTeX), Code highlighting, Mermaid diagrams, Task lists
 - **Reading Experience**: Virtual scrolling, Progress tracking, 14 themes, Auto-generated floating TOC
+- **Obsidian Syntax Compatibility**: Callout, Wiki links, Embedded references, Highlight markers, Comment hiding, Block IDs, and other Obsidian-specific syntax
 - **Workspace Management**: Multi-tab, File tree, Bookmarks; Quick open file location
 - **Export**: HTML, DOCX, PDF export; Mermaid diagrams save as SVG
 - **Lightweight & Efficient**: Rust backend + React frontend, native desktop experience
 
 ## Download
 
-Pre-built installers are available on the Releases page:
+Latest version **v0.2.2**:
 
-| Platform | Format                           |
-| -------- | -------------------------------- |
-| Windows  | `.exe` Portable / NSIS Installer |
+| Type | Download Link |
+|------|---------------|
+| Portable (no install) | [ErgeMD-v0.2.2-portable.zip](https://github.com/ErgeAIA/ErgeMD/releases/download/v0.2.2/ErgeMD-v0.2.2-portable.zip) |
+| NSIS Installer | [ErgeMD_0.2.2_x64-setup.exe](https://github.com/ErgeAIA/ErgeMD/releases/download/v0.2.2/ErgeMD_0.2.2_x64-setup.exe) |
+| MSI Installer | [ErgeMD_0.2.2_x64_en-US.msi](https://github.com/ErgeAIA/ErgeMD/releases/download/v0.2.2/ErgeMD_0.2.2_x64_en-US.msi) |
+
+For older versions, visit the [Releases page](https://github.com/ErgeAIA/ErgeMD/releases).
 
 ## Building from Source
 
