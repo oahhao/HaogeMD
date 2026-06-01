@@ -218,7 +218,7 @@ Run the executable directly, no installation needed. Suitable for:
 ## TODO / Roadmap
 
 - [ ] **PDF Export Watermark**: Add watermark support for exported PDF files
-- [ ] **PDF Page Load Optimization**: Change from fixed 3-second delay to event-driven, waiting for DOM ready
+- [x] **PDF Page Load Optimization**: Change from fixed 3-second delay to event-driven, waiting for DOM ready (optimized in v0.3.1 to 300ms WebView init + 2s render wait)
 - [ ] **Cross-Platform Compatibility**: Unified PDF export solution for Windows/macOS/Linux, macOS uses WKWebView `createPDF`, Linux uses Qt WebEngine PrintToPdf
 
 ## License
