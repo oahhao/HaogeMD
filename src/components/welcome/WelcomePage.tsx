@@ -38,6 +38,7 @@ const SHORTCUT_GROUPS = [
       { key: "exportHtml", keys: "Ctrl+E" },
       { key: "exportWord", keys: "Ctrl+⇧+E" },
       { key: "exportPdf", keys: "Ctrl+P" },
+      { key: "exportPdfGrayscale", keys: "Ctrl+⇧+P" },
     ],
   },
   {

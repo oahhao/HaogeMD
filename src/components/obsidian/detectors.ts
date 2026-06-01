@@ -5,7 +5,7 @@ export interface SyntaxDetector {
 
 const calloutDetector: SyntaxDetector = {
   name: "callout",
-  test: (content) => /^>\s*\[!\w+\]/m.test(content),
+  test: (content) => /^>\s*\\?\[!\w+\]/m.test(content),
 };
 
 const wikilinkDetector: SyntaxDetector = {

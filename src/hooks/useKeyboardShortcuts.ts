@@ -13,6 +13,7 @@ interface ShortcutHandlers {
   onExportHtml?: () => void;
   onExportDocx?: () => void;
   onExportPdf?: () => void;
+  onExportPdfGrayscale?: () => void;
   onToggleSidebar?: () => void;
   onToggleReadingPanel?: () => void;
   onToggleFullscreen?: () => void;
@@ -34,8 +35,8 @@ interface ShortcutHandlers {
  * - Ctrl+0: 重置字体大小
  * - Ctrl+滚轮: 缩放字体大小
  * - Ctrl+N: 新建窗口
- * - Ctrl+P: 导出 PDF（打印）
- * - Ctrl+Shift+P: 固定/取消固定标签
+ * - Ctrl+P: 导出 PDF（带样式）
+ * - Ctrl+Shift+P: 导出 PDF（黑白）
  * - Ctrl+Shift+C: 复制当前文件路径
  * - Ctrl+Shift+D: 在资源管理器中显示
  * - Ctrl+S: 保存提示（只读模式）
@@ -59,7 +60,6 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers) {
     (s) => s.updateReadingSettings,
   );
 
-  // 使用 ref 存储频繁变化的值，避免 handleKeyDown 频繁重建
   const handlersRef = useRef(handlers);
   handlersRef.current = handlers;
 
@@ -100,6 +100,7 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers) {
       onExportHtml: oeh,
       onExportDocx: oed,
       onExportPdf: ofr,
+      onExportPdfGrayscale: ofrg,
       onToggleSidebar: ots,
       onToggleFullscreen: otf,
     } = handlersRef.current;
@@ -108,7 +109,6 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers) {
     const { isSearchOpen } = useReaderStore.getState();
     const { readingSettings } = useSettingsStore.getState();
 
-    // 使用 keyCode/code 检测字母键，避免键盘布局或输入法影响
     const isOKey =
       e.key === "o" || e.key === "O" || e.keyCode === 79 || e.code === "KeyO";
     const isDKey =
@@ -131,7 +131,7 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers) {
       return;
     }
 
-    // Ctrl+Alt+O: 打开文件夹（使用 Alt 键避免与浏览器 Ctrl+Shift+O 冲突）
+    // Ctrl+Alt+O: 打开文件夹
     if (ctrl && e.altKey && isOKey) {
       e.preventDefault();
       oof();
@@ -205,11 +205,10 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers) {
       const nextIdx = (currentIdx + 1) % themeOrder.length;
       const nextTheme = themeOrder[nextIdx];
       st(nextTheme);
-      // useTheme Hook 会自动同步 data-theme 属性到 <html>
       return;
     }
 
-    // Ctrl+,: 打开设置面板（通过 props 回调，不模拟鼠标事件）
+    // Ctrl+,: 打开设置面板
     if (ctrl && e.key === ",") {
       e.preventDefault();
       otrp?.();
@@ -243,7 +242,7 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers) {
       return;
     }
 
-    // Ctrl+N: 新建窗口（需要 Rust 后端支持）
+    // Ctrl+N: 新建窗口
     if (ctrl && e.key === "n") {
       e.preventDefault();
       try {
@@ -254,16 +253,14 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers) {
       return;
     }
 
-    // Ctrl+Shift+P: 固定/取消固定当前标签
+    // Ctrl+Shift+P: 导出 PDF（黑白）
     if (ctrl && e.shiftKey && isPKey) {
       e.preventDefault();
-      if (activeTabId) {
-        pinTab(activeTabId);
-      }
+      ofrg?.();
       return;
     }
 
-    // Ctrl+P: 导出 PDF（打印）
+    // Ctrl+P: 导出 PDF（带样式）
     if (ctrl && isPKey && !e.shiftKey) {
       e.preventDefault();
       ofr?.();
@@ -358,7 +355,6 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers) {
   // Shift+滚轮：缩放行间距
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
-      // Shift+滚轮：缩放行间距
       if (e.shiftKey && !e.ctrlKey && !e.metaKey) {
         e.preventDefault();
         const { readingSettings } = useSettingsStore.getState();
@@ -376,7 +372,6 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers) {
         return;
       }
 
-      // Ctrl+滚轮：缩放字体大小
       if (!e.ctrlKey && !e.metaKey) return;
       e.preventDefault();
 
@@ -406,7 +401,6 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers) {
     let startPos: { x: number; y: number } | null = null;
 
     const handleMouseDown = async (e: MouseEvent) => {
-      // 只响应中键（button === 1）
       if (e.button !== 1) return;
       e.preventDefault();
 
@@ -432,7 +426,6 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers) {
           new LogicalPosition(startPos.x + dx, startPos.y + dy),
         );
       } catch {
-        // 忽略窗口位置设置失败
       }
     };
 

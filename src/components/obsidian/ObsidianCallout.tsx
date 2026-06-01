@@ -44,7 +44,7 @@ export function parseCalloutHeader(
   customTitle: string | null;
 } {
   const match = headerText.match(
-    /^\[!(\w+)\]([+-]?)(.*)/,
+    /^\\?\[!(\w+)\]([+-]?)(.*)/,
   );
   if (!match) {
     return { type: "note", fold: null, customTitle: null };

@@ -6,6 +6,36 @@
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-06-01
+
+### 新增
+
+- PDF 导出独立管线：从复用阅读组件改为从 Markdown 原文直接生成完整 HTML，不再依赖虚拟滚动/IntersectionObserver/懒加载等阅读场景逻辑
+- PlantUML 导出渲染：新增 `renderPlantUmlForExport` 函数，复用组件内串行队列渲染 SVG
+- F12 彩蛋恢复：恢复按 F12 打开彩蛋页面的快捷键功能
+
+### 修复
+
+- PDF 导出图表不渲染：彻底解决 Mermaid 和 PlantUML 图表在 PDF 导出中不显示的问题（包括序列图、类图、活动图、状态图、用例图等全部 16+ 类型）
+- PDF 多文档导出错误：从 `useFileStore.getState().currentContent` 获取当前文档内容，而非 `document.querySelector`（之前永远选到第一个 Tab 的内容）
+- PDF 导出性能优化：渲染 HTML 与弹出保存位置对话框并行进行（`Promise.all`），用户选位置的时间"隐藏"在渲染时间中
+- 内联 Markdown 解析：图片正则先于链接正则执行，解决带链接的图片语法 `[![alt](src)](url)` 被错误解析为纯链接的问题
+- 内联 Markdown 转义：`renderInlineMarkdown` 先匹配正则再 HTML 转义，解决 `\[!NOTE]` 等转义语法被误解析为链接的问题
+- Obsidian Callout 图标不显示：修复示例文档中 Admonition 提示框因转义语法 `\[!NOTE]` 导致 callout 检测失败、图标无法渲染的问题
+- Obsidian Callout 转义兼容：检测正则增加对 `\[!TYPE]` 转义写法的兼容支持
+- 阅读器代码块字体不跟随缩放：移除 `<pre>` 元素的 `text-[13px]` 硬编码，改为 `0.9em` 相对单位使代码块字号跟随阅读设置缩放
+
+### 变更
+
+- PDF 导出重构：`exportPdf.ts` 重写，调用 `generateExportHtml` 从 Markdown 原文生成完整静态 HTML（含所有 Mermaid/PlantUML SVG、KaTeX 公式），通过 WebView2 PrintToPdf 生成 PDF
+- 导出模块清理：删除 `exportMode.ts`，移除 `setExportMode`、`forceNonVirtual`、`export-mode-change` 等脏补丁，`ReadingArea.tsx` 恢复干净的虚拟滚动逻辑
+- `generateExportHtml.ts` 重构：删除无用的 `escapeInlineMarkdown` 函数，`escapeHtml` 更名为 `escapeForHtml`，内联 Markdown 解析顺序调整为图片 → 链接 → 粗体/斜体/删除线/代码 → 最终转义
+- PDF 导出菜单优化：黑白模式标记为"推荐"并放在带样式模式之后
+
+### 移除
+
+- `exportMode.ts` 文件：导出不再依赖虚拟滚动控制
+
 ## [0.3.0] - 2026-05-31
 
 ### 新增

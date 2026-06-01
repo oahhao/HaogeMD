@@ -1,6 +1,3 @@
-use std::fs;
-use std::path::PathBuf;
-
 #[cfg(target_os = "windows")]
 use std::sync::mpsc;
 
@@ -15,36 +12,12 @@ use webview2_com::Microsoft::Web::WebView2::Win32::ICoreWebView2_18;
 #[cfg(target_os = "windows")]
 use webview2_com::PrintToPdfCompletedHandler;
 
-fn write_temp_html(html_content: &str) -> Result<PathBuf, String> {
-    let temp_dir = std::env::temp_dir().join("ergemd");
-    fs::create_dir_all(&temp_dir).map_err(|e| format!("Failed to create temp dir: {}", e))?;
-
-    let timestamp = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap_or_default()
-        .as_millis();
-
-    let temp_path = temp_dir.join(format!("pdf_export_{}.html", timestamp));
-    fs::write(&temp_path, html_content)
-        .map_err(|e| format!("Failed to write temp HTML: {}", e))?;
-
-    Ok(temp_path)
-}
-
-fn cleanup_temp(path: &PathBuf) {
-    if path.exists() {
-        let _ = fs::remove_file(path);
-    }
-}
-
 #[command]
 pub async fn export_pdf(
     app: tauri::AppHandle,
     html_content: String,
     file_path: String,
 ) -> Result<(), String> {
-    let temp_path = write_temp_html(&html_content)?;
-
     let timestamp = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .unwrap_or_default()
@@ -52,13 +25,10 @@ pub async fn export_pdf(
 
     let label = format!("pdf-export-{}", timestamp);
 
-    let temp_path_str = temp_path.to_string_lossy().to_string();
-    let asset_url = format!("https://asset.localhost/{}", temp_path_str.replace('\\', "/"));
-
     let window = WebviewWindowBuilder::new(
         &app,
         &label,
-        WebviewUrl::External(asset_url.parse().map_err(|e| format!("Invalid URL: {}", e))?),
+        WebviewUrl::App("index.html".into()),
     )
     .title("ErgeMD PDF Export")
     .inner_size(800.0, 1100.0)
@@ -68,10 +38,26 @@ pub async fn export_pdf(
     .build()
     .map_err(|e| format!("Failed to create export window: {}", e))?;
 
+    // 等待 WebView 初始化完成
+    tokio::time::sleep(tokio::time::Duration::from_millis(300)).await;
+
+    // 使用 document.write 直接注入 HTML，避免 file:// URL 安全限制
+    let html_json = serde_json::to_string(&html_content)
+        .map_err(|e| format!("Failed to serialize HTML: {}", e))?;
+
+    window
+        .eval(&format!(
+            "document.open(); document.write({}); document.close();",
+            html_json
+        ))
+        .map_err(|e| format!("Failed to inject HTML: {}", e))?;
+
+    // 等待页面渲染完成
+    tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
+
     let result = export_pdf_inner(&window, &file_path).await;
 
     let _ = window.close();
-    cleanup_temp(&temp_path);
 
     result
 }
@@ -81,8 +67,6 @@ async fn export_pdf_inner(
     window: &tauri::WebviewWindow,
     file_path: &str,
 ) -> Result<(), String> {
-    tokio::time::sleep(tokio::time::Duration::from_secs(3)).await;
-
     let (tx, rx) = mpsc::channel::<Result<(), String>>();
     let file_path_owned = file_path.to_string();
 

@@ -19,6 +19,8 @@ type Task = () => Promise<void>;
 const mermaidRenderQueue: Task[] = [];
 let isRendering = false;
 
+let mermaidModulePromise: Promise<any> | null = null;
+
 const runNextTask = async () => {
   if (isRendering || mermaidRenderQueue.length === 0) return;
   isRendering = true;
@@ -35,6 +37,33 @@ const enqueueMermaidRender = (task: Task) => {
   mermaidRenderQueue.push(task);
   runNextTask();
 };
+
+export function renderMermaidForExport(chart: string): Promise<string> {
+  return new Promise<string>((resolve) => {
+    enqueueMermaidRender(async () => {
+      try {
+        if (!mermaidModulePromise) {
+          mermaidModulePromise = import("mermaid");
+        }
+        const mermaid = (await mermaidModulePromise).default;
+
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: "default",
+          securityLevel: "loose",
+          flowchart: { useMaxWidth: false, htmlLabels: true },
+        });
+
+        const id = `export-mermaid-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        const { svg } = await mermaid.render(id, chart);
+        resolve(svg);
+      } catch (err) {
+        console.error("Mermaid export render failed:", err);
+        resolve("");
+      }
+    });
+  });
+}
 
 /** 清理过期和超出容量的缓存 */
 const cleanupCache = () => {
@@ -985,8 +1014,6 @@ ${selector} .packetTitle {
 
   return svg.replace("</style>", `</style>${packetPatchStyle}`);
 }
-
-let mermaidModulePromise: Promise<any> | null = null;
 
 const UNSUPPORTED_DIAGRAM_TYPES = new Set(["zenuml", "eventmodeling"]);
 
@@ -2100,6 +2127,34 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = memo(
     }
 
     if (!isVisible) {
+      const cached = mermaidCache.get(cacheKey);
+      if (cached) {
+        return (
+          <div
+            ref={containerRef}
+            className="mermaid"
+            style={{
+              margin: "1.5em -1.5em",
+              width: "calc(100% + 3em)",
+              maxWidth: "none",
+              overflowX: "auto",
+              overflowY: "hidden",
+              letterSpacing: "normal",
+              display: "flex",
+              justifyContent: "center",
+            }}
+            dangerouslySetInnerHTML={{ __html: cached.svgHtml }}
+            onClick={(e) => {
+              const target = e.target as HTMLElement;
+              if (target.closest("svg")) {
+                setShowPreview(true);
+              }
+            }}
+            onContextMenu={handleContextMenu}
+            title={t("chart.clickToZoom")}
+          />
+        );
+      }
       return placeholder;
     }
 

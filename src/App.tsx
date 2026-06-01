@@ -31,7 +31,7 @@ import { useReaderStore } from "./stores/readerStore";
 import type { FileNode, TabInfo } from "./types";
 import { exportHtml } from "./utils/export";
 import { exportDocx } from "./utils/exportDocx";
-import { exportPdf } from "./utils/exportPdf";
+import { exportPdf, exportPdfGrayscale } from "./utils/exportPdf";
 import { flushAllReadingProgress } from "./utils/readingProgress";
 import { extractTOC } from "./utils/toc";
 import { countWords } from "./utils/wordCount";
@@ -394,6 +394,13 @@ function App() {
               .addToast({ type: "error", message: "导出失败" });
           });
         },
+        onExportPdfGrayscale: () => {
+          exportPdfGrayscale().catch(() => {
+            useReaderStore
+              .getState()
+              .addToast({ type: "error", message: "导出失败" });
+          });
+        },
         onExportDocx: () => {
           const content = useFileStore.getState().currentContent;
           exportDocx(content || "").catch(() => {
@@ -496,16 +503,16 @@ function App() {
   );
 
   // F12 打开彩蛋页面
-  // useEffect(() => {
-  //   const handleKeyDown = (e: KeyboardEvent) => {
-  //     if (e.key === "F12") {
-  //       e.preventDefault();
-  //       setShowEasterEgg((v) => !v);
-  //     }
-  //   };
-  //   window.addEventListener("keydown", handleKeyDown);
-  //   return () => window.removeEventListener("keydown", handleKeyDown);
-  // }, []);
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "F12") {
+        e.preventDefault();
+        setShowEasterEgg((v) => !v);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   const handleFileSelect = useCallback(
     async (filePath: string, fileName: string) => {
@@ -622,6 +629,9 @@ function App() {
     },
     onExportPdf: () => {
       exportPdf().catch(() => {});
+    },
+    onExportPdfGrayscale: () => {
+      exportPdfGrayscale().catch(() => {});
     },
     onToggleSidebar: () => setLeftPanelOpen((v) => !v),
   });

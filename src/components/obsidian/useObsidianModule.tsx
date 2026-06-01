@@ -52,7 +52,7 @@ export function useObsidianModule(content: string, blockRaw?: string): Component
           if (React.isValidElement(child)) {
             const childText = getTextContent(child);
             const calloutMatch = childText.match(
-              /^\[!(\w+)\]([+-]?)(.*)/,
+              /^\\?\[!\w+\]/,
             );
             if (calloutMatch) {
               isCallout = true;

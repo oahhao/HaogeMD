@@ -386,6 +386,25 @@ const PlantUMLDiagram: React.FC<PlantUMLDiagramProps> = memo(
   },
 );
 
-PlantUMLDiagram.displayName = "PlantUMLDiagram";
+export function renderPlantUmlForExport(code: string): Promise<string> {
+  return new Promise<string>((resolve) => {
+    enqueueRender(code.split("\n"), false).then((svg) => {
+      const styledSvg = injectThemeStyles(svg, false);
+      resolve(styledSvg);
+    }).catch((err) => {
+      console.error("PlantUML export render failed:", err);
+      resolve(`<pre style="background:#f5f5f5;padding:1em;border-radius:8px;overflow-x:auto;"><code>${escapeHtml(code)}</code></pre>`);
+    });
+  });
+}
+
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
 
 export default PlantUMLDiagram;

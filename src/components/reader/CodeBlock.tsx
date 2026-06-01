@@ -302,7 +302,7 @@ const CodeBlock: React.FC<CodeBlockProps> = memo(({ language, code }) => {
             </div>
           </div>
         ) : (
-          <pre className="overflow-x-auto px-4 pt-8 pb-4 text-[13px] m-0 [scrollbar-width:thin]">
+          <pre className="overflow-x-auto px-4 pt-8 pb-4 m-0 [scrollbar-width:thin]" style={{ fontSize: "0.9em" }}>
             <code
               className="hljs"
               style={{

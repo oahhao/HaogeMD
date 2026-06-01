@@ -219,7 +219,7 @@ pnpm build
 
 - [ ] **PDF 导出水印**：支持在导出的 PDF 中添加水印
 - [ ] **PDF 页面加载优化**：从固定 3 秒延迟改为事件驱动，等待 DOM ready
-- [ ] **macOS PDF 优化**：macOS 平台使用 WKWebView `createPDF` 替代 `window.print()` 回退方案
+- [ ] **多平台兼容**：Windows/macOS/Linux 统一 PDF 导出方案，macOS 使用 WKWebView `createPDF`，Linux 使用 Qt WebEngine PrintToPdf
 
 ## 许可证
 

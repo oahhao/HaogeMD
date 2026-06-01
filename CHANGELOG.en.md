@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-06-01
+
+### Added
+
+- F12 easter egg restored: Re-enabled F12 keyboard shortcut to open the easter egg page
+
+### Fixed
+
+- Obsidian Callout icon not displaying: Fixed Admonition callout icon rendering failure caused by escaped syntax `\[!NOTE]` in the example document
+- Obsidian Callout escape compatibility: Added support for escaped `\[!TYPE]` syntax in detection regex
+- Reader code block font not scaling: Removed `text-[13px]` hardcoded font size on `<pre>` element, changed to `0.9em` relative unit so code block font scales with reading settings
+
+### Changed
+
+- PDF export menu optimization: Marked grayscale mode as "recommended" and moved it after the styled mode
+
+### Added (Chinese description for reference)
+
+- PDF 导出独立管线：从复用阅读组件改为从 Markdown 原文直接生成完整 HTML，不再依赖虚拟滚动/IntersectionObserver/懒加载等阅读场景逻辑
+- PlantUML 导出渲染：新增 `renderPlantUmlForExport` 函数，复用组件内串行队列渲染 SVG
+
+### Fixed (Chinese description for reference)
+
+- PDF 导出图表不渲染：彻底解决 Mermaid 和 PlantUML 图表在 PDF 导出中不显示的问题
+- PDF 多文档导出错误：从 `useFileStore.getState().currentContent` 获取当前文档内容
+- PDF 导出性能优化：渲染 HTML 与弹出保存位置对话框并行进行
+- 内联 Markdown 解析：图片正则先于链接正则执行
+- 内联 Markdown 转义：`renderInlineMarkdown` 先匹配正则再 HTML 转义
+
 ## [0.3.0] - 2026-05-31
 
 ### Added

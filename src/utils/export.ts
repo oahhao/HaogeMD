@@ -34,7 +34,7 @@ const GRAYSCALE_OVERRIDES: Record<string, string> = {
   "bg-page": "#ffffff",
   "bg-reader": "#ffffff",
   "bg-sidebar": "#f5f5f5",
-  "bg-code": "#f0f0f0",
+  "bg-code": "#f5f5f5",
   "text-primary": "#1a1a1a",
   "text-secondary": "#4a4a4a",
   "text-muted": "#808080",
@@ -42,13 +42,13 @@ const GRAYSCALE_OVERRIDES: Record<string, string> = {
   "h2-color": "#1a1a1a",
   "h3-color": "#1a1a1a",
   "h4-color": "#1a1a1a",
-  "accent-cyan": "#333333",
-  "accent-pink": "#555555",
-  "accent-purple": "#444444",
-  "accent-green": "#3a3a3a",
-  "accent-yellow": "#666666",
-  "accent-orange": "#555555",
-  "accent-red": "#333333",
+  "accent-cyan": "#0066cc",
+  "accent-pink": "#cc3366",
+  "accent-purple": "#6633cc",
+  "accent-green": "#2d7d46",
+  "accent-yellow": "#998800",
+  "accent-orange": "#cc6600",
+  "accent-red": "#cc3333",
   "divider": "#cccccc",
   "hover-bg": "#e8e8e8",
 };
@@ -82,26 +82,51 @@ function buildInlineStyles(
     : "";
 
   const bodyExtra = forPdf
-    ? `    print-color-adjust: exact;
-    -webkit-print-color-adjust: exact;`
+    ? `    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+    color-adjust: exact !important;
+    background-color: var(--bg-page) !important;
+    color: var(--text-primary) !important;`
     : "";
+
+  const pdfCodeStyles = forPdf
+    ? `  pre {
+    background: var(--bg-code);
+    border-radius: 8px;
+    padding: 1em;
+    white-space: pre-wrap !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    overflow-x: visible !important;
+  }
+  pre code {
+    white-space: pre-wrap !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+  }`
+    : `  pre { background: var(--bg-code); border-radius: 8px; padding: 1em; overflow-x: auto; }`;
 
   return `<style>
   ${pageRules}
   :root {
     ${CSS_VARIABLE_NAMES.map((name) => `--${name}: ${cssVariables[name]};`).join("\n    ")}
   }
-  body {
+  *, *::before, *::after {
+    ${forPdf ? `print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+    color-adjust: exact !important;` : ""}
+  }
+  html, body {
     font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", sans-serif;
-    background-color: var(--bg-page);
-    color: var(--text-primary);
+    background-color: var(--bg-page) !important;
+    color: var(--text-primary) !important;
     line-height: 1.8;
     max-width: 800px;
     margin: 2em auto;
     padding: 0 2em;
 ${bodyExtra}
   }
-  pre { background: var(--bg-code); border-radius: 8px; padding: 1em; overflow-x: auto; }
+  ${pdfCodeStyles}
   code { font-family: "Cascadia Code", "Fira Code", Consolas, monospace; }
   a { color: var(--accent-cyan); }
   blockquote { border-left: 3px solid var(--accent-purple); padding: 0.5em 1em; color: var(--text-secondary); }
