@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.2] - 2026-06-04
+
+### Fixed
+
+- Welcome page recent files single-item close failure: Added `delete_recent_file` backend command, single-item close now synchronously deletes the database record, no longer reappears after refresh
+
 ## [0.3.1] - 2026-06-01
 
 ### Added

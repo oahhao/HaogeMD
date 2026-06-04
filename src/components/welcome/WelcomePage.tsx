@@ -674,6 +674,7 @@ const WelcomePage: React.FC<WelcomePageProps> = memo(
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
+                          invoke("delete_recent_file", { filePath: file.file_path }).catch(() => {});
                           setRecentFiles((prev) =>
                             prev.filter((f) => f.file_path !== file.file_path),
                           );

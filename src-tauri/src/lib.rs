@@ -120,6 +120,25 @@ async fn add_recent_file(
 }
 
 #[tauri::command]
+async fn delete_recent_file(
+    state: State<'_, AppState>,
+    file_path: String,
+) -> Result<(), String> {
+    let pool = {
+        let guard = state.db_pool.lock().await;
+        guard.as_ref().ok_or("Database not initialized")?.clone()
+    };
+
+    sqlx::query("DELETE FROM recent_files WHERE file_path = ?")
+        .bind(&file_path)
+        .execute(&pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    Ok(())
+}
+
+#[tauri::command]
 async fn clear_recent_files(state: State<'_, AppState>) -> Result<(), String> {
     let pool = {
         let guard = state.db_pool.lock().await;
@@ -233,6 +252,7 @@ pub fn run() {
             save_reading_progress,
             get_recent_files,
             add_recent_file,
+            delete_recent_file,
             clear_recent_files,
             delete_reading_progress,
             clear_all_reading_progress,
