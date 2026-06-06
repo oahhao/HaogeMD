@@ -36,8 +36,15 @@ const ContextMenuImage: React.FC<ContextMenuImageProps> = memo((props) => {
   const wrapperRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
-    if (!src || src.startsWith("http") || src.startsWith("data:")) {
-      setResolvedSrc(src ?? "");
+    if (!src) {
+      setResolvedSrc("");
+      setIsLoading(false);
+      setLoadError(false);
+      return;
+    }
+
+    if (src.startsWith("data:")) {
+      setResolvedSrc(src);
       setIsLoading(false);
       setLoadError(false);
       return;
@@ -46,6 +53,27 @@ const ContextMenuImage: React.FC<ContextMenuImageProps> = memo((props) => {
     setIsLoading(true);
     setLoadError(false);
 
+    if (src.startsWith("http")) {
+      const fetchRemoteImage = async () => {
+        try {
+          const dataUrl = await invoke<string>("fetch_remote_image_as_data_url", {
+            url: src,
+          });
+          setResolvedSrc(dataUrl);
+          setIsLoading(false);
+        } catch (err) {
+          console.error("Failed to fetch remote image via backend:", err);
+          // Fallback: try loading directly in WebView
+          setResolvedSrc(src);
+          setIsLoading(false);
+          // handleError will be triggered by <img onError> if direct load also fails
+        }
+      };
+      fetchRemoteImage();
+      return;
+    }
+
+    // Local relative path
     const loadLocalImage = async () => {
       try {
         const dataUrl = await invoke<string>("read_image_as_data_url", {
@@ -56,7 +84,7 @@ const ContextMenuImage: React.FC<ContextMenuImageProps> = memo((props) => {
         setIsLoading(false);
       } catch (err) {
         console.error("Failed to load local image:", err);
-        setResolvedSrc(src ?? "");
+        setResolvedSrc(src);
         setLoadError(true);
         setIsLoading(false);
       }

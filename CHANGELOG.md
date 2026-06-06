@@ -6,6 +6,12 @@
 
 ## [Unreleased]
 
+## [0.3.4] - 2026-06-06
+
+### 修复
+
+- 远程图片无法渲染：新增 `fetch_remote_image_as_data_url` 后端命令，通过 Rust reqwest 客户端代理下载远程图片并转为 base64 data URL，绕过 Tauri WebView 的 CORS、防盗链和网络限制；前端 `ContextMenuImage` 组件对 `http` 开头的图片 src 改走后端代理，后端失败时 fallback 为 WebView 直接加载
+
 ## [0.3.3] - 2026-06-04
 
 ### 新增

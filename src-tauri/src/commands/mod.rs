@@ -219,6 +219,74 @@ pub async fn read_image_as_data_url(base_path: String, relative_path: String) ->
 }
 
 #[tauri::command]
+pub async fn fetch_remote_image_as_data_url(url: String) -> Result<String, String> {
+    let client = reqwest::Client::builder()
+        .user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36")
+        .timeout(std::time::Duration::from_secs(15))
+        .build()
+        .map_err(|e| format!("Failed to create HTTP client: {}", e))?;
+
+    let response = client
+        .get(&url)
+        .header("Referer", "")
+        .send()
+        .await
+        .map_err(|e| format!("Failed to fetch image: {}", e))?;
+
+    if !response.status().is_success() {
+        return Err(format!("HTTP error: {}", response.status()));
+    }
+
+    let content_type = response
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("image/png")
+        .to_string();
+
+    // Extract MIME from content-type (strip parameters like charset)
+    let mime_type = content_type
+        .split(';')
+        .next()
+        .unwrap_or("image/png")
+        .trim()
+        .to_string();
+
+    // If content-type is not an image, try to infer from URL extension
+    let mime_type = if mime_type.starts_with("image/") {
+        mime_type
+    } else {
+        let ext = url
+            .split('?')
+            .next()
+            .unwrap_or("")
+            .rsplit('.')
+            .next()
+            .unwrap_or("")
+            .to_lowercase();
+        match ext.as_str() {
+            "png" => "image/png".to_string(),
+            "jpg" | "jpeg" => "image/jpeg".to_string(),
+            "gif" => "image/gif".to_string(),
+            "webp" => "image/webp".to_string(),
+            "svg" => "image/svg+xml".to_string(),
+            "bmp" => "image/bmp".to_string(),
+            "ico" => "image/x-icon".to_string(),
+            "avif" => "image/avif".to_string(),
+            _ => "image/png".to_string(),
+        }
+    };
+
+    let bytes = response
+        .bytes()
+        .await
+        .map_err(|e| format!("Failed to read image data: {}", e))?;
+
+    let base64_data = general_purpose::STANDARD.encode(&bytes);
+    Ok(format!("data:{};base64,{}", mime_type, base64_data))
+}
+
+#[tauri::command]
 pub async fn reveal_in_explorer(file_path: String) -> Result<(), String> {
     let path = PathBuf::from(&file_path);
     if !path.exists() {

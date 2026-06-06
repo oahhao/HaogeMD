@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.4] - 2026-06-06
+
+### Fixed
+
+- Remote images failed to render: Added `fetch_remote_image_as_data_url` backend command that proxies remote image downloads through the Rust reqwest client, converting them to base64 data URLs to bypass Tauri WebView's CORS, hotlink protection, and network restrictions; the `ContextMenuImage` component now routes `http`-prefixed image srcs through the backend proxy, with fallback to direct WebView loading on backend failure
+
 ## [0.3.3] - 2026-06-04
 
 ### Added

@@ -130,6 +130,9 @@ description: ErgeMD Markdown 阅读器的完整语法测试文档，用于验证
 
 [![点击图片跳转](https://upload.wikimedia.org/wikipedia/commons/4/48/Markdown-mark.svg)](https://space.bilibili.com/67221461)
 
+远程图片：
+
+![远程图片](https://pixnio.com/free-images/2025/12/30/2025-12-30-17-48-19-1152x1152.jpg "Peace")
 ***
 
 ## 二、转义字符

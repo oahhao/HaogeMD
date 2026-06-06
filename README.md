@@ -31,13 +31,13 @@
 
 ## 下载
 
-最新版本 **v0.3.3**：
+最新版本 **v0.3.4**：
 
 | 类型             | 下载链接                                                                                                            |
 | ---------------- | ------------------------------------------------------------------------------------------------------------------- |
-| 便携版（免安装） | [ErgeMD-v0.3.3-portable.zip](https://github.com/ErgeAIA/ErgeMD/releases/download/v0.3.3/ErgeMD-v0.3.3-portable.zip) |
-| NSIS 安装包      | [ErgeMD_0.3.3_x64-setup.exe](https://github.com/ErgeAIA/ErgeMD/releases/download/v0.3.3/ErgeMD_0.3.3_x64-setup.exe) |
-| MSI 安装包       | [ErgeMD_0.3.3_x64_en-US.msi](https://github.com/ErgeAIA/ErgeMD/releases/download/v0.3.3/ErgeMD_0.3.3_x64_en-US.msi) |
+| 便携版（免安装） | [ErgeMD-v0.3.4-portable.zip](https://github.com/ErgeAIA/ErgeMD/releases/download/v0.3.4/ErgeMD-v0.3.4-portable.zip) |
+| NSIS 安装包      | [ErgeMD_0.3.4_x64-setup.exe](https://github.com/ErgeAIA/ErgeMD/releases/download/v0.3.4/ErgeMD_0.3.4_x64-setup.exe) |
+| MSI 安装包       | [ErgeMD_0.3.4_x64_en-US.msi](https://github.com/ErgeAIA/ErgeMD/releases/download/v0.3.4/ErgeMD_0.3.4_x64_en-US.msi) |
 
 更多历史版本请访问 [Releases 页面](https://github.com/ErgeAIA/ErgeMD/releases)。
 

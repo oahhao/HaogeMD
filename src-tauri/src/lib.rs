@@ -268,6 +268,7 @@ pub fn run() {
             commands::fonts::get_system_fonts,
             commands::resolve_image_path,
             commands::read_image_as_data_url,
+            commands::fetch_remote_image_as_data_url,
             commands::pdf::export_pdf,
             commands::update::check_update,
         ])
