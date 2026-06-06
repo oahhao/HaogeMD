@@ -6,6 +6,18 @@
 
 ## [Unreleased]
 
+## [0.3.5] - 2026-06-06
+
+### 新增
+
+- 关于页版本号右侧新增最新版本徽章：AboutPage 打开时自动调用 `forceCheckUpdate` 检测，发现新版本时在「↻」右侧显示绿色 `↑ v{latestVersion}` 徽章，点击直接打开最新版的 MSI 安装包下载链接
+- ToastMessage 新增 `action` 字段：Toast 可携带可点击的按钮（如「下载」），点击调用 `openUrl` 打开外部链接
+- 更新检查结果增加 `download_url` 字段：Rust 端 `fetch_github_latest` / `fetch_gitee_latest` 从 release 的 `assets` 中优先匹配 `.msi` 文件的 `browser_download_url`，未命中时 fallback 到 release 页面 `html_url`
+
+### 修复
+
+- 关于页点击「↻」后无可见反馈：检测到新版本时显式设置 `latestAvailable` state，让右侧徽章立即出现；同时 Toast 提示文本可携带「下载」action 按钮
+
 ## [0.3.4] - 2026-06-06
 
 ### 修复

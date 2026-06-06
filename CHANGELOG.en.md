@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.5] - 2026-06-06
+
+### Added
+
+- Latest version badge next to the version number in the About page: AboutPage now automatically invokes `forceCheckUpdate` on mount. When a new version is detected, a green `↑ v{latestVersion}` badge appears to the right of the `↻` button; clicking it opens the MSI installer download URL for the latest release
+- Added `action` field to `ToastMessage`: Toasts can now carry a clickable button (e.g., "Download") that calls `openUrl` to open an external link
+- Update check result now includes `download_url`: Rust `fetch_github_latest` / `fetch_gitee_latest` prefer the `.msi` asset's `browser_download_url` from the release's `assets` array, falling back to the release page's `html_url` if not found
+
+### Fixed
+
+- No visible feedback after clicking `↻` in the About page: explicitly setting the `latestAvailable` state on update detection makes the right-side badge appear immediately; the toast message can also carry a "Download" action button
+
 ## [0.3.4] - 2026-06-06
 
 ### Fixed

@@ -1,3 +1,4 @@
+import { openUrl } from "@tauri-apps/plugin-opener";
 import { useReaderStore } from "@/stores/readerStore";
 import type { ToastMessage } from "@/types";
 import React, { memo } from "react";

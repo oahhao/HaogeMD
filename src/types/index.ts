@@ -62,11 +62,18 @@ export interface ReadingSettings {
 }
 
 // ===== Toast 消息类型（Phase 4 Task 1） =====
+export interface ToastAction {
+  label: string;
+  url?: string;
+  onClick?: () => void;
+}
+
 export interface ToastMessage {
   id: string;
   type: "info" | "success" | "error" | "warning";
   message: string;
   duration?: number;
+  action?: ToastAction;
 }
 
 // ===== 右键菜单类型（Phase 6 Task 1） =====

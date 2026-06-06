@@ -33,6 +33,21 @@ struct ReleaseInfo {
     release_notes: String,
 }
 
+/// 优先匹配 MSI 安装包链接；若 assets 中不含 .msi，回退到 release html_url
+fn pick_msi_download_url(assets: &serde_json::Value, html_url: &str) -> String {
+    if let Some(arr) = assets.as_array() {
+        for asset in arr {
+            let name = asset["name"].as_str().unwrap_or("");
+            if name.to_lowercase().ends_with(".msi") {
+                if let Some(url) = asset["browser_download_url"].as_str() {
+                    return url.to_string();
+                }
+            }
+        }
+    }
+    html_url.to_string()
+}
+
 async fn fetch_github_latest() -> Result<ReleaseInfo, String> {
     let client = reqwest::Client::builder()
         .timeout(std::time::Duration::from_secs(10))
@@ -65,10 +80,12 @@ async fn fetch_github_latest() -> Result<ReleaseInfo, String> {
         .trim_start_matches('v')
         .to_string();
 
-    let download_url = json["html_url"]
+    let html_url = json["html_url"]
         .as_str()
         .unwrap_or("https://github.com/ErgeAIA/ErgeMD/releases")
         .to_string();
+
+    let download_url = pick_msi_download_url(&json["assets"], &html_url);
 
     let release_notes = json["body"]
         .as_str()
@@ -110,10 +127,13 @@ async fn fetch_gitee_latest() -> Result<ReleaseInfo, String> {
         .trim_start_matches('v')
         .to_string();
 
-    let download_url = json["html_url"]
+    let html_url = json["html_url"]
         .as_str()
         .unwrap_or("https://gitee.com/ErgeAIA/ErgeMD/releases")
         .to_string();
+
+    // Gitee API 返回的 assets 结构为 [{ "name": "...", "browser_download_url": "..." }]
+    let download_url = pick_msi_download_url(&json["assets"], &html_url);
 
     let release_notes = json["body"]
         .as_str()

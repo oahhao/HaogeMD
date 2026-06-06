@@ -1,5 +1,5 @@
 import { openUrl } from "@tauri-apps/plugin-opener";
-import React, { memo, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import packageJson from "../../../package.json";
 import { forceCheckUpdate } from "../common/UpdateChecker";
@@ -66,21 +66,59 @@ const AboutPage: React.FC<AboutPageProps> = memo(({ onClose }) => {
     "tip" | "friend" | "bilibili" | null
   >(null);
   const [checkingUpdate, setCheckingUpdate] = useState(false);
+  const [latestAvailable, setLatestAvailable] = useState<{
+    version: string;
+    downloadUrl: string;
+  } | null>(null);
   const addToast = useReaderStore((s) => s.addToast);
+
+  // AboutPage 打开时自动检测一次，绕过 24h 缓存，拿到最新版本徽章数据
+  useEffect(() => {
+    let cancelled = false;
+    const run = async () => {
+      try {
+        const result = await forceCheckUpdate();
+        if (cancelled) return;
+        if (result.hasUpdate && result.downloadUrl) {
+          setLatestAvailable({
+            version: result.latestVersion,
+            downloadUrl: result.downloadUrl,
+          });
+        }
+      } catch {
+        // 静默失败，不打扰用户
+      }
+    };
+    run();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleVersionClick = async () => {
     if (checkingUpdate) return;
     setCheckingUpdate(true);
     try {
-      const { hasUpdate, latestVersion } = await forceCheckUpdate();
-      if (!hasUpdate) {
+      const { hasUpdate, latestVersion, downloadUrl } =
+        await forceCheckUpdate();
+      if (hasUpdate) {
+        if (downloadUrl) {
+          setLatestAvailable({ version: latestVersion, downloadUrl });
+        }
+        addToast({
+          type: "info",
+          message: t("about.newVersionAvailable", { version: latestVersion }),
+          duration: 8000,
+          action: { label: t("update.download"), url: downloadUrl },
+        });
+      } else {
+        setLatestAvailable(null);
         addToast({
           type: "info",
           message: t("about.noUpdate", { version: latestVersion }),
           duration: 3000,
         });
       }
-      // 有更新时由 UpdateChecker 组件自动弹窗提示，无需额外处理
     } catch {
       addToast({
         type: "error",
@@ -239,6 +277,36 @@ const AboutPage: React.FC<AboutPageProps> = memo(({ onClose }) => {
                 >
                   {checkingUpdate ? "…" : "↻"}
                 </button>
+                {latestAvailable && (
+                  <button
+                    onClick={() => openUrl(latestAvailable.downloadUrl)}
+                    title={t("about.latestVersionHint", {
+                      version: latestAvailable.version,
+                    })}
+                    className="flex items-center gap-1"
+                    style={{
+                      fontSize: "11px",
+                      padding: "2px 8px",
+                      borderRadius: "10px",
+                      background: "var(--hover-bg)",
+                      color: "var(--accent-green, #00FF64)",
+                      border: "1px solid var(--accent-green, #00FF64)",
+                      flexShrink: 0,
+                      cursor: "pointer",
+                      transition: "opacity 0.2s",
+                      lineHeight: 1.4,
+                    }}
+                    onMouseEnter={(e) => {
+                      (e.currentTarget as HTMLElement).style.opacity = "0.7";
+                    }}
+                    onMouseLeave={(e) => {
+                      (e.currentTarget as HTMLElement).style.opacity = "1";
+                    }}
+                  >
+                    <span aria-hidden="true">↑</span>
+                    <span>v{latestAvailable.version}</span>
+                  </button>
+                )}
               </div>
               <p
                 style={{
