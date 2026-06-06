@@ -16,6 +16,8 @@ A desktop application focused on Markdown reading, with the core philosophy: **u
 ![Tailwind](https://img.shields.io/badge/Tailwind-4.0-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
 ![Rust](https://img.shields.io/badge/Rust-stable-DEA584?style=for-the-badge&logo=rust&logoColor=black)
 
+[Core Features](#core-features) · [Download](#download) · [Building from Source](#building-from-source) · [Tech Stack](#tech-stack) · [User Guide](#user-guide) · [Documentation](#documentation) · [Author](#author)
+
 [中文 README](./README.md)
 
 ![ErgeMD Cover](./public/images/ergemd-cover.png)
@@ -220,6 +222,42 @@ Run the executable directly, no installation needed. Suitable for:
 - [ ] **PDF Export Watermark**: Add watermark support for exported PDF files
 - [x] **PDF Page Load Optimization**: Change from fixed 3-second delay to event-driven, waiting for DOM ready (optimized in v0.3.1 to 300ms WebView init + 2s render wait)
 - [ ] **Cross-Platform Compatibility**: Unified PDF export solution for Windows/macOS/Linux, macOS uses WKWebView `createPDF`, Linux uses Qt WebEngine PrintToPdf
+
+## Author
+
+<table>
+<tr>
+<td align="center" width="200">
+<img src="https://github.com/ErgeAIA.png" width="100" style="border-radius: 50%"><br>
+<b>宝藏二哥AIA / ErgeAIA</b><br>
+<sub>Life never stops, neither does tinkering</sub>
+</td>
+<td>
+
+**About me**: Indie Developer / Full-Stack Engineer / Product Manager / Vibe Coding Practitioner
+
+**Tech Stack**: Tauri · Rust · React · Python · Claude · Cursor · Trae
+
+**Philosophy**: No barriers, no tricks, no holding back
+
+**Links**:
+- 📺 [Bilibili](https://space.bilibili.com/67221461) · [Zhihu](https://www.zhihu.com/people/meli55a/posts) · WeChat
+- 🐙 [GitHub](https://github.com/ErgeAIA) · [Gitee](https://gitee.com/ErgeAIA)
+- 📦 Featured: [ErgeAIA-skills](https://github.com/ErgeAIA/ErgeAIA-skills) · [ErgeMD](https://github.com/ErgeAIA/ErgeMD) · [catapult-cn](https://github.com/ErgeAIA/catapult-cn)
+
+</td>
+</tr>
+</table>
+
+---
+
+<div align="center">
+
+If ErgeMD has been helpful to you, feel free to give it a ⭐!
+
+<sub>Built with ❤️ and Rust</sub>
+
+</div>
 
 ## License
 

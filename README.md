@@ -16,7 +16,9 @@
 ![Tailwind](https://img.shields.io/badge/Tailwind-4.0-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
 ![Rust](https://img.shields.io/badge/Rust-stable-DEA584?style=for-the-badge&logo=rust&logoColor=black)
 
-[English README](./README.en.md) 
+[核心功能](#核心功能) · [下载](#下载) · [从源码构建](#从源码构建) · [技术栈](#技术栈) · [使用指南](#使用指南) · [文档](#文档) · [作者信息](#作者信息)
+
+[English README](./README.en.md)
 
 ![ErgeMD 封面](./public/images/ergemd-cover.png)
 
@@ -236,6 +238,42 @@ pnpm build
 - [ ] **PDF 导出水印**：支持在导出的 PDF 中添加水印
 - [x] **PDF 页面加载优化**：从固定 3 秒延迟改为事件驱动，等待 DOM ready（v0.3.1 已优化为 300ms WebView 初始化 + 2s 渲染等待）
 - [ ] **多平台兼容**：Windows/macOS/Linux 统一 PDF 导出方案，macOS 使用 WKWebView `createPDF`，Linux 使用 Qt WebEngine PrintToPdf
+
+## 作者信息
+
+<table>
+<tr>
+<td align="center" width="200">
+<img src="https://github.com/ErgeAIA.png" width="100" style="border-radius: 50%"><br>
+<b>宝藏二哥AIA / ErgeAIA</b><br>
+<sub>生命不息，折腾不止</sub>
+</td>
+<td>
+
+**关于我**：独立开发者 / 全栈工程师 / 产品经理 / Vibe Coding 实践者
+
+**技术栈**：Tauri · Rust · React · Python · Claude · Cursor · Trae
+
+**理念**：三无分享 — 无门槛、无套路、无保留
+
+**链接**：
+- 📺 [B 站](https://space.bilibili.com/67221461) · [知乎](https://www.zhihu.com/people/meli55a/posts) · 微信
+- 🐙 [GitHub](https://github.com/ErgeAIA) · [Gitee](https://gitee.com/ErgeAIA)
+- 📦 精选项目：[ErgeAIA-skills](https://github.com/ErgeAIA/ErgeAIA-skills) · [ErgeMD](https://github.com/ErgeAIA/ErgeMD) · [catapult-cn](https://github.com/ErgeAIA/catapult-cn)
+
+</td>
+</tr>
+</table>
+
+---
+
+<div align="center">
+
+如果 ErgeMD 帮到了你，欢迎点个 ⭐ 鼓励一下！
+
+<sub>用 ❤️ 和 Rust 制作</sub>
+
+</div>
 
 ## 许可证
 
