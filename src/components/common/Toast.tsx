@@ -48,6 +48,25 @@ const ToastItem: React.FC<{
       }}
     >
       <span className="flex-1">{toast.message}</span>
+      {toast.action && (
+        <button
+          onClick={() => {
+            if (toast.action?.url) {
+              void openUrl(toast.action.url);
+            } else {
+              toast.action?.onClick?.();
+            }
+            onClose();
+          }}
+          className="shrink-0 px-2.5 py-0.5 rounded text-[12px] font-medium cursor-pointer border-none"
+          style={{
+            background: colors.text,
+            color: "var(--bg-page, #0A0A0F)",
+          }}
+        >
+          {toast.action.label}
+        </button>
+      )}
       <button
         onClick={onClose}
         aria-label="关闭通知"
