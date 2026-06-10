@@ -3,6 +3,7 @@ import { useFileStore } from "@/stores/fileStore";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import React, { memo, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { detectPlatform } from "@/utils/platform";
 import TabBar from "./TabBar";
 
 interface TitleBarProps {
@@ -25,6 +26,8 @@ const TitleBar: React.FC<TitleBarProps> = memo(
     const { startDrag } = useTitleBar();
     const { t } = useTranslation();
     const [isMaximized, setIsMaximized] = useState(false);
+    // macOS 上使用系统自带红绿灯按钮，自绘按钮会与系统按钮位置冲突
+    const isMacOS = detectPlatform() === "macos";
 
     useEffect(() => {
       const unlisten = getCurrentWindow().onResized(async () => {
@@ -271,128 +274,135 @@ const TitleBar: React.FC<TitleBarProps> = memo(
             </button>
           )}
 
-          {/* 窗口控制按钮 */}
-          <button
-            onClick={handleMinimize}
-            aria-label={t("titleBar.minimize")}
-            className="flex items-center justify-center cursor-pointer"
-            style={{
-              width: "44px",
-              height: "100%",
-              color: "var(--text-secondary)",
-              background: "transparent",
-              border: "none",
-              padding: 0,
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLElement).style.background =
-                "var(--hover-bg-medium)";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLElement).style.background = "transparent";
-            }}
-          >
-            <svg
-              aria-hidden="true"
-              width="10"
-              height="1"
-              viewBox="0 0 10 1"
-              fill="currentColor"
-            >
-              <rect width="10" height="1" />
-            </svg>
-          </button>
-          <button
-            onClick={handleToggleMaximize}
-            aria-label={
-              isMaximized ? t("titleBar.restore") : t("titleBar.maximize")
-            }
-            className="flex items-center justify-center cursor-pointer"
-            style={{
-              width: "44px",
-              height: "100%",
-              color: "var(--text-secondary)",
-              background: "transparent",
-              border: "none",
-              padding: 0,
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLElement).style.background =
-                "var(--hover-bg-medium)";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLElement).style.background = "transparent";
-            }}
-          >
-            {isMaximized ? (
-              <svg
-                aria-hidden="true"
-                width="10"
-                height="10"
-                viewBox="0 0 10 10"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1"
+          {/* 窗口控制按钮 — macOS 上隐藏,避免与系统红绿灯冲突 */}
+          {!isMacOS && (
+            <>
+              <button
+                onClick={handleMinimize}
+                aria-label={t("titleBar.minimize")}
+                data-testid="titlebar-minimize"
+                className="flex items-center justify-center cursor-pointer"
+                style={{
+                  width: "44px",
+                  height: "100%",
+                  color: "var(--text-secondary)",
+                  background: "transparent",
+                  border: "none",
+                  padding: 0,
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.background =
+                    "var(--hover-bg-medium)";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.background = "transparent";
+                }}
               >
-                <rect x="2" y="0" width="8" height="8" rx="1" />
-                <rect
-                  x="0"
-                  y="2"
-                  width="8"
-                  height="8"
-                  rx="1"
-                  fill="var(--bg-sidebar)"
-                />
-              </svg>
-            ) : (
-              <svg
-                aria-hidden="true"
-                width="10"
-                height="10"
-                viewBox="0 0 10 10"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1"
+                <svg
+                  aria-hidden="true"
+                  width="10"
+                  height="1"
+                  viewBox="0 0 10 1"
+                  fill="currentColor"
+                >
+                  <rect width="10" height="1" />
+                </svg>
+              </button>
+              <button
+                onClick={handleToggleMaximize}
+                aria-label={
+                  isMaximized ? t("titleBar.restore") : t("titleBar.maximize")
+                }
+                data-testid="titlebar-maximize"
+                className="flex items-center justify-center cursor-pointer"
+                style={{
+                  width: "44px",
+                  height: "100%",
+                  color: "var(--text-secondary)",
+                  background: "transparent",
+                  border: "none",
+                  padding: 0,
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.background =
+                    "var(--hover-bg-medium)";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.background = "transparent";
+                }}
               >
-                <rect x="0.5" y="0.5" width="9" height="9" rx="1" />
-              </svg>
-            )}
-          </button>
-          <button
-            onClick={handleClose}
-            aria-label={t("titleBar.close")}
-            className="flex items-center justify-center cursor-pointer"
-            style={{
-              width: "44px",
-              height: "100%",
-              color: "var(--text-secondary)",
-              background: "transparent",
-              border: "none",
-              padding: 0,
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLElement).style.background =
-                "var(--hover-close-bg)";
-              (e.currentTarget as HTMLElement).style.color = "var(--text-primary, #fff)";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLElement).style.background = "transparent";
-              (e.currentTarget as HTMLElement).style.color =
-                "var(--text-secondary)";
-            }}
-          >
-            <svg
-              aria-hidden="true"
-              width="10"
-              height="10"
-              viewBox="0 0 10 10"
-              stroke="currentColor"
-              strokeWidth="1.2"
-            >
-              <line x1="0" y1="0" x2="10" y2="10" />
-              <line x1="10" y1="0" x2="0" y2="10" />
-            </svg>
-          </button>
+                {isMaximized ? (
+                  <svg
+                    aria-hidden="true"
+                    width="10"
+                    height="10"
+                    viewBox="0 0 10 10"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1"
+                  >
+                    <rect x="2" y="0" width="8" height="8" rx="1" />
+                    <rect
+                      x="0"
+                      y="2"
+                      width="8"
+                      height="8"
+                      rx="1"
+                      fill="var(--bg-sidebar)"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    aria-hidden="true"
+                    width="10"
+                    height="10"
+                    viewBox="0 0 10 10"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1"
+                  >
+                    <rect x="0.5" y="0.5" width="9" height="9" rx="1" />
+                  </svg>
+                )}
+              </button>
+              <button
+                onClick={handleClose}
+                aria-label={t("titleBar.close")}
+                data-testid="titlebar-close"
+                className="flex items-center justify-center cursor-pointer"
+                style={{
+                  width: "44px",
+                  height: "100%",
+                  color: "var(--text-secondary)",
+                  background: "transparent",
+                  border: "none",
+                  padding: 0,
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.background =
+                    "var(--hover-close-bg)";
+                  (e.currentTarget as HTMLElement).style.color = "var(--text-primary, #fff)";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.background = "transparent";
+                  (e.currentTarget as HTMLElement).style.color =
+                    "var(--text-secondary)";
+                }}
+              >
+                <svg
+                  aria-hidden="true"
+                  width="10"
+                  height="10"
+                  viewBox="0 0 10 10"
+                  stroke="currentColor"
+                  strokeWidth="1.2"
+                >
+                  <line x1="0" y1="0" x2="10" y2="10" />
+                  <line x1="10" y1="0" x2="0" y2="10" />
+                </svg>
+              </button>
+            </>
+          )}
         </div>
 
         {/* 赛博朋克渐变分隔线 */}
