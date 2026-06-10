@@ -1108,7 +1108,7 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = memo(
       theme: resolvedTheme,
       signature: themeSignature,
       chart,
-      _version: "v35",
+      _version: "v36",
     });
 
     useEffect(() => {
@@ -1770,50 +1770,83 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = memo(
             // ZenUML 插件不接受 mermaid themeVariables（源码中无 themeVariables 引用），
             // 且使用内联 style="fill:..." 硬编码颜色，CSS 变量无法生效。
             // 通过 !important 覆盖内联 style 和 presentation attribute 实现主题适配。
+            // 同时去硬编码：frame-border-inner(#fff)、frame-border-outer(#666)、
+            // fragment-section-label(#222)、arrow-head(#000)
+            const idMatch = svg.match(/<svg[^>]*\sid="([^"]+)"/);
+            const svgId = idMatch?.[1];
+            const scope = svgId ? `#${svgId}` : "";
             const zenumlStyle = `
-              .participant-box {
+              ${scope} .participant-box {
                 fill: ${zenumlColors.bg} !important;
                 stroke: ${zenumlColors.border} !important;
               }
-              .participant-label,
-              .stereotype-label {
+              ${scope} .participant-label,
+              ${scope} .stereotype-label {
                 fill: ${zenumlColors.text} !important;
               }
-              .lifeline {
+              ${scope} .lifeline {
                 stroke: ${zenumlColors.lifeline} !important;
               }
-              .message-line {
+              ${scope} .message-line {
                 stroke: ${zenumlColors.message} !important;
               }
-              .message-label,
-              .seq-number {
+              ${scope} .message-label,
+              ${scope} .seq-number {
                 fill: ${zenumlColors.text} !important;
               }
-              .fragment-border {
+              ${scope} .fragment-border {
                 fill: ${zenumlColors.bg} !important;
                 stroke: ${zenumlColors.border} !important;
               }
-              .fragment-header {
+              ${scope} .fragment-header {
                 fill: ${zenumlColors.border} !important;
               }
-              .fragment-label,
-              .fragment-section-label {
+              ${scope} .fragment-label,
+              ${scope} .fragment-section-label {
                 fill: ${zenumlColors.text} !important;
               }
-              .fragment-separator {
+              ${scope} .fragment-section-label + rect,
+              ${scope} g:has(> .fragment-section-label) > rect {
+                fill: ${zenumlColors.bg} !important;
+                opacity: 0.85 !important;
+              }
+              ${scope} .fragment-separator {
                 stroke: ${zenumlColors.border} !important;
               }
-              .return-line {
+              ${scope} .frame-border-inner,
+              ${scope} .frame-border-outer {
+                fill: transparent !important;
+              }
+              ${scope} .return-line {
                 stroke: ${zenumlColors.message} !important;
               }
-              .return-arrow {
+              ${scope} .return-arrow {
+                fill: none !important;
                 stroke: ${zenumlColors.message} !important;
               }
-              .return-label {
+              ${scope} .return-label {
                 fill: ${zenumlColors.text} !important;
               }
-              .return-icon {
+              ${scope} .return-icon {
                 fill: ${zenumlColors.message} !important;
+              }
+              ${scope} [class*="arrow-head"] {
+                fill: ${zenumlColors.message} !important;
+                stroke: ${zenumlColors.message} !important;
+              }
+              ${scope} [class*="arrow-head"] path {
+                fill: ${zenumlColors.message} !important;
+                stroke: ${zenumlColors.message} !important;
+              }
+              ${scope} .divider-line {
+                stroke: ${zenumlColors.border} !important;
+              }
+              ${scope} .divider-bg {
+                fill: ${zenumlColors.bg} !important;
+                stroke: ${zenumlColors.border} !important;
+              }
+              ${scope} .divider-label {
+                fill: ${zenumlColors.text} !important;
               }
             `;
             if (svg.includes("<style>")) {
