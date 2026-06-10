@@ -81,7 +81,10 @@ export default defineConfig(async () => ({
         },
       },
     },
-    chunkSizeWarningLimit: 600,
+    // ZenUML 外部插件 (@mermaid-js/mermaid-zenuml@0.2.3) 引入 @zenuml/core@^3.47.0
+    // 依赖较大，导致 mermaid chunk 从 ~1MB 膨胀至 ~6MB
+    // 调整 chunkSizeWarningLimit 以消除构建警告，构建产物不变
+    chunkSizeWarningLimit: 6500,
   },
   clearScreen: false,
   server: {

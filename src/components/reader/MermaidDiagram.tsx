@@ -20,6 +20,23 @@ const mermaidRenderQueue: Task[] = [];
 let isRendering = false;
 
 let mermaidModulePromise: Promise<any> | null = null;
+let zenumlModulePromise: Promise<any> | null = null;
+let zenumlRegistered = false;
+
+/**
+ * 幂等注册 ZenUML 外部插件
+ * 必须在 mermaid.initialize() 之前调用
+ * 使用模块级标志避免重复注册覆盖 detector
+ */
+async function ensureZenumlRegistered(mermaid: any): Promise<void> {
+  if (zenumlRegistered) return;
+  if (!zenumlModulePromise) {
+    zenumlModulePromise = import("@mermaid-js/mermaid-zenuml");
+  }
+  const zenuml = (await zenumlModulePromise).default;
+  await mermaid.registerExternalDiagrams([zenuml]);
+  zenumlRegistered = true;
+}
 
 const runNextTask = async () => {
   if (isRendering || mermaidRenderQueue.length === 0) return;
@@ -46,6 +63,8 @@ export function renderMermaidForExport(chart: string): Promise<string> {
           mermaidModulePromise = import("mermaid");
         }
         const mermaid = (await mermaidModulePromise).default;
+
+        await ensureZenumlRegistered(mermaid);
 
         mermaid.initialize({
           startOnLoad: false,
@@ -323,6 +342,11 @@ interface ChartColors {
     border: string;
     causeBg: string;
     effectBg: string;
+  };
+  zenuml?: {
+    text: string;
+    border: string;
+    bg: string;
   };
 }
 
@@ -622,6 +646,11 @@ function getMermaidColors(): {
         border: getCSSVar("--mermaid-ishikawa-border", primaryBorderColor),
         causeBg: getCSSVar("--mermaid-ishikawa-cause-bg", primaryColor),
         effectBg: getCSSVar("--mermaid-ishikawa-effect-bg", secondaryColor),
+      },
+      zenuml: {
+        text: getCSSVar("--mermaid-zenuml-text", primaryTextColor),
+        border: getCSSVar("--mermaid-zenuml-border", primaryBorderColor),
+        bg: getCSSVar("--mermaid-zenuml-bg", primaryColor),
       },
     },
   };
@@ -1015,7 +1044,7 @@ ${selector} .packetTitle {
   return svg.replace("</style>", `</style>${packetPatchStyle}`);
 }
 
-const UNSUPPORTED_DIAGRAM_TYPES = new Set(["zenuml", "eventmodeling"]);
+const UNSUPPORTED_DIAGRAM_TYPES = new Set(["eventmodeling"]);
 
 const MermaidDiagram: React.FC<MermaidDiagramProps> = memo(
   ({ chart, onEdit }) => {
@@ -1088,6 +1117,8 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = memo(
           const mermaid = (await mermaidModulePromise).default;
 
           if (cancelled) return;
+
+          await ensureZenumlRegistered(mermaid);
 
           const mermaidTheme = "base";
 
@@ -1181,6 +1212,7 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = memo(
           const isTreeview = chartType === "treeview";
           const isWardley = chartType === "wardley";
           const isIshikawa = chartType === "ishikawa";
+          const isZenuml = chartType === "zenuml";
 
           if (isTimeline) {
             const vars = themeVariables as any;
@@ -1549,6 +1581,15 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = memo(
               annotationTextColor: wardleyColors.text,
               annotationFill: wardleyColors.bg,
             };
+          }
+
+          if (isZenuml && colors.charts.zenuml) {
+            const vars = themeVariables as any;
+            const zenumlColors = colors.charts.zenuml;
+            // ZenUML 主要通过其内置样式 + 主题 CSS 变量（mermaid-zenuml.css）作用
+            // 透传基础文本色与字体，确保与全局主题风格一致
+            vars.zenumlFontColor = zenumlColors.text;
+            vars.zenumlFontFamily = colors.fontFamily;
           }
 
           mermaid.initialize({

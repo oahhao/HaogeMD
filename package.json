@@ -13,6 +13,7 @@
     "tauri:build": "pnpm sync-version && pnpm tauri build && node scripts/rename-bundle.js"
   },
   "dependencies": {
+    "@mermaid-js/mermaid-zenuml": "0.2.3",
     "@plantuml/core": "^1.2026.5",
     "@syenchuk/remark-abbr": "^1.0.1",
     "@tanstack/react-virtual": "^3.13.24",

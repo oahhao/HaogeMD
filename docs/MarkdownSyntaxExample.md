@@ -911,7 +911,7 @@ timeline
 
 ### 6.15 [ZenUML](https://mermaid.nodejs.cn/syntax/zenuml.html)
 
-> **暂不支持说明**：ZenUML 不是当前 Mermaid 11.14.0 内置 diagram，需外部插件 `@mermaid-js/mermaid-zenuml` 注册后才可渲染。当前表现：UnknownDiagramError。
+> **支持说明**：ZenUML 通过外部插件 `@mermaid-js/mermaid-zenuml@0.2.3` 注册到 Mermaid 11.14.0。依赖包含 `@zenuml/core@^3.47.0`，启动时按需懒加载，仅检测到 `zenuml` 关键字时才加载插件代码。
 
 ```mermaid
 zenuml
