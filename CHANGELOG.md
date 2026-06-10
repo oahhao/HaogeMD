@@ -6,6 +6,10 @@
 
 ## [Unreleased]
 
+### 修复
+
+- 浮动目录在 ZenUML 章节下错位：@mermaid-js/mermaid-zenuml 插件通过 `vite-plugin-css-injected-by-js` 注入的 @zenuml/core 内部 CSS 含一条未分层的 `*, ::before, ::after { --tw-translate-y: 0; }` 通用选择器，优先级高于主机 Tailwind v4 的 `@layer utilities` 工具类，会把 `--tw-translate-y` 重置为 0，导致 `.-translate-y-1/2` 失效，nav 从 50% 顶部开始渲染后延伸到右下角。FloatingTOC 的 `-translate-y-1/2` 改用内联 `transform: translateY(-50%)` 解决；同类隐患的 `SearchBar` / `UpdateChecker` 的 `-translate-x-1/2` 一并替换为内联 `transform: translateX(-50%)`
+
 ## [0.3.7] - 2026-06-10
 
 ### 变更

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Floating TOC misaligned on the ZenUML section: the `@mermaid-js/mermaid-zenuml` plugin injects @zenuml/core's bundled CSS via `vite-plugin-css-injected-by-js`, which contains an unlayered universal selector `*, ::before, ::after { --tw-translate-y: 0; }` that outranks the host's Tailwind v4 `@layer utilities` rule and resets `--tw-translate-y` to 0, breaking the `.-translate-y-1/2` utility. The nav then starts at the 50% top anchor and extends straight down to the bottom-right corner. FloatingTOC's `-translate-y-1/2` is replaced with an inline `transform: translateY(-50%)`; the same latent risk in `SearchBar` / `UpdateChecker` (`-translate-x-1/2`) is replaced with inline `transform: translateX(-50%)` as well
+
 ## [0.3.7] - 2026-06-10
 
 ### Changed
