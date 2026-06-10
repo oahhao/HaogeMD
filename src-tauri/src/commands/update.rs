@@ -197,7 +197,7 @@ fn pick_latest(
     }
 }
 
-fn is_newer_version(current: &str, latest: &str) -> bool {
+pub fn is_newer_version(current: &str, latest: &str) -> bool {
     let cur_parts: Vec<u32> = current
         .split('.')
         .filter_map(|s| s.parse().ok())
