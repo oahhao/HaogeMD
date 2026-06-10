@@ -40,6 +40,30 @@ Latest version **v0.2.2**:
 | Portable (no install) | [ErgeMD-v0.2.2-portable.zip](https://github.com/ErgeAIA/ErgeMD/releases/download/v0.2.2/ErgeMD-v0.2.2-portable.zip) |
 | NSIS Installer | [ErgeMD_0.2.2_x64-setup.exe](https://github.com/ErgeAIA/ErgeMD/releases/download/v0.2.2/ErgeMD_0.2.2_x64-setup.exe) |
 
+### macOS Downloads
+
+- [ErgeMD-v0.4.0-macos.dmg](https://github.com/ErgeAIA/ErgeMD/releases/download/v0.4.0/ErgeMD-v0.4.0-macos.dmg) — Universal installer (Intel + Apple Silicon)
+- [ErgeMD-v0.4.0-macos.app.tar.gz](https://github.com/ErgeAIA/ErgeMD/releases/download/v0.4.0/ErgeMD-v0.4.0-macos.app.tar.gz) — Command-line extractable
+
+> **Note**: v0.4.0 is **not code-signed** (free software strategy). On first launch, **right-click → Open** to bypass Gatekeeper.
+
+### Linux Downloads
+
+- [ErgeMD-v0.4.0-linux-x86_64.AppImage](https://github.com/ErgeAIA/ErgeMD/releases/download/v0.4.0/ErgeMD-v0.4.0-linux-x86_64.AppImage) — No-install portable
+- [ErgeMD-v0.4.0-linux-x86_64.deb](https://github.com/ErgeAIA/ErgeMD/releases/download/v0.4.0/ErgeMD-v0.4.0-linux-x86_64.deb) — Debian / Ubuntu package
+
+**System dependencies** (Ubuntu 22.04+ / Debian 12+):
+
+```bash
+sudo apt-get install -y libwebkit2gtk-4.1-0 libgtk-3-0
+```
+
+**CJK fonts recommended** (Linux default fonts have weak CJK support):
+
+```bash
+sudo apt-get install -y fonts-noto-cjk fonts-noto-color-emoji
+```
+
 For older versions, visit the [Releases page](https://github.com/ErgeAIA/ErgeMD/releases).
 
 ## Building from Source
