@@ -347,6 +347,25 @@ interface ChartColors {
     text: string;
     border: string;
     bg: string;
+    lifeline: string;
+    message: string;
+  };
+  eventmodeling?: {
+    text: string;
+    uiFill: string;
+    uiStroke: string;
+    processorFill: string;
+    processorStroke: string;
+    readmodelFill: string;
+    readmodelStroke: string;
+    commandFill: string;
+    commandStroke: string;
+    eventFill: string;
+    eventStroke: string;
+    relationStroke: string;
+    swimlaneBg: string;
+    swimlaneStroke: string;
+    arrowhead: string;
   };
 }
 
@@ -651,6 +670,25 @@ function getMermaidColors(): {
         text: getCSSVar("--mermaid-zenuml-text", primaryTextColor),
         border: getCSSVar("--mermaid-zenuml-border", primaryBorderColor),
         bg: getCSSVar("--mermaid-zenuml-bg", primaryColor),
+        lifeline: getCSSVar("--mermaid-zenuml-lifeline", lineColor),
+        message: getCSSVar("--mermaid-zenuml-message", lineColor),
+      },
+      eventmodeling: {
+        text: getCSSVar("--mermaid-eventmodeling-text", primaryTextColor),
+        uiFill: getCSSVar("--mermaid-eventmodeling-ui-fill", "#FFFFFF"),
+        uiStroke: getCSSVar("--mermaid-eventmodeling-ui-stroke", primaryBorderColor),
+        processorFill: getCSSVar("--mermaid-eventmodeling-processor-fill", accentPurple),
+        processorStroke: getCSSVar("--mermaid-eventmodeling-processor-stroke", primaryBorderColor),
+        readmodelFill: getCSSVar("--mermaid-eventmodeling-readmodel-fill", accentGreen),
+        readmodelStroke: getCSSVar("--mermaid-eventmodeling-readmodel-stroke", primaryBorderColor),
+        commandFill: getCSSVar("--mermaid-eventmodeling-command-fill", accentCyan),
+        commandStroke: getCSSVar("--mermaid-eventmodeling-command-stroke", primaryBorderColor),
+        eventFill: getCSSVar("--mermaid-eventmodeling-event-fill", accentOrange),
+        eventStroke: getCSSVar("--mermaid-eventmodeling-event-stroke", primaryBorderColor),
+        relationStroke: getCSSVar("--mermaid-eventmodeling-relation", lineColor),
+        swimlaneBg: getCSSVar("--mermaid-eventmodeling-swimlane-bg", secondaryColor),
+        swimlaneStroke: getCSSVar("--mermaid-eventmodeling-swimlane-stroke", lineColor),
+        arrowhead: getCSSVar("--mermaid-eventmodeling-arrowhead", lineColor),
       },
     },
   };
@@ -910,6 +948,8 @@ function getMermaidThemeSignature(): string {
     "--mermaid-zenuml-text",
     "--mermaid-zenuml-border",
     "--mermaid-zenuml-bg",
+    "--mermaid-zenuml-lifeline",
+    "--mermaid-zenuml-message",
     // Mermaid Block
     "--mermaid-block-text",
     "--mermaid-block-bg",
@@ -1213,6 +1253,7 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = memo(
           const isWardley = chartType === "wardley";
           const isIshikawa = chartType === "ishikawa";
           const isZenuml = chartType === "zenuml";
+          const isEventModeling = chartType === "eventmodeling";
 
           if (isTimeline) {
             const vars = themeVariables as any;
@@ -1586,10 +1627,34 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = memo(
           if (isZenuml && colors.charts.zenuml) {
             const vars = themeVariables as any;
             const zenumlColors = colors.charts.zenuml;
-            // ZenUML 主要通过其内置样式 + 主题 CSS 变量（mermaid-zenuml.css）作用
-            // 透传基础文本色与字体，确保与全局主题风格一致
+            // ZenUML 插件不接受 mermaid themeVariables（已确认：源码中无 themeVariables 引用）
+            // 仅透传基础文本色与字体，确保与全局主题风格一致；
+            // 真正的颜色控制通过下方 SVG 后处理 style 注入实现。
             vars.zenumlFontColor = zenumlColors.text;
             vars.zenumlFontFamily = colors.fontFamily;
+          }
+
+          if (isEventModeling && colors.charts.eventmodeling) {
+            const vars = themeVariables as any;
+            const emColors = colors.charts.eventmodeling;
+            // Mermaid 11.15.0 Event Modeling 渲染器会直接消费这些 themeVariables
+            // 并应用到 SVG 内联 fill/stroke 属性（无法用 CSS 变量覆盖）
+            // 参考: mermaid/dist/chunks/mermaid.core/diagram-KO2AKTUF.mjs calculateEntityVisualProps
+            vars.darkMode = isLight ? false : true;
+            vars.emUiFill = emColors.uiFill;
+            vars.emUiStroke = emColors.uiStroke;
+            vars.emProcessorFill = emColors.processorFill;
+            vars.emProcessorStroke = emColors.processorStroke;
+            vars.emReadModelFill = emColors.readmodelFill;
+            vars.emReadModelStroke = emColors.readmodelStroke;
+            vars.emCommandFill = emColors.commandFill;
+            vars.emCommandStroke = emColors.commandStroke;
+            vars.emEventFill = emColors.eventFill;
+            vars.emEventStroke = emColors.eventStroke;
+            vars.emRelationStroke = emColors.relationStroke;
+            vars.emSwimlaneBackgroundOdd = emColors.swimlaneBg;
+            vars.emSwimlaneBackgroundStroke = emColors.swimlaneStroke;
+            vars.emArrowhead = emColors.arrowhead;
           }
 
           mermaid.initialize({
@@ -1697,6 +1762,84 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = memo(
               svg = svg.replace("<style>", `<style>${ishikawaStyle}`);
             } else {
               svg = svg.replace(/<svg([^>]*)>/, `<svg$1><style>${ishikawaStyle}</style>`);
+            }
+          }
+
+          if (isZenuml && colors.charts.zenuml) {
+            const zenumlColors = colors.charts.zenuml;
+            // ZenUML 插件不接受 mermaid themeVariables（源码中无 themeVariables 引用），
+            // 且使用内联 style="fill:..." 硬编码颜色，CSS 变量无法生效。
+            // 通过 !important 覆盖内联 style 和 presentation attribute 实现主题适配。
+            const zenumlStyle = `
+              .participant-box {
+                fill: ${zenumlColors.bg} !important;
+                stroke: ${zenumlColors.border} !important;
+              }
+              .participant-label,
+              .stereotype-label {
+                fill: ${zenumlColors.text} !important;
+              }
+              .lifeline {
+                stroke: ${zenumlColors.lifeline} !important;
+              }
+              .message-line {
+                stroke: ${zenumlColors.message} !important;
+              }
+              .message-label,
+              .seq-number {
+                fill: ${zenumlColors.text} !important;
+              }
+              .fragment-border {
+                fill: ${zenumlColors.bg} !important;
+                stroke: ${zenumlColors.border} !important;
+              }
+              .fragment-header {
+                fill: ${zenumlColors.border} !important;
+              }
+              .fragment-label,
+              .fragment-section-label {
+                fill: ${zenumlColors.text} !important;
+              }
+              .fragment-separator {
+                stroke: ${zenumlColors.border} !important;
+              }
+              .return-line {
+                stroke: ${zenumlColors.message} !important;
+              }
+              .return-arrow {
+                stroke: ${zenumlColors.message} !important;
+              }
+              .return-label {
+                fill: ${zenumlColors.text} !important;
+              }
+              .return-icon {
+                fill: ${zenumlColors.message} !important;
+              }
+            `;
+            if (svg.includes("<style>")) {
+              svg = svg.replace("<style>", `<style>${zenumlStyle}`);
+            } else {
+              svg = svg.replace(/<svg([^>]*)>/, `<svg$1><style>${zenumlStyle}</style>`);
+            }
+          }
+
+          if (isEventModeling && colors.charts.eventmodeling) {
+            const emColors = colors.charts.eventmodeling;
+            // Event Modeling 的 mermaid 渲染器已消费 themeVariables.em* 字段，
+            // 这里做一层保险性覆盖，确保暗色主题下默认值的"白色 UI"被正确替换。
+            const eventModelingStyle = `
+              g[role="listitem"] > g > g > rect,
+              rect.em-box {
+                stroke: ${emColors.uiStroke} !important;
+              }
+              text {
+                fill: ${emColors.text} !important;
+              }
+            `;
+            if (svg.includes("<style>")) {
+              svg = svg.replace("<style>", `<style>${eventModelingStyle}`);
+            } else {
+              svg = svg.replace(/<svg([^>]*)>/, `<svg$1><style>${eventModelingStyle}</style>`);
             }
           }
 
@@ -1953,7 +2096,9 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = memo(
             !isGitGraph &&
             !isErDiagram &&
             !isWardley &&
-            !isIshikawa
+            !isIshikawa &&
+            !isZenuml &&
+            !isEventModeling
           ) {
             const textColor = colors.primaryTextColor;
 
