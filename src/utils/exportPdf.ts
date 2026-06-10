@@ -4,6 +4,7 @@ import { generateExportHtml } from "./generateExportHtml";
 import { useFileStore } from "@/stores/fileStore";
 import { useReaderStore } from "@/stores/readerStore";
 import { useSettingsStore } from "@/stores/settingsStore";
+import { detectPlatform } from "./platform";
 
 async function doExportPdf(grayscale: boolean): Promise<void> {
   const fileStore = useFileStore.getState();
@@ -12,6 +13,23 @@ async function doExportPdf(grayscale: boolean): Promise<void> {
   if (!content || !content.trim()) {
     useReaderStore.getState().addToast({ type: "error", message: "没有可导出的内容" });
     return;
+  }
+
+  // macOS / Linux 暂未实现原生 PDF 导出（v0.4.0 走系统打印对话框）
+  // 这里在执行 export_pdf 命令之前先弹 Toast 给用户引导
+  const platform = detectPlatform();
+  if (platform === "macos") {
+    useReaderStore.getState().addToast({
+      type: "info",
+      message: "macOS 将在打印对话框中选择「存储为 PDF」完成导出",
+      duration: 5000,
+    });
+  } else if (platform === "linux") {
+    useReaderStore.getState().addToast({
+      type: "info",
+      message: "Linux 将在打印对话框中选择「Print to File」完成导出",
+      duration: 5000,
+    });
   }
 
   const defaultFileName = fileStore.currentFilePath
