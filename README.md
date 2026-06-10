@@ -33,12 +33,12 @@
 
 ## 下载
 
-最新版本 **v0.3.7**：
+最新版本 **v0.4.0**：
 
 | 类型             | 下载链接                                                                                                            |
 | ---------------- | ------------------------------------------------------------------------------------------------------------------- |
-| 便携版（免安装） | [ErgeMD-v0.3.7-portable.zip](https://github.com/ErgeAIA/ErgeMD/releases/download/v0.3.7/ErgeMD-v0.3.7-portable.zip) |
-| NSIS 安装包      | [ErgeMD_0.3.7_x64-setup.exe](https://github.com/ErgeAIA/ErgeMD/releases/download/v0.3.7/ErgeMD_0.3.7_x64-setup.exe) |
+| 便携版（免安装） | [ErgeMD-v0.4.0-portable.zip](https://github.com/ErgeAIA/ErgeMD/releases/download/v0.4.0/ErgeMD-v0.4.0-portable.zip) |
+| NSIS 安装包      | [ErgeMD-v0.4.0-setup.exe](https://github.com/ErgeAIA/ErgeMD/releases/download/v0.4.0/ErgeMD-v0.4.0-setup.exe)       |
 
 ### macOS 下载
 
@@ -260,7 +260,7 @@ pnpm build
 
 - [ ] **PDF 导出水印**：支持在导出的 PDF 中添加水印
 - [x] **PDF 页面加载优化**：从固定 3 秒延迟改为事件驱动，等待 DOM ready（v0.3.1 已优化为 300ms WebView 初始化 + 2s 渲染等待）
-- [ ] **多平台兼容**：Windows/macOS/Linux 统一 PDF 导出方案，macOS 使用 WKWebView `createPDF`，Linux 使用 Qt WebEngine PrintToPdf
+- [x] **多平台 PDF 导出（v0.4.0 首版）**：macOS / Linux 走系统打印对话框（用户手动选择「存储为 PDF」），Windows 仍走 WebView2 PrintToPdf；后续路线图见 [docs/ErgeMD-pdr.md](./docs/ErgeMD-pdr.md) 跨平台原生方案（WKWebView createPDF / Qt WebEngine）
 
 ## 作者信息
 

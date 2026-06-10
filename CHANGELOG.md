@@ -6,6 +6,8 @@
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-06-10
+
 ### 新增
 
 - **macOS 支持**：ErgeMD 现可在 macOS 11+ 上运行，提供 Apple Silicon 与 Intel 通用 .dmg
