@@ -9,6 +9,8 @@
 ### 修复
 
 - **QuickEdit 保存失败"未找到匹配文本"**：ZenUML / Mermaid / PlantUML / Callout 等块级元素双击编辑后保存时，行尾 CRLF/LF 混用或空白规范化导致字符串 `replace` 找不到原文。新增 `quickEditLines.ts` 工具函数实现按行号精确定位替换；`LazyMermaidBlock`、`LazyPlantUMLBlock`、`ObsidianCallout` 均已集成；`useQuickEdit` 在行号可用时优先走行号定位，否则降级到字符串替换
+- **更新检查在网络受限环境下报错"检查更新失败"**：GitHub + Gitee 双 API 同时不可达时不再向上抛出异常，而是静默返回"已是最新版"；同时新增 `release_url` 字段，点击版本徽章跳转到 Release 页面而非直接下载安装包
+- **lint 错误**：`generateExportHtml.ts` 正则 `[^\^]` 非法转义；`useKeyboardShortcuts.ts` 空 catch 块
 
 ## [0.4.0] - 2026-06-10
 

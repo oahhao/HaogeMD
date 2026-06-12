@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - **QuickEdit save failure "No matching text found"**: When double-clicking to edit and save block-level elements (ZenUML / Mermaid / PlantUML / Callout), the string-based `replace` failed to find the original text due to CRLF/LF line ending inconsistencies or whitespace normalization. Added `quickEditLines.ts` utility with line-number-based precise replacement; `LazyMermaidBlock`, `LazyPlantUMLBlock`, and `ObsidianCallout` are now integrated; `useQuickEdit` uses line-number positioning when available, falling back to string replacement otherwise
+- **Update check fails in network-restricted environments**: When both GitHub + Gitee APIs are unreachable, instead of throwing, the app now silently returns "no update available" (instead of the "check failed" toast); added `release_url` so the version badge opens the release page instead of downloading installer
+- **Lint errors**: invalid regex escape in `generateExportHtml.ts`; empty catch block in `useKeyboardShortcuts.ts`
 
 ## [0.4.0] - 2026-06-10
 
