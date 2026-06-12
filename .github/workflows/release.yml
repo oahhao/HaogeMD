@@ -100,7 +100,8 @@ jobs:
           $src = "src-tauri/target/release"
           $dst = "ErgeMD-portable"
           New-Item -ItemType Directory -Force -Path $dst
-          Copy-Item "$src/ErgeMD.exe" $dst/
+          # After rename-bundle.js, exe is named ErgeMD-v0.4.1.exe
+          Copy-Item "$src/ErgeMD-${{ github.ref_name }}.exe" $dst/ErgeMD.exe
           Copy-Item "$src/*.dll" $dst/ -ErrorAction SilentlyContinue
           if (Test-Path "$src/WebView2Loader.dll") {
             Copy-Item "$src/WebView2Loader.dll" $dst/
@@ -110,7 +111,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            ErgeMD-v${{ github.ref_name }}-*
+            ErgeMD-${{ github.ref_name }}-*
             ErgeMD-${{ github.ref_name }}-windows-x64-portable.zip
           tag_name: ${{ github.ref_name }}
         env:

@@ -41,15 +41,17 @@ const renameDir = (dir, oldName, newName) => {
 };
 
 try {
-  if (platform === "darwin" || platform === "macos") {
+  if (platform.includes("darwin") || platform.includes("macos")) {
     // macOS 产物：
     //   src-tauri/target/release/bundle/macos/ErgeMD.app
     //   src-tauri/target/release/bundle/dmg/ErgeMD_0.4.0_x64.dmg
     const macosDir = join(bundleDir, "macos");
     renameDir(macosDir, "ErgeMD.app", `ErgeMD-v${version}.app`);
     const dmgDir = join(bundleDir, "dmg");
-    rename(dmgDir, ".dmg", `ErgeMD-v${version}-macos.dmg`, true);
-  } else if (platform === "linux") {
+    // BUILD_PLATFORM 可能是 macos-arm64 或 macos-x64，用它区分两个产物
+    const dmgSuffix = platform === "macos-arm64" ? "arm64" : "x64";
+    rename(dmgDir, ".dmg", `ErgeMD-v${version}-macos-${dmgSuffix}.dmg`, true);
+  } else if (platform.includes("linux")) {
     // Linux 产物：
     //   src-tauri/target/release/bundle/appimage/ErgeMD_0.4.0_amd64.AppImage
     //   src-tauri/target/release/bundle/deb/ergemd_0.4.0_amd64.deb
@@ -60,8 +62,8 @@ try {
   } else {
     // Windows（默认）
     const nsisDir = join(bundleDir, "nsis");
-    rename(nsisDir, "_x64-setup.exe", `ErgeMD-v${version}-setup.exe`);
-    rename(releaseDir, "ergemd.exe", `ErgeMD-v${version}.exe`);
+    rename(nsisDir, "_x64-setup.exe", `ErgeMD-v${version}-setup.exe`, true);
+    rename(releaseDir, "ergemd.exe", `ErgeMD-v${version}.exe`, true);
   }
   console.log(`[rename-bundle] Done. Version: ${version}, Platform: ${platform}`);
 } catch (e) {
