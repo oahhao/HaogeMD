@@ -50,9 +50,6 @@ jobs:
           - platform: macos-latest
             target: aarch64-apple-darwin
             suffix: macos-arm64
-          - platform: macos-latest
-            target: x86_64-apple-darwin
-            suffix: macos-x64
           - platform: ubuntu-22.04
             target: x86_64-unknown-linux-gnu
             suffix: linux-x64
@@ -80,15 +77,10 @@ jobs:
             libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
       - run: pnpm install
       - name: Build Tauri app
-        uses: tauri-apps/tauri-action@v0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          includeRelease: false
-          includeUpdaterJson: false
-          # 显式传 --target，让 cargo 输出到 target/<triple>/release/，
-          # 与 rename-bundle.js 和 portable 步骤的路径对齐
-          args: --target ${{ matrix.target }}
+        # 放弃 tauri-action@v0：之前步骤 0.13s 完成，根本没跑 build
+        # 改用显式 pnpm tauri build，可控 100%
+        shell: pwsh
+        run: pnpm tauri build --target ${{ matrix.target }}
       - name: Rename bundles
         env:
           BUILD_PLATFORM: ${{ matrix.suffix }}
