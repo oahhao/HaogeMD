@@ -26,6 +26,8 @@ const LeftPanel: React.FC<LeftPanelProps> = memo(
     const isResizingRef = useRef(false);
     const panelRef = useRef<HTMLDivElement>(null);
     const previousFocusRef = useRef<HTMLElement | null>(null);
+    const onToggleRef = useRef(onToggle);
+    onToggleRef.current = onToggle;
 
     // 获取面板内所有可聚焦元素
     const getFocusableElements = useCallback((): HTMLElement[] => {
@@ -56,10 +58,10 @@ const LeftPanel: React.FC<LeftPanelProps> = memo(
       });
 
       const handleKeyDown = (e: KeyboardEvent) => {
-        if (e.key === "Escape") {
-          onToggle();
-          return;
-        }
+      if (e.key === "Escape") {
+        onToggleRef.current();
+        return;
+      }
         if (e.key !== "Tab") return;
 
         const focusable = getFocusableElements();
@@ -87,7 +89,7 @@ const LeftPanel: React.FC<LeftPanelProps> = memo(
         document.removeEventListener("keydown", handleKeyDown);
         previousFocusRef.current?.focus();
       };
-    }, [isOpen, onToggle, getFocusableElements]);
+    }, [isOpen, getFocusableElements]);
 
     // 拖拽调整宽度
     const handleResizeMouseDown = useCallback(

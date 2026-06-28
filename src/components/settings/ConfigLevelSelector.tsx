@@ -4,45 +4,34 @@ import {
   PresetConfigs,
 } from "@/config/readerConfig";
 import { useSettingsStore } from "@/stores/settingsStore";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 interface ConfigLevelSelectorProps {
   className?: string;
 }
 
-/**
- * 配置级别选择器组件
- *
- * 提供三级预设配置方案的选择界面，包括低档、中档、高档三种级别。
- * 用户可以通过下拉菜单选择级别，并在选择前预览不同级别对应的效果差异。
- *
- * 性能优化：
- * - 使用 React.memo 避免不必要的重渲染
- * - 使用 useCallback 缓存事件处理函数
- * - 使用 useMemo 缓存计算结果
- * - 使用 CSS 变量实现主题自适应
- * - 减少 DOM 操作次数
- *
- * 主题自适应：
- * - 使用项目统一的 CSS 变量体系
- * - 实现平滑过渡动画
- * - 支持亮色/暗色主题切换
- */
+interface DropdownPos {
+  top: number;
+  left: number;
+  width: number;
+}
+
 export const ConfigLevelSelector: React.FC<ConfigLevelSelectorProps> =
   React.memo(({ className = "" }) => {
     const configLevel = useSettingsStore((state) => state.configLevel);
     const setConfigLevel = useSettingsStore((state) => state.setConfigLevel);
     const [isExpanded, setIsExpanded] = useState(false);
     const [previewLevel, setPreviewLevel] = useState<ConfigLevel | null>(null);
+    const [dropdownPos, setDropdownPos] = useState<DropdownPos | null>(null);
+    const btnRef = useRef<HTMLButtonElement>(null);
 
-    // 缓存级别列表
     const levels: ConfigLevel[] = useMemo(() => ["low", "medium", "high"], []);
     const currentLevelInfo = ConfigLevelInfoMap[configLevel];
     const previewLevelInfo = previewLevel
       ? ConfigLevelInfoMap[previewLevel]
       : null;
 
-    // 缓存事件处理函数
     const handleSelectLevel = useCallback(
       (level: ConfigLevel) => {
         setConfigLevel(level);
@@ -61,10 +50,23 @@ export const ConfigLevelSelector: React.FC<ConfigLevelSelectorProps> =
     }, []);
 
     const toggleExpanded = useCallback(() => {
+      if (btnRef.current) {
+        const rect = btnRef.current.getBoundingClientRect();
+        const DROPDOWN_HEIGHT_ESTIMATE = 420;
+        const spaceBelow = window.innerHeight - rect.bottom;
+        const top =
+          spaceBelow < DROPDOWN_HEIGHT_ESTIMATE
+            ? Math.max(8, rect.top - DROPDOWN_HEIGHT_ESTIMATE - 8)
+            : rect.bottom + 8;
+        setDropdownPos({
+          top,
+          left: rect.left,
+          width: rect.width,
+        });
+      }
       setIsExpanded((prev) => !prev);
     }, []);
 
-    // 获取级别图标
     const getLevelIcon = useCallback((level: ConfigLevel) => {
       switch (level) {
         case "low":
@@ -76,7 +78,6 @@ export const ConfigLevelSelector: React.FC<ConfigLevelSelectorProps> =
       }
     }, []);
 
-    // 获取级别颜色（使用CSS变量）
     const getLevelColorClass = useCallback((level: ConfigLevel) => {
       switch (level) {
         case "low":
@@ -88,7 +89,6 @@ export const ConfigLevelSelector: React.FC<ConfigLevelSelectorProps> =
       }
     }, []);
 
-    // 缓存预设配置参数
     const presetParams = useMemo(() => {
       return levels.map((level) => ({
         level,
@@ -98,14 +98,19 @@ export const ConfigLevelSelector: React.FC<ConfigLevelSelectorProps> =
       }));
     }, [levels]);
 
-    // 点击外部关闭下拉菜单
+    // 点击外部关闭下拉菜单（dropdown 通过 portal 渲染到 body，需额外检查）
     React.useEffect(() => {
       const handleClickOutside = (event: MouseEvent) => {
         const target = event.target as Node;
         const selectorElement = document.querySelector(
           ".config-level-selector",
         );
-        if (selectorElement && !selectorElement.contains(target)) {
+        const dropdownElement = document.querySelector(
+          ".config-level-dropdown",
+        );
+        const inSelector = selectorElement?.contains(target);
+        const inDropdown = dropdownElement?.contains(target);
+        if (!inSelector && !inDropdown) {
           setIsExpanded(false);
         }
       };
@@ -123,15 +128,16 @@ export const ConfigLevelSelector: React.FC<ConfigLevelSelectorProps> =
       <div className={`config-level-selector relative ${className}`}>
         {/* 主选择按钮 */}
         <button
+          ref={btnRef}
           onClick={toggleExpanded}
-          className="config-level-btn flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200"
+          className="config-level-btn flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200 w-full"
         >
           <div
             className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold ${getLevelColorClass(configLevel)}`}
           >
             {getLevelIcon(configLevel)}
           </div>
-          <div className="flex flex-col items-start">
+          <div className="flex flex-col items-start flex-1">
             <span
               className="text-sm font-medium"
               style={{ color: "var(--text-primary)" }}
@@ -163,9 +169,17 @@ export const ConfigLevelSelector: React.FC<ConfigLevelSelectorProps> =
           </svg>
         </button>
 
-        {/* 下拉菜单 */}
-        {isExpanded && (
-          <div className="config-level-dropdown absolute top-full left-0 mt-2 w-80 rounded-xl shadow-2xl z-[100] overflow-hidden animate-slide-down">
+        {/* 下拉菜单 - 使用 portal 渲染到 body，逃逸面板的 overflow 和 transform */}
+        {isExpanded && dropdownPos && createPortal(
+          <div
+            className="config-level-dropdown rounded-xl shadow-2xl z-[100]"
+            style={{
+              position: "fixed",
+              top: dropdownPos.top,
+              left: dropdownPos.left,
+              width: Math.max(dropdownPos.width, 320),
+            }}
+          >
             {/* 预览面板 */}
             {(previewLevel || configLevel) && (
               <div
@@ -197,13 +211,13 @@ export const ConfigLevelSelector: React.FC<ConfigLevelSelectorProps> =
                   </div>
                 </div>
                 <p
-                  className="text-xs mb-3"
+                  className="text-xs mb-3 scenario-text"
                   style={{ color: "var(--text-secondary)" }}
                 >
                   {previewLevel ? "预览效果：" : "当前配置："}
                   {(previewLevelInfo || currentLevelInfo).scenario}
                 </p>
-                <div className="space-y-1">
+                <div className="space-y-1 effects-list">
                   {(previewLevelInfo || currentLevelInfo).effects.map(
                     (effect, index) => (
                       <div
@@ -212,7 +226,7 @@ export const ConfigLevelSelector: React.FC<ConfigLevelSelectorProps> =
                         style={{ color: "var(--text-secondary)" }}
                       >
                         <svg
-                          className="w-3 h-3"
+                          className="w-3 h-3 shrink-0"
                           style={{ color: "var(--accent-cyan)" }}
                           fill="currentColor"
                           viewBox="0 0 20 20"
@@ -244,7 +258,7 @@ export const ConfigLevelSelector: React.FC<ConfigLevelSelectorProps> =
                     onClick={() => handleSelectLevel(level)}
                     onMouseEnter={() => handleMouseEnter(level)}
                     onMouseLeave={handleMouseLeave}
-                    className={`w-full flex items-center gap-3 px-4 py-3 transition-colors duration-150`}
+                    className="w-full flex items-center gap-3 px-4 py-3 transition-colors duration-150"
                     style={{
                       background: isPreviewing
                         ? "var(--hover-bg-light)"
@@ -307,38 +321,48 @@ export const ConfigLevelSelector: React.FC<ConfigLevelSelectorProps> =
               >
                 参数差异预览：
               </div>
-              <div className="grid grid-cols-3 gap-2 text-center">
-                {presetParams.map(({ level, virtualThreshold }) => (
-                  <div key={level} className="text-xs">
-                    <div style={{ color: "var(--text-secondary)" }}>
-                      虚拟阈值
+              <div className="grid grid-cols-3 gap-2 text-xs">
+                {presetParams.map(
+                  ({ level, virtualThreshold, maxCacheSize }) => (
+                    <div key={level} className="text-center">
+                      <div
+                        className="font-medium mb-1"
+                        style={{ color: "var(--text-primary)" }}
+                      >
+                        {level === "low"
+                          ? "低档"
+                          : level === "medium"
+                            ? "中档"
+                            : "高档"}
+                      </div>
+                      <div style={{ color: "var(--text-secondary)" }}>
+                        阈值
+                      </div>
+                      <div
+                        className="font-mono"
+                        style={{ color: "var(--text-primary)" }}
+                      >
+                        {virtualThreshold}
+                      </div>
+                      <div
+                        className="mt-1"
+                        style={{ color: "var(--text-secondary)" }}
+                      >
+                        缓存
+                      </div>
+                      <div
+                        className="font-mono"
+                        style={{ color: "var(--text-primary)" }}
+                      >
+                        {maxCacheSize}
+                      </div>
                     </div>
-                    <div
-                      className="font-mono"
-                      style={{ color: "var(--text-primary)" }}
-                    >
-                      {virtualThreshold}
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="grid grid-cols-3 gap-2 text-center mt-2">
-                {presetParams.map(({ level, maxCacheSize }) => (
-                  <div key={level} className="text-xs">
-                    <div style={{ color: "var(--text-secondary)" }}>
-                      缓存大小
-                    </div>
-                    <div
-                      className="font-mono"
-                      style={{ color: "var(--text-primary)" }}
-                    >
-                      {maxCacheSize}
-                    </div>
-                  </div>
-                ))}
+                  ),
+                )}
               </div>
             </div>
-          </div>
+          </div>,
+          document.body
         )}
 
         <style>{`
@@ -362,10 +386,22 @@ export const ConfigLevelSelector: React.FC<ConfigLevelSelectorProps> =
             background: var(--bg-sidebar, #1A1A2E);
             border: 1px solid var(--divider);
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(100, 200, 200, 0.1);
-            backdrop-filter: none;
-            overflow-x: hidden;
             overflow-y: auto;
-            max-height: calc(100vh - 120px);
+            max-height: calc(100vh - 80px);
+            word-break: break-word;
+            overflow-wrap: break-word;
+          }
+
+          .config-level-dropdown .effects-list {
+            word-break: break-word;
+            overflow-wrap: break-word;
+            line-height: 1.5;
+          }
+
+          .config-level-dropdown .scenario-text {
+            word-break: break-word;
+            overflow-wrap: break-word;
+            line-height: 1.5;
           }
 
           /* 级别图标颜色 */
@@ -410,15 +446,6 @@ export const ConfigLevelSelector: React.FC<ConfigLevelSelectorProps> =
 
           .animate-fade-in {
             animation: fadeIn 0.15s ease-out forwards;
-          }
-
-          /* 响应式适配 */
-          @media (max-width: 480px) {
-            .config-level-dropdown {
-              width: calc(100vw - 32px);
-              left: 50%;
-              transform: translateX(-50%);
-            }
           }
 
           /* 高对比度模式 */

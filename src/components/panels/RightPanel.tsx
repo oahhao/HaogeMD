@@ -22,6 +22,8 @@ const RESIZE_EDGE_WIDTH = 8;
 const RightPanel: React.FC<RightPanelProps> = memo(({ isOpen, onToggle }) => {
   const panelRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
+  const onToggleRef = useRef(onToggle);
+  onToggleRef.current = onToggle;
   const [panelWidth, setPanelWidth] = useState(DEFAULT_WIDTH);
   const [isResizing, setIsResizing] = useState(false);
 
@@ -55,7 +57,7 @@ const RightPanel: React.FC<RightPanelProps> = memo(({ isOpen, onToggle }) => {
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        onToggle();
+        onToggleRef.current();
         return;
       }
       if (e.key !== "Tab") return;
@@ -85,7 +87,7 @@ const RightPanel: React.FC<RightPanelProps> = memo(({ isOpen, onToggle }) => {
       document.removeEventListener("keydown", handleKeyDown);
       previousFocusRef.current?.focus();
     };
-  }, [isOpen, onToggle, getFocusableElements]);
+  }, [isOpen, getFocusableElements]);
 
   // 拖拽调整宽度逻辑
   useEffect(() => {
