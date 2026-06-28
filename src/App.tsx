@@ -128,27 +128,40 @@ function App() {
           // 忽略获取失败
         }
 
-        // 2. 恢复上次 session 的标签页
+        // 2. 恢复上次 session 的标签页（降级：只加载前 5 个 tab，其余标记为未加载）
         const state = useFileStore.getState();
         const tabs = state.tabs;
         const activeTabId = state.activeTabId;
+        const MAX_LOADING_TABS = 5;
 
         if (tabs.length > 0) {
+          // 只加载前 MAX_LOADING_TABS 个 tab 的内容
+          const tabsToLoad = tabs.slice(0, MAX_LOADING_TABS);
+          const tabsToSkip = tabs.slice(MAX_LOADING_TABS);
+
           const validTabs: TabInfo[] = [];
-          for (const tab of tabs) {
-            try {
+          const results = await Promise.allSettled(
+            tabsToLoad.map(async (tab) => {
               const result = await invoke<{ content: string }>("read_file", {
                 path: tab.file_path,
               });
-              if (cancelled) return;
-              validTabs.push({
-                ...tab,
-                content: result.content,
-              });
-            } catch {
-              if (cancelled) return;
+              return { ...tab, content: result.content };
+            })
+          );
+          if (cancelled) return;
+
+          for (const r of results) {
+            if (r.status === "fulfilled") {
+              validTabs.push(r.value);
             }
           }
+
+          // 未加载的 tab 保留元数据，content 为空
+          const unloadedTabs = tabsToSkip.map((tab) => ({
+            ...tab,
+            content: "",
+          }));
+          validTabs.push(...unloadedTabs);
 
           if (cancelled) return;
 
@@ -169,24 +182,7 @@ function App() {
             currentFilePath: activeTab?.file_path ?? null,
           });
 
-          if (state.workspacePath) {
-            try {
-              const tree = await invoke<FileNode[]>("scan_workspace", {
-                folderPath: state.workspacePath,
-              });
-              if (!cancelled) {
-                useFileStore.setState({ fileTree: tree });
-              }
-            } catch {
-              if (!cancelled) {
-                useFileStore.setState({
-                  workspacePath: null,
-                  workspaceName: null,
-                  fileTree: null,
-                });
-              }
-            }
-          }
+          // 工作区扫描延迟到侧边栏打开时执行（优化启动速度）
         }
 
         // 3. 恢复完成后，如果有待打开的文件，在其之上打开新文件（避免被标签恢复覆盖）
@@ -222,6 +218,27 @@ function App() {
       document.removeEventListener("visibilitychange", handleVisibility);
     };
   }, []);
+
+  // 延迟工作区扫描：侧边栏打开时才扫描（优化启动速度）
+  useEffect(() => {
+    if (!leftPanelOpen) return;
+    const workspacePath = useFileStore.getState().workspacePath;
+    if (!workspacePath) return;
+    // 如果已有 fileTree 则不重复扫描
+    if (useFileStore.getState().fileTree) return;
+
+    invoke<FileNode[]>("scan_workspace", { folderPath: workspacePath })
+      .then((tree) => {
+        useFileStore.setState({ fileTree: tree });
+      })
+      .catch(() => {
+        useFileStore.setState({
+          workspacePath: null,
+          workspaceName: null,
+          fileTree: null,
+        });
+      });
+  }, [leftPanelOpen]);
 
   // TOC：所有文档都由 App.tsx 用 extractTOC 生成
   useEffect(() => {
@@ -299,6 +316,22 @@ function App() {
     let cancelled = false;
 
     const unlisten = listen<string>("file-opened", (event) => {
+      if (!cancelled && event.payload) {
+        openFilePath(event.payload);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+      unlisten.then((fn) => fn());
+    };
+  }, [openFilePath]);
+
+  // 单实例保护：第二次启动时，已有实例接收文件路径并打开
+  useEffect(() => {
+    let cancelled = false;
+
+    const unlisten = listen<string>("single-instance-open", (event) => {
       if (!cancelled && event.payload) {
         openFilePath(event.payload);
       }
@@ -750,8 +783,8 @@ function App() {
         )}
       </div>
 
-      {/* WelcomePage：仅在没有打开文件且恢复完成时显示 */}
-      {!hasOpenFile && !isRestoring && (
+      {/* WelcomePage：立即显示，不等待恢复完成 */}
+      {!hasOpenFile && (
         <WelcomePage
           onOpenFile={handleOpenFile}
           onOpenFolder={handleOpenFolder}

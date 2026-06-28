@@ -126,7 +126,7 @@ const WelcomePage: React.FC<WelcomePageProps> = memo(
       [t],
     );
 
-    // 流星雨 + 背景星星动画
+    // 流星雨 + 背景星星动画（延迟 500ms 启动，避免阻塞首屏渲染）
     useEffect(() => {
       const canvas = canvasRef.current;
       if (!canvas) return;
@@ -140,7 +140,6 @@ const WelcomePage: React.FC<WelcomePageProps> = memo(
       resize();
       window.addEventListener("resize", resize);
 
-      // 背景星星
       interface Star {
         x: number;
         y: number;
@@ -158,7 +157,6 @@ const WelcomePage: React.FC<WelcomePageProps> = memo(
         phase: Math.random() * Math.PI * 2,
       }));
 
-      // 流星
       interface Meteor {
         x: number;
         y: number;
@@ -192,7 +190,6 @@ const WelcomePage: React.FC<WelcomePageProps> = memo(
         ctx.clearRect(0, 0, w, h);
         time++;
 
-        // 绘制背景星星（闪烁）
         for (const s of stars) {
           const opacity =
             s.baseOpacity + Math.sin(time * s.speed + s.phase) * 0.25;
@@ -202,26 +199,21 @@ const WelcomePage: React.FC<WelcomePageProps> = memo(
           ctx.fill();
         }
 
-        // 生成新流星
-        lastSpawn += 16; // ~60fps
+        lastSpawn += 16;
         if (lastSpawn >= nextSpawnDelay && meteors.length < 20) {
           meteors.push(createMeteor(w, h));
           lastSpawn = 0;
           nextSpawnDelay = 200 + Math.random() * 400;
         }
 
-        // 更新和绘制流星
         for (let i = meteors.length - 1; i >= 0; i--) {
           const m = meteors[i];
-          // 移动
           m.x += Math.cos(m.angle) * m.speed;
           m.y += Math.sin(m.angle) * m.speed;
 
-          // 计算尾部坐标
           const tailX = m.x - Math.cos(m.angle) * m.length;
           const tailY = m.y - Math.sin(m.angle) * m.length;
 
-          // 绘制流星线段（渐变）
           const grad = ctx.createLinearGradient(m.x, m.y, tailX, tailY);
           grad.addColorStop(0, `rgba(255,255,255,${m.opacity * 0.9})`);
           grad.addColorStop(0.3, `rgba(180,160,255,${m.opacity * 0.5})`);
@@ -235,7 +227,6 @@ const WelcomePage: React.FC<WelcomePageProps> = memo(
           ctx.lineCap = "round";
           ctx.stroke();
 
-          // 头部发光圆点
           ctx.beginPath();
           ctx.arc(m.x, m.y, 2, 0, Math.PI * 2);
           ctx.fillStyle = `rgba(255,255,255,${m.opacity * 0.8})`;
@@ -244,7 +235,6 @@ const WelcomePage: React.FC<WelcomePageProps> = memo(
           ctx.fill();
           ctx.shadowBlur = 0;
 
-          // 移出画布则移除
           if (m.x < -200 || m.y > h + 200) {
             meteors.splice(i, 1);
           }
@@ -252,9 +242,14 @@ const WelcomePage: React.FC<WelcomePageProps> = memo(
 
         animId = requestAnimationFrame(draw);
       };
-      animId = requestAnimationFrame(draw);
+
+      // 延迟 500ms 启动动画，让首屏内容先渲染
+      const timer = setTimeout(() => {
+        animId = requestAnimationFrame(draw);
+      }, 500);
 
       return () => {
+        clearTimeout(timer);
         cancelAnimationFrame(animId);
         window.removeEventListener("resize", resize);
       };
