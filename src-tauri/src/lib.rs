@@ -4,7 +4,7 @@ mod db;
 use db::models::{ReadingProgress, RecentFile};
 use sqlx::SqlitePool;
 use std::sync::Arc;
-use tauri::{Emitter, Listener, State};
+use tauri::{Emitter, Listener, Manager, State};
 use tokio::sync::Mutex;
 
 struct AppState {
@@ -239,6 +239,26 @@ pub fn run() {
     let pending_file: Arc<Mutex<Option<String>>> = Arc::new(Mutex::new(None));
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_single_instance::init(|app, args, _cwd| {
+            // 第二次启动时，聚焦已有窗口并将文件路径发送给前端
+            if let Some(window) = app.get_webview_window("main") {
+                // 先恢复最小化的窗口，再聚焦
+                let _ = window.unminimize();
+                let _ = window.set_focus();
+                // 从命令行参数中提取 .md 文件路径
+                for arg in args.iter().skip(1) {
+                    let path = std::path::Path::new(arg);
+                    if path.exists()
+                        && path.extension().map_or(false, |ext| {
+                            ext.eq_ignore_ascii_case("md") || ext.eq_ignore_ascii_case("markdown")
+                        })
+                    {
+                        let _ = app.emit("single-instance-open", arg);
+                        break;
+                    }
+                }
+            }
+        }))
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_opener::init())

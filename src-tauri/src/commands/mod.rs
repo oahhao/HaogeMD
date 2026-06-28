@@ -2,7 +2,7 @@ use base64::{engine::general_purpose, Engine as _};
 use encoding_rs;
 use serde::Serialize;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 
 pub mod fonts;
@@ -183,21 +183,55 @@ pub async fn read_image_as_data_url(base_path: String, relative_path: String) ->
     let base_dir = if base.is_file() {
         base.parent().ok_or("Invalid base path")?.to_path_buf()
     } else {
-        base
+        base.clone()
     };
-    let image_path = base_dir.join(relative_path);
-    let canonical = image_path
-        .canonicalize()
-        .map_err(|e| format!("Failed to resolve image path: {}", e))?;
-
-    if !canonical.exists() {
-        return Err(format!("Image file not found: {}", canonical.display()));
+    
+    // 1. 尝试标准路径（相对于当前文件目录）
+    let image_path = base_dir.join(&relative_path);
+    if let Ok(canonical) = image_path.canonicalize() {
+        if canonical.exists() {
+            return read_image_file(&canonical);
+        }
     }
+    
+    // 2. 尝试 Obsidian 附件目录搜索
+    // 获取当前文件名（无后缀）作为附件子目录名
+    let file_stem = if base.is_file() {
+        base.file_stem().and_then(|s| s.to_str()).unwrap_or("")
+    } else {
+        ""
+    };
+    
+    if !file_stem.is_empty() {
+        // 搜索路径列表：
+        // - {fileDir}/attachments/{fileStem}/{filename}
+        // - {parentDir}/attachments/{fileStem}/{filename}
+        let parent_dir = base_dir.parent().unwrap_or(&base_dir);
+        let filename = Path::new(&relative_path).file_name().unwrap_or_default();
+        
+        let candidates = vec![
+            base_dir.join("attachments").join(file_stem).join(filename),
+            parent_dir.join("attachments").join(file_stem).join(filename),
+        ];
+        
+        for candidate in candidates {
+            if let Ok(canonical) = candidate.canonicalize() {
+                if canonical.exists() {
+                    return read_image_file(&canonical);
+                }
+            }
+        }
+    }
+    
+    Err(format!("Image not found: {}", relative_path))
+}
 
-    let bytes = fs::read(&canonical).map_err(|e| format!("Failed to read image: {}", e))?;
+/// 读取图片文件并转换为 data URL
+fn read_image_file(path: &Path) -> Result<String, String> {
+    let bytes = fs::read(path).map_err(|e| format!("Failed to read image: {}", e))?;
     let base64_data = general_purpose::STANDARD.encode(&bytes);
-
-    let mime_type = match canonical
+    
+    let mime_type = match path
         .extension()
         .and_then(|ext| ext.to_str())
         .unwrap_or("")
@@ -214,7 +248,7 @@ pub async fn read_image_as_data_url(base_path: String, relative_path: String) ->
         "avif" => "image/avif",
         _ => "image/png",
     };
-
+    
     Ok(format!("data:{};base64,{}", mime_type, base64_data))
 }
 
