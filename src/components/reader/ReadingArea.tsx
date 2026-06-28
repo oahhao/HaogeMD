@@ -55,6 +55,43 @@ export const ReadingArea = memo(
 
     const useVirtual = lineCount >= config.performance.virtualThreshold;
 
+    // 配置切换时保持滚动位置（useVirtual 翻转或阈值变化导致高度突变）
+    const prevUseVirtualRef = useRef(useVirtual);
+    const scrollBeforeConfigChangeRef = useRef<number | null>(null);
+
+    useEffect(() => {
+      const el = scrollContainerRef.current;
+      if (!el) return;
+
+      // 切换前：保存滚动百分比
+      if (prevUseVirtualRef.current !== useVirtual) {
+        const sh = el.scrollHeight - el.clientHeight;
+        if (sh > 0) {
+          scrollBeforeConfigChangeRef.current = (el.scrollTop / sh) * 100;
+        }
+      }
+    });
+
+    useEffect(() => {
+      const el = scrollContainerRef.current;
+      if (!el) return;
+
+      // 切换后：恢复滚动百分比
+      if (prevUseVirtualRef.current !== useVirtual) {
+        prevUseVirtualRef.current = useVirtual;
+        const pct = scrollBeforeConfigChangeRef.current;
+        if (pct != null) {
+          requestAnimationFrame(() => {
+            const sh = el.scrollHeight - el.clientHeight;
+            if (sh > 0) {
+              el.scrollTop = (pct / 100) * sh;
+            }
+            scrollBeforeConfigChangeRef.current = null;
+          });
+        }
+      }
+    }, [useVirtual]);
+
     // 在虚拟列表模式下，通过 parseMarkdownBlocks 获取带 blockIndex 的 TOC
     const virtualTocItems = useMemo(() => {
       if (!useVirtual) return [];

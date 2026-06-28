@@ -156,8 +156,19 @@ export function preprocessObsidianSyntax(content: string): string {
   if (syntaxes.has("embed")) {
     result = result.replace(
       /!\[\[([^\]]+)\]\]/g,
-      (_match, p1) =>
-        `<span class="obsidian-embed" data-raw="!&#91;&#91;${p1}&#93;&#93;">${p1}</span>`,
+      (_match, p1) => {
+        // 检查是否为图片文件
+        const ext = p1.split(".").pop()?.toLowerCase() || "";
+        const isImage = ["png", "jpg", "jpeg", "gif", "svg", "webp", "bmp"].includes(ext);
+        
+        if (isImage) {
+          // 图片类型：输出 <img> 标签，由 ContextMenuImage 处理路径解析
+          return `<img src="${p1}" alt="${p1}" class="obsidian-embed-image" />`;
+        }
+        
+        // 非图片类型：保持原有 span 格式
+        return `<span class="obsidian-embed" data-raw="!&#91;&#91;${p1}&#93;&#93;">${p1}</span>`;
+      },
     );
   }
 
