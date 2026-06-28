@@ -34,8 +34,8 @@ pub async fn check_update(current_version: String) -> Result<UpdateInfo, String>
                 has_update: false,
                 current_version: current_version.clone(),
                 latest_version: current_version,
-                download_url: "https://github.com/ErgeAIA/ErgeMD/releases".to_string(),
-                release_url: "https://github.com/ErgeAIA/ErgeMD/releases".to_string(),
+                download_url: "https://github.com/oahhao/HaogeMD/releases".to_string(),
+                release_url: "https://github.com/oahhao/HaogeMD/releases".to_string(),
                 release_notes: String::new(),
             })
         }
@@ -96,12 +96,12 @@ pub fn pick_platform_download_url(
 async fn fetch_github_latest() -> Result<ReleaseInfo, String> {
     let client = reqwest::Client::builder()
         .timeout(std::time::Duration::from_secs(10))
-        .user_agent("ErgeMD-Update-Checker")
+        .user_agent("HaogeMD-Update-Checker")
         .build()
         .map_err(|e| format!("Failed to create HTTP client: {}", e))?;
 
     let resp = client
-        .get("https://api.github.com/repos/ErgeAIA/ErgeMD/releases/latest")
+        .get("https://api.github.com/repos/oahhao/HaogeMD/releases/latest")
         .send()
         .await
         .map_err(|e| format!("GitHub API request failed: {}", e))?;
@@ -127,7 +127,7 @@ async fn fetch_github_latest() -> Result<ReleaseInfo, String> {
 
     let html_url = json["html_url"]
         .as_str()
-        .unwrap_or("https://github.com/ErgeAIA/ErgeMD/releases")
+        .unwrap_or("https://github.com/oahhao/HaogeMD/releases")
         .to_string();
 
     let download_url = pick_platform_download_url(std::env::consts::OS, &json["assets"], &html_url);
@@ -148,12 +148,12 @@ async fn fetch_github_latest() -> Result<ReleaseInfo, String> {
 async fn fetch_gitee_latest() -> Result<ReleaseInfo, String> {
     let client = reqwest::Client::builder()
         .timeout(std::time::Duration::from_secs(10))
-        .user_agent("ErgeMD-Update-Checker")
+        .user_agent("HaogeMD-Update-Checker")
         .build()
         .map_err(|e| format!("Failed to create HTTP client: {}", e))?;
 
     let resp = client
-        .get("https://gitee.com/api/v5/repos/ErgeAIA/ErgeMD/releases/latest")
+        .get("https://gitee.com/api/v5/repos/<your-gitee>/HaogeMD/releases/latest")
         .send()
         .await
         .map_err(|e| format!("Gitee API request failed: {}", e))?;
@@ -175,7 +175,7 @@ async fn fetch_gitee_latest() -> Result<ReleaseInfo, String> {
 
     let html_url = json["html_url"]
         .as_str()
-        .unwrap_or("https://gitee.com/ErgeAIA/ErgeMD/releases")
+        .unwrap_or("https://gitee.com/<your-gitee>/HaogeMD/releases")
         .to_string();
 
     // Gitee API 返回的 assets 结构为 [{ "name": "...", "browser_download_url": "..." }]

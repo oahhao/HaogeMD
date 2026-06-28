@@ -7,9 +7,9 @@
     "save": "保存"
   },
   "welcome": {
-    "title": "ErgeMD",
+    "title": "HaogeMD",
     "subtitlePrefix": "极简 Markdown 阅读器 by ",
-    "subtitleAuthor": "宝藏二哥AIA",
+    "subtitleAuthor": "阿星学AI",
     "openFile": "打开文件",
     "openFolder": "打开文件夹",
     "dragHint": "拖拽 Markdown 文件到窗口打开",
@@ -198,7 +198,7 @@
     "folderOpenFailed": "文件夹打开失败"
   },
   "about": {
-    "appDescription": "ErgeMD — 极简 Markdown 阅读器\n基于 Tauri 2 构建，专注于提供沉浸式、高性能的阅读体验\n支持多主题切换、目录导航、搜索、阅读进度保存等功能",
+    "appDescription": "HaogeMD — 极简 Markdown 阅读器\n基于 Tauri 2 构建，专注于提供沉浸式、高性能的阅读体验\n支持多主题切换、目录导航、搜索、阅读进度保存等功能",
     "slogan": "让每一次阅读，都回归内容本身。",
     "feature1": "Mermaid 图表",
     "feature2": "多主题切换",
@@ -216,9 +216,9 @@
     "bilibiliDesc": "分享 AI、编程、效率工具等内容\n期待与你在 B 站相遇～",
     "bilibiliButton": "前往B站主页",
     "findMeTitle": "找到我",
-    "footer": "© 2026 宝藏二哥AIA",
+    "footer": "© 2026 阿星学AI",
     "githubStar": "⭐ GitHub Star 支持一下",
-    "menuLabel": "关于 ErgeMD",
+    "menuLabel": "关于 HaogeMD",
     "qrTipPlaceholder": "二维码占位",
     "qrTipLabel": "请二哥喝杯赛博茶 🍵",
     "qrFriendPlaceholder": "二维码占位",

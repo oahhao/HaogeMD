@@ -375,7 +375,7 @@ export async function generateExportHtml(
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ErgeMD Export</title>
+  <title>HaogeMD Export</title>
   <style>
   @page { size: A4; margin: 15mm 20mm; }
   :root {

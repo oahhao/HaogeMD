@@ -4,7 +4,7 @@ import enUS from "./en-US.json";
 import zhCN from "./zh-CN.json";
 
 // 从 settingsStore 的 persist 存储中读取语言设置
-const savedLanguage = localStorage.getItem("ergemd-settings");
+const savedLanguage = localStorage.getItem("haogemd-settings");
 let defaultLanguage = "auto";
 
 if (savedLanguage) {

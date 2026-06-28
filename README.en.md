@@ -1,26 +1,19 @@
-# ErgeMD
+# HaogeMD
 
 A desktop application focused on Markdown reading, with the core philosophy: **ultimate rendering beauty + silky smooth reading experience**.
 
-[![BILIBILI](https://img.shields.io/badge/BILIBILI-宝藏二哥AIA-00D4FF?style=for-the-badge&logo=bilibili&logoColor=white)](https://space.bilibili.com/67221461)
-[![ZHIHU](https://img.shields.io/badge/ZHIHU-宝藏二哥AIA-0084FF?style=for-the-badge&logo=zhihu&logoColor=white)](https://www.zhihu.com/people/meli55a/posts)
-[![WECHAT](https://img.shields.io/badge/WECHAT-宝藏二哥AIA-07C160?style=for-the-badge&logo=wechat&logoColor=white)](mailto:ergeaia@gmail.com)
-[![EMAIL](https://img.shields.io/badge/EMAIL-ergeaia@gmail.com-A855F7?style=for-the-badge&logo=gmail&logoColor=white)](mailto:ergeaia@gmail.com)
-![GitHub stars](https://img.shields.io/github/stars/ErgeAIA/ErgeMD?style=for-the-badge&logo=github&logoColor=white)
 ![License](https://img.shields.io/badge/License-AGPL%203.0-A42E2B?style=for-the-badge&logo=gnu&logoColor=white)
-![Release](https://img.shields.io/github/v/release/ErgeAIA/ErgeMD?style=for-the-badge&logo=github&logoColor=white)
-![Downloads](https://img.shields.io/github/downloads/ErgeAIA/ErgeMD/total?style=for-the-badge&logo=github&logoColor=white)
 ![Tauri](https://img.shields.io/badge/Tauri-2.0-FFC131?style=for-the-badge&logo=tauri&logoColor=white)
 ![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![Tailwind](https://img.shields.io/badge/Tailwind-4.0-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
 ![Rust](https://img.shields.io/badge/Rust-stable-DEA584?style=for-the-badge&logo=rust&logoColor=black)
 
-[Core Features](#core-features) · [Download](#download) · [Building from Source](#building-from-source) · [Tech Stack](#tech-stack) · [User Guide](#user-guide) · [Documentation](#documentation) · [Author](#author)
+[Core Features](#core-features) · [Download](#download) · [Building from Source](#building-from-source) · [Tech Stack](#tech-stack) · [User Guide](#user-guide) · [Documentation](#documentation)
 
 [中文 README](./README.md)
 
-![ErgeMD Cover](./public/images/ergemd-cover.png)
+![HaogeMD Cover](./public/images/haogemd-cover.png)
 
 ## Core Features
 
@@ -37,14 +30,14 @@ Latest version **v0.2.2**:
 
 | Type | Download Link |
 |------|---------------|
-| Portable (no install) | [ErgeMD-v0.2.2-portable.zip](https://github.com/ErgeAIA/ErgeMD/releases/download/v0.2.2/ErgeMD-v0.2.2-portable.zip) |
-| NSIS Installer | [ErgeMD_0.2.2_x64-setup.exe](https://github.com/ErgeAIA/ErgeMD/releases/download/v0.2.2/ErgeMD_0.2.2_x64-setup.exe) |
+| Portable (no install) | [HaogeMD-v0.2.2-portable.zip](https://github.com/oahhao/HaogeMD/releases/download/v0.2.2/HaogeMD-v0.2.2-portable.zip) |
+| NSIS Installer | [HaogeMD_0.2.2_x64-setup.exe](https://github.com/oahhao/HaogeMD/releases/download/v0.2.2/HaogeMD_0.2.2_x64-setup.exe) |
 
 ### macOS Downloads
 
-- [ErgeMD-v0.4.1-macos-arm64.dmg](https://github.com/ErgeAIA/ErgeMD/releases/download/v0.4.1/ErgeMD-v0.4.1-macos-arm64.dmg) — Apple Silicon native installer
-- [ErgeMD-v0.4.1-macos.dmg](https://github.com/ErgeAIA/ErgeMD/releases/download/v0.4.1/ErgeMD-v0.4.1-macos.dmg) — Universal installer (**currently arm64-only; Intel Mac has no native build yet**)
-- [ErgeMD-v0.4.1-macos.app.tar.gz](https://github.com/ErgeAIA/ErgeMD/releases/download/v0.4.1/ErgeMD-v0.4.1-macos.app.tar.gz) — Command-line extractable
+- [HaogeMD-v0.4.1-macos-arm64.dmg](https://github.com/oahhao/HaogeMD/releases/download/v0.4.1/HaogeMD-v0.4.1-macos-arm64.dmg) — Apple Silicon native installer
+- [HaogeMD-v0.4.1-macos.dmg](https://github.com/oahhao/HaogeMD/releases/download/v0.4.1/HaogeMD-v0.4.1-macos.dmg) — Universal installer (**currently arm64-only; Intel Mac has no native build yet**)
+- [HaogeMD-v0.4.1-macos.app.tar.gz](https://github.com/oahhao/HaogeMD/releases/download/v0.4.1/HaogeMD-v0.4.1-macos.app.tar.gz) — Command-line extractable
 
 > **macOS Platform Note**: The CI matrix currently builds only Apple Silicon (arm64). `macos.dmg` and `macos.app.tar.gz` are both arm64 builds; Intel Mac users are not provided a native build yet.
 
@@ -52,8 +45,8 @@ Latest version **v0.2.2**:
 
 ### Linux Downloads
 
-- [ErgeMD-v0.4.1-linux-x86_64.AppImage](https://github.com/ErgeAIA/ErgeMD/releases/download/v0.4.1/ErgeMD-v0.4.1-linux-x86_64.AppImage) — No-install portable
-- [ErgeMD-v0.4.1-linux-x86_64.deb](https://github.com/ErgeAIA/ErgeMD/releases/download/v0.4.1/ErgeMD-v0.4.1-linux-x86_64.deb) — Debian / Ubuntu package
+- [HaogeMD-v0.4.1-linux-x86_64.AppImage](https://github.com/oahhao/HaogeMD/releases/download/v0.4.1/HaogeMD-v0.4.1-linux-x86_64.AppImage) — No-install portable
+- [HaogeMD-v0.4.1-linux-x86_64.deb](https://github.com/oahhao/HaogeMD/releases/download/v0.4.1/HaogeMD-v0.4.1-linux-x86_64.deb) — Debian / Ubuntu package
 
 **System dependencies** (Ubuntu 22.04+ / Debian 12+):
 
@@ -67,7 +60,7 @@ sudo apt-get install -y libwebkit2gtk-4.1-0 libgtk-3-0
 sudo apt-get install -y fonts-noto-cjk fonts-noto-color-emoji
 ```
 
-For older versions, visit the [Releases page](https://github.com/ErgeAIA/ErgeMD/releases).
+For older versions, visit the [Releases page](https://github.com/oahhao/HaogeMD/releases).
 
 ## Building from Source
 
@@ -222,7 +215,7 @@ Run the installer and follow the wizard. Benefits:
 
 - Auto-create desktop shortcut and Start menu entry
 - Auto-update support
-- Associate `.md` and `.markdown` files, double-click to open with ErgeMD
+- Associate `.md` and `.markdown` files, double-click to open with HaogeMD
 - Normal uninstall via Control Panel
 
 ### Portable (No Install)
@@ -249,37 +242,11 @@ Run the executable directly, no installation needed. Suitable for:
 - [x] **PDF Page Load Optimization**: Change from fixed 3-second delay to event-driven, waiting for DOM ready (optimized in v0.3.1 to 300ms WebView init + 2s render wait)
 - [ ] **Cross-Platform Compatibility**: Unified PDF export solution for Windows/macOS/Linux, macOS uses WKWebView `createPDF`, Linux uses Qt WebEngine PrintToPdf
 
-## Author
-
-<table>
-<tr>
-<td align="center" width="200">
-<img src="https://github.com/ErgeAIA.png" width="100" style="border-radius: 50%"><br>
-<b>宝藏二哥AIA / ErgeAIA</b><br>
-<sub>Life never stops, neither does tinkering</sub>
-</td>
-<td>
-
-**About me**: Indie Developer / Full-Stack Engineer / Product Manager / Vibe Coding Practitioner
-
-**Tech Stack**: Tauri · Rust · React · Python · Claude · Cursor · Trae
-
-**Philosophy**: No barriers, no tricks, no holding back
-
-**Links**:
-- 📺 [Bilibili](https://space.bilibili.com/67221461) · [Zhihu](https://www.zhihu.com/people/meli55a/posts) · WeChat
-- 🐙 [GitHub](https://github.com/ErgeAIA) · [Gitee](https://gitee.com/ErgeAIA)
-- 📦 Featured: [ErgeAIA-skills](https://github.com/ErgeAIA/ErgeAIA-skills) · [ErgeMD](https://github.com/ErgeAIA/ErgeMD) · [catapult-cn](https://github.com/ErgeAIA/catapult-cn)
-
-</td>
-</tr>
-</table>
-
 ---
 
 <div align="center">
 
-If ErgeMD has been helpful to you, feel free to give it a ⭐!
+If HaogeMD has been helpful to you, feel free to give it a ⭐!
 
 <sub>Built with ❤️ and Rust</sub>
 

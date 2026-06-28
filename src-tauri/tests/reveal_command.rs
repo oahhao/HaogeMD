@@ -1,4 +1,4 @@
-use ergemd_lib::commands::build_reveal_command;
+use haogemd_lib::commands::build_reveal_command;
 use std::path::Path;
 
 #[test]

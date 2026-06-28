@@ -349,7 +349,7 @@ const WelcomePage: React.FC<WelcomePageProps> = memo(
           }}
         >
           {/* Logo */}
-          <AppIcon size="min(160px, 20vh)" style={{ marginBottom: "2vh" }} />
+          <AppIcon size="min(240px, 30vh)" style={{ marginBottom: "2vh" }} />
 
           {/* 虚线拖拽框（左键=打开文件） */}
           <div
@@ -729,24 +729,9 @@ const WelcomePage: React.FC<WelcomePageProps> = memo(
         >
           <p style={{ fontSize: "13px", color: "var(--text-muted)" }}>
             {t("welcome.subtitlePrefix")}
-            <a
-              href="https://space.bilibili.com/67221461"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                color: "var(--accent-cyan)",
-                textDecoration: "none",
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.textDecoration =
-                  "underline";
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.textDecoration = "none";
-              }}
-            >
+            <span style={{ color: "var(--text-secondary)" }}>
               {t("welcome.subtitleAuthor")}
-            </a>
+            </span>
           </p>
           {onShowAbout && (
             <button

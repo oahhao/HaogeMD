@@ -97,7 +97,7 @@ export const useSettingsStore = create<SettingsState>()(
       },
     }),
     {
-      name: "ergemd-settings",
+      name: "haogemd-settings",
       partialize: (state: SettingsState) => ({
         readingSettings: state.readingSettings,
         configLevel: state.configLevel,

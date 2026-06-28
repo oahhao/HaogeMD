@@ -1,12 +1,12 @@
 [package]
-name = "ergemd"
+name = "haogemd"
 version = "0.4.1"
-description = "ErgeMD - A Markdown Reader"
-authors = ["ErgeAIA"]
+description = "HaogeMD - A Markdown Reader"
+authors = ["豪哥"]
 edition = "2021"
 
 [lib]
-name = "ergemd_lib"
+name = "haogemd_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]

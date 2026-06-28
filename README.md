@@ -1,26 +1,19 @@
-# ErgeMD
+# HaogeMD
 
 一款专注于 Markdown 阅读的桌面应用，核心理念：**极致的渲染美感 + 丝滑的阅读体验**。
 
-[![BILIBILI](https://img.shields.io/badge/BILIBILI-宝藏二哥AIA-00D4FF?style=for-the-badge&logo=bilibili&logoColor=white)](https://space.bilibili.com/67221461)
-[![ZHIHU](https://img.shields.io/badge/ZHIHU-宝藏二哥AIA-0084FF?style=for-the-badge&logo=zhihu&logoColor=white)](https://www.zhihu.com/people/meli55a/posts)
-[![WECHAT](https://img.shields.io/badge/WECHAT-宝藏二哥AIA-07C160?style=for-the-badge&logo=wechat&logoColor=white)](mailto:ergeaia@gmail.com)
-[![EMAIL](https://img.shields.io/badge/EMAIL-ergeaia@gmail.com-A855F7?style=for-the-badge&logo=gmail&logoColor=white)](mailto:ergeaia@gmail.com)
-![GitHub stars](https://img.shields.io/github/stars/ErgeAIA/ErgeMD?style=for-the-badge&logo=github&logoColor=white)
 ![License](https://img.shields.io/badge/License-AGPL%203.0-A42E2B?style=for-the-badge&logo=gnu&logoColor=white)
-![Release](https://img.shields.io/github/v/release/ErgeAIA/ErgeMD?style=for-the-badge&logo=github&logoColor=white)
-![Downloads](https://img.shields.io/github/downloads/ErgeAIA/ErgeMD/total?style=for-the-badge&logo=github&logoColor=white)
 ![Tauri](https://img.shields.io/badge/Tauri-2.0-FFC131?style=for-the-badge&logo=tauri&logoColor=white)
 ![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![Tailwind](https://img.shields.io/badge/Tailwind-4.0-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
 ![Rust](https://img.shields.io/badge/Rust-stable-DEA584?style=for-the-badge&logo=rust&logoColor=black)
 
-[核心功能](#核心功能) · [下载](#下载) · [从源码构建](#从源码构建) · [技术栈](#技术栈) · [使用指南](#使用指南) · [文档](#文档) · [作者信息](#作者信息)
+[核心功能](#核心功能) · [下载](#下载) · [从源码构建](#从源码构建) · [技术栈](#技术栈) · [使用指南](#使用指南) · [文档](#文档)
 
 [English README](./README.en.md)
 
-![ErgeMD 封面](./public/images/ergemd-cover.png)
+![HaogeMD 封面](./public/images/haogemd-cover.png)
 
 ## 核心功能
 
@@ -37,14 +30,14 @@
 
 | 类型             | 下载链接                                                                                                            |
 | ---------------- | ------------------------------------------------------------------------------------------------------------------- |
-| 便携版（免安装） | [ErgeMD-v0.4.1-portable.zip](https://github.com/ErgeAIA/ErgeMD/releases/download/v0.4.1/ErgeMD-v0.4.1-portable.zip) |
-| NSIS 安装包      | [ErgeMD-v0.4.1-setup.exe](https://github.com/ErgeAIA/ErgeMD/releases/download/v0.4.1/ErgeMD-v0.4.1-setup.exe)       |
+| 便携版（免安装） | [HaogeMD-v0.4.1-portable.zip](https://github.com/oahhao/HaogeMD/releases/download/v0.4.1/HaogeMD-v0.4.1-portable.zip) |
+| NSIS 安装包      | [HaogeMD-v0.4.1-setup.exe](https://github.com/oahhao/HaogeMD/releases/download/v0.4.1/HaogeMD-v0.4.1-setup.exe)       |
 
 ### macOS 下载
 
-- [ErgeMD-v0.4.1-macos-arm64.dmg](https://github.com/ErgeAIA/ErgeMD/releases/download/v0.4.1/ErgeMD-v0.4.1-macos-arm64.dmg) — Apple Silicon 原生安装包
-- [ErgeMD-v0.4.1-macos.dmg](https://github.com/ErgeAIA/ErgeMD/releases/download/v0.4.1/ErgeMD-v0.4.1-macos.dmg) — 通用安装包（**当前实为 arm64 专用，Intel Mac 暂未提供原生构建**）
-- [ErgeMD-v0.4.1-macos.app.tar.gz](https://github.com/ErgeAIA/ErgeMD/releases/download/v0.4.1/ErgeMD-v0.4.1-macos.app.tar.gz) — 命令行解压版本
+- [HaogeMD-v0.4.1-macos-arm64.dmg](https://github.com/oahhao/HaogeMD/releases/download/v0.4.1/HaogeMD-v0.4.1-macos-arm64.dmg) — Apple Silicon 原生安装包
+- [HaogeMD-v0.4.1-macos.dmg](https://github.com/oahhao/HaogeMD/releases/download/v0.4.1/HaogeMD-v0.4.1-macos.dmg) — 通用安装包（**当前实为 arm64 专用，Intel Mac 暂未提供原生构建**）
+- [HaogeMD-v0.4.1-macos.app.tar.gz](https://github.com/oahhao/HaogeMD/releases/download/v0.4.1/HaogeMD-v0.4.1-macos.app.tar.gz) — 命令行解压版本
 
 > **macOS 平台说明**：CI 矩阵当前只编译 Apple Silicon（arm64）。`macos.dmg` 与 `macos.app.tar.gz` 均为 arm64 构建；Intel Mac 用户暂未提供原生包。
 
@@ -52,8 +45,8 @@
 
 ### Linux 下载
 
-- [ErgeMD-v0.4.1-linux-x86_64.AppImage](https://github.com/ErgeAIA/ErgeMD/releases/download/v0.4.1/ErgeMD-v0.4.1-linux-x86_64.AppImage) — 免安装便携
-- [ErgeMD-v0.4.1-linux-x86_64.deb](https://github.com/ErgeAIA/ErgeMD/releases/download/v0.4.1/ErgeMD-v0.4.1-linux-x86_64.deb) — Debian / Ubuntu 安装包
+- [HaogeMD-v0.4.1-linux-x86_64.AppImage](https://github.com/oahhao/HaogeMD/releases/download/v0.4.1/HaogeMD-v0.4.1-linux-x86_64.AppImage) — 免安装便携
+- [HaogeMD-v0.4.1-linux-x86_64.deb](https://github.com/oahhao/HaogeMD/releases/download/v0.4.1/HaogeMD-v0.4.1-linux-x86_64.deb) — Debian / Ubuntu 安装包
 
 **系统依赖**（Ubuntu 22.04+ / Debian 12+）：
 
@@ -67,7 +60,7 @@ sudo apt-get install -y libwebkit2gtk-4.1-0 libgtk-3-0
 sudo apt-get install -y fonts-noto-cjk fonts-noto-color-emoji
 ```
 
-更多历史版本请访问 [Releases 页面](https://github.com/ErgeAIA/ErgeMD/releases)。
+更多历史版本请访问 [Releases 页面](https://github.com/oahhao/HaogeMD/releases)。
 
 ## 从源码构建
 
@@ -238,7 +231,7 @@ pnpm build
 
 - 自动创建桌面快捷方式和开始菜单项
 - 支持自动更新
-- 可关联 `.md` 和 `.markdown` 文件，双击即用 ErgeMD 打开
+- 可关联 `.md` 和 `.markdown` 文件，双击即用 HaogeMD 打开
 - 可通过控制面板正常卸载
 
 ### 便携版（免安装）
@@ -263,39 +256,13 @@ pnpm build
 
 - [ ] **PDF 导出水印**：支持在导出的 PDF 中添加水印
 - [x] **PDF 页面加载优化**：从固定 3 秒延迟改为事件驱动，等待 DOM ready（v0.3.1 已优化为 300ms WebView 初始化 + 2s 渲染等待）
-- [x] **多平台 PDF 导出（v0.4.0 首版）**：macOS / Linux 走系统打印对话框（用户手动选择「存储为 PDF」），Windows 仍走 WebView2 PrintToPdf；后续路线图见 [docs/ErgeMD-pdr.md](./docs/ErgeMD-pdr.md) 跨平台原生方案（WKWebView createPDF / Qt WebEngine）
-
-## 作者信息
-
-<table>
-<tr>
-<td align="center" width="200">
-<img src="https://github.com/ErgeAIA.png" width="100" style="border-radius: 50%"><br>
-<b>宝藏二哥AIA / ErgeAIA</b><br>
-<sub>生命不息，折腾不止</sub>
-</td>
-<td>
-
-**关于我**：独立开发者 / 全栈工程师 / 产品经理 / Vibe Coding 实践者
-
-**技术栈**：Tauri · Rust · React · Python · Claude · Cursor · Trae
-
-**理念**：三无分享 — 无门槛、无套路、无保留
-
-**链接**：
-- 📺 [B 站](https://space.bilibili.com/67221461) · [知乎](https://www.zhihu.com/people/meli55a/posts) · 微信
-- 🐙 [GitHub](https://github.com/ErgeAIA) · [Gitee](https://gitee.com/ErgeAIA)
-- 📦 精选项目：[ErgeAIA-skills](https://github.com/ErgeAIA/ErgeAIA-skills) · [ErgeMD](https://github.com/ErgeAIA/ErgeMD) · [catapult-cn](https://github.com/ErgeAIA/catapult-cn)
-
-</td>
-</tr>
-</table>
+- [x] **多平台 PDF 导出（v0.4.0 首版）**：macOS / Linux 走系统打印对话框（用户手动选择「存储为 PDF」），Windows 仍走 WebView2 PrintToPdf；后续路线图见 [docs/HaogeMD-pdr.md](./docs/HaogeMD-pdr.md) 跨平台原生方案（WKWebView createPDF / Qt WebEngine）
 
 ---
 
 <div align="center">
 
-如果 ErgeMD 帮到了你，欢迎点个 ⭐ 鼓励一下！
+如果 HaogeMD 帮到了你，欢迎点个 ⭐ 鼓励一下！
 
 <sub>用 ❤️ 和 Rust 制作</sub>
 

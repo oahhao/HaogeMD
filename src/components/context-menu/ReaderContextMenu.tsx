@@ -98,7 +98,7 @@ export function getReaderContextMenuItems(
     items.push({ id: "sep4", separator: true });
     items.push({
       id: "about",
-      label: "关于 ErgeMD",
+      label: "关于 HaogeMD",
       action: props.onShowAbout,
     });
   }

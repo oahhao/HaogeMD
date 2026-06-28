@@ -4,6 +4,18 @@
 
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)。
 
+## [未发布]
+
+### 变更
+
+- **品牌定制**：从 ErgeMD 重命名为 HaogeMD，作者信息替换为豪哥
+- **应用图标**：替换为全新的 HaogeMD 图标（H+MD 设计），嵌入 SVG 组件中
+- **图标尺寸**：欢迎页图标从 160px 增大到 240px，关于页图标从 104px 增大到 120px
+
+### 修复
+
+- **双击打开 .md 文件只显示上次文件**：`App.tsx` 中标签恢复 effect 和文件关联 effect 存在竞态条件，标签恢复的 `setState()` 会覆盖文件关联的 `currentFilePath`。修复方案：将冷启动文件关联逻辑合并到标签恢复 effect 中，确保顺序执行（先获取 pending file → 恢复标签 → 在恢复基础上打开新文件）
+
 ## [0.4.1] - 2026-06-12
 
 ### 修复

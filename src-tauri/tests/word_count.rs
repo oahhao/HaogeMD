@@ -1,4 +1,4 @@
-use ergemd_lib::commands::{count_words, is_cjk};
+use haogemd_lib::commands::{count_words, is_cjk};
 
 #[test]
 fn counts_english_words() {

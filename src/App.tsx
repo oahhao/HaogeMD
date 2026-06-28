@@ -100,68 +100,98 @@ function App() {
       });
   }, []);
 
-  // 启动时恢复持久化的 tab 内容
+  // 打开指定路径的文件（复用于标签恢复和文件关联）
+  const openFilePath = useCallback(async (filePath: string) => {
+    try {
+      const result = await invoke<{ content: string }>("read_file", {
+        path: filePath,
+      });
+      const fileName = filePath.split(/[/\\]/).pop() || "Untitled";
+      useFileStore.getState().openFile(filePath, fileName, result.content);
+    } catch {
+      useReaderStore
+        .getState()
+        .addToast({ type: "error", message: "文件读取失败" });
+    }
+  }, []);
+
+  // 启动时恢复持久化的 tab 内容，并处理文件关联（防止竞态覆盖）
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
+        // 1. 先获取待打开的文件（冷启动时双击 .md 文件的路径）
+        let pendingFile: string | null = null;
+        try {
+          pendingFile = await invoke<string | null>("get_pending_file");
+        } catch {
+          // 忽略获取失败
+        }
+
+        // 2. 恢复上次 session 的标签页
         const state = useFileStore.getState();
         const tabs = state.tabs;
         const activeTabId = state.activeTabId;
 
-        if (tabs.length === 0) {
-          return;
-        }
-
-        const validTabs: TabInfo[] = [];
-        for (const tab of tabs) {
-          try {
-            const result = await invoke<{ content: string }>("read_file", {
-              path: tab.file_path,
-            });
-            if (cancelled) return;
-            validTabs.push({
-              ...tab,
-              content: result.content,
-            });
-          } catch {
-            if (cancelled) return;
-          }
-        }
-
-        if (cancelled) return;
-
-        let newActiveTabId = activeTabId;
-        if (newActiveTabId && !validTabs.find((t) => t.id === newActiveTabId)) {
-          newActiveTabId = validTabs.length > 0 ? validTabs[0].id : null;
-        }
-
-        const activeTab = validTabs.find((t) => t.id === newActiveTabId);
-
-        useFileStore.setState({
-          tabs: validTabs,
-          activeTabId: newActiveTabId,
-          currentContent: activeTab?.content ?? "",
-          currentFilePath: activeTab?.file_path ?? null,
-        });
-
-        if (state.workspacePath) {
-          try {
-            const tree = await invoke<FileNode[]>("scan_workspace", {
-              folderPath: state.workspacePath,
-            });
-            if (!cancelled) {
-              useFileStore.setState({ fileTree: tree });
-            }
-          } catch {
-            if (!cancelled) {
-              useFileStore.setState({
-                workspacePath: null,
-                workspaceName: null,
-                fileTree: null,
+        if (tabs.length > 0) {
+          const validTabs: TabInfo[] = [];
+          for (const tab of tabs) {
+            try {
+              const result = await invoke<{ content: string }>("read_file", {
+                path: tab.file_path,
               });
+              if (cancelled) return;
+              validTabs.push({
+                ...tab,
+                content: result.content,
+              });
+            } catch {
+              if (cancelled) return;
             }
           }
+
+          if (cancelled) return;
+
+          let newActiveTabId = activeTabId;
+          if (
+            newActiveTabId &&
+            !validTabs.find((t) => t.id === newActiveTabId)
+          ) {
+            newActiveTabId = validTabs.length > 0 ? validTabs[0].id : null;
+          }
+
+          const activeTab = validTabs.find((t) => t.id === newActiveTabId);
+
+          useFileStore.setState({
+            tabs: validTabs,
+            activeTabId: newActiveTabId,
+            currentContent: activeTab?.content ?? "",
+            currentFilePath: activeTab?.file_path ?? null,
+          });
+
+          if (state.workspacePath) {
+            try {
+              const tree = await invoke<FileNode[]>("scan_workspace", {
+                folderPath: state.workspacePath,
+              });
+              if (!cancelled) {
+                useFileStore.setState({ fileTree: tree });
+              }
+            } catch {
+              if (!cancelled) {
+                useFileStore.setState({
+                  workspacePath: null,
+                  workspaceName: null,
+                  fileTree: null,
+                });
+              }
+            }
+          }
+        }
+
+        // 3. 恢复完成后，如果有待打开的文件，在其之上打开新文件（避免被标签恢复覆盖）
+        if (!cancelled && pendingFile) {
+          await openFilePath(pendingFile);
         }
       } catch {
         // 恢复失败时静默处理，不抛异常
@@ -175,7 +205,7 @@ function App() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [openFilePath]);
 
   // 关窗 / 页面隐藏时 flush 所有 Tab 的阅读进度到数据库
   useEffect(() => {
@@ -264,37 +294,10 @@ function App() {
     };
   }, []);
 
-  // 文件关联打开处理：冷启动时从 Rust 端取 pending 文件 + 热启动时监听事件
+  // 热启动文件关联：监听 Rust 端 emit 的 file-opened 事件（冷启动已在标签恢复 effect 中处理）
   useEffect(() => {
     let cancelled = false;
 
-    const openFilePath = async (filePath: string) => {
-      try {
-        const result = await invoke<{ content: string }>("read_file", {
-          path: filePath,
-        });
-        if (cancelled) return;
-        const fileName = filePath.split(/[/\\]/).pop() || "Untitled";
-        useFileStore.getState().openFile(filePath, fileName, result.content);
-      } catch {
-        if (!cancelled) {
-          useReaderStore
-            .getState()
-            .addToast({ type: "error", message: "文件读取失败" });
-        }
-      }
-    };
-
-    // 冷启动：前端就绪后从 Rust 端获取 pending 文件路径
-    invoke<string | null>("get_pending_file")
-      .then((filePath) => {
-        if (!cancelled && filePath) {
-          openFilePath(filePath);
-        }
-      })
-      .catch(() => {});
-
-    // 热启动：监听 Rust 端 emit 的 file-opened 事件
     const unlisten = listen<string>("file-opened", (event) => {
       if (!cancelled && event.payload) {
         openFilePath(event.payload);
@@ -305,7 +308,7 @@ function App() {
       cancelled = true;
       unlisten.then((fn) => fn());
     };
-  }, []);
+  }, [openFilePath]);
 
   // 阅读区右键菜单处理
   const handleReaderContextMenu = useCallback(

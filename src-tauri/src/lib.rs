@@ -317,7 +317,7 @@ pub fn run() {
         })
         .run(tauri::generate_context!())
         .unwrap_or_else(|e| {
-            eprintln!("Error while running ErgeMD: {e}");
+            eprintln!("Error while running HaogeMD: {e}");
             std::process::exit(1);
         });
 }

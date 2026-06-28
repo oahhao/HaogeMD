@@ -171,7 +171,7 @@ export function generatePdfHtml(
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ErgeMD Export</title>
+  <title>HaogeMD Export</title>
   ${inlineStyles}
 </head>
 <body>
@@ -194,7 +194,7 @@ export function generateHtmlContent(
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ErgeMD Export</title>
+  <title>HaogeMD Export</title>
   ${inlineStyles}
 </head>
 <body>

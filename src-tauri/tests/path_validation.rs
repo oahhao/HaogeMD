@@ -1,4 +1,4 @@
-use ergemd_lib::commands::validate_path;
+use haogemd_lib::commands::validate_path;
 
 #[test]
 fn allows_absolute_path_without_traversal() {

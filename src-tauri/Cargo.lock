@@ -1054,30 +1054,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ergemd"
-version = "0.4.1"
-dependencies = [
- "base64 0.22.1",
- "chrono",
- "dirs",
- "encoding_rs",
- "font-enumeration",
- "reqwest 0.12.28",
- "serde",
- "serde_json",
- "sqlx",
- "tauri",
- "tauri-build",
- "tauri-plugin-dialog",
- "tauri-plugin-fs",
- "tauri-plugin-opener",
- "tokio",
- "urlencoding",
- "webview2-com",
- "windows-core 0.61.2",
-]
-
-[[package]]
 name = "errno"
 version = "0.3.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1698,6 +1674,30 @@ dependencies = [
  "tokio",
  "tokio-util",
  "tracing",
+]
+
+[[package]]
+name = "haogemd"
+version = "0.4.1"
+dependencies = [
+ "base64 0.22.1",
+ "chrono",
+ "dirs",
+ "encoding_rs",
+ "font-enumeration",
+ "reqwest 0.12.28",
+ "serde",
+ "serde_json",
+ "sqlx",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-dialog",
+ "tauri-plugin-fs",
+ "tauri-plugin-opener",
+ "tokio",
+ "urlencoding",
+ "webview2-com",
+ "windows-core 0.61.2",
 ]
 
 [[package]]

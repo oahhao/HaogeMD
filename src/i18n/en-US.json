@@ -7,9 +7,9 @@
     "save": "Save"
   },
   "welcome": {
-    "title": "ErgeMD",
+    "title": "HaogeMD",
     "subtitlePrefix": "Minimal Markdown Reader by ",
-    "subtitleAuthor": "宝藏二哥AIA",
+    "subtitleAuthor": "A-Xing AI",
     "openFile": "Open File",
     "openFolder": "Open Folder",
     "dragHint": "Drag Markdown files to the window to open",
@@ -198,7 +198,7 @@
     "folderOpenFailed": "Failed to open folder"
   },
   "about": {
-    "appDescription": "ErgeMD — A Minimalist Markdown Reader\nBuilt with Tauri 2, focused on immersive, high-performance reading\nSupports multiple themes, TOC navigation, search, and progress saving",
+    "appDescription": "HaogeMD — A Minimalist Markdown Reader\nBuilt with Tauri 2, focused on immersive, high-performance reading\nSupports multiple themes, TOC navigation, search, and progress saving",
     "slogan": "Let every reading return to the content itself.",
     "feature1": "Mermaid Charts",
     "feature2": "Multi-Theme",
@@ -216,11 +216,11 @@
     "bilibiliDesc": "Sharing AI, programming, productivity tools & more\nHope to see you on Bilibili!",
     "bilibiliButton": "Visit Bilibili",
     "findMeTitle": "Find Me",
-    "footer": "© 2026 宝藏二哥AIA",
+    "footer": "© 2026 A-Xing AI",
     "githubStar": "⭐ Star on GitHub",
-    "menuLabel": "About ErgeMD",
+    "menuLabel": "About HaogeMD",
     "qrTipPlaceholder": "QR Placeholder",
-    "qrTipLabel": "Buy Erge a cyber tea 🍵",
+    "qrTipLabel": "Buy Haoge a cyber tea 🍵",
     "qrFriendPlaceholder": "QR Placeholder",
     "qrFriendLabel": "👉 Add friend, let's chat 👋",
     "easterEggTitle": "🔍 You found the hidden entrance!",

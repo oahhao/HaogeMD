@@ -6,8 +6,8 @@ use std::fs;
 use std::path::PathBuf;
 use std::str::FromStr;
 
-const DB_DIR: &str = ".ergemd";
-const DB_NAME: &str = "ergereader.db";
+const DB_DIR: &str = ".haogemd";
+const DB_NAME: &str = "haogereader.db";
 
 pub async fn init_db() -> Result<SqlitePool, Box<dyn std::error::Error>> {
     let db_path = get_db_path()?;

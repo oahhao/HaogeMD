@@ -260,7 +260,7 @@ export const useFileStore = create<FileState>()(
       },
     }),
     {
-      name: "ergemd-file-store-v1",
+      name: "haogemd-file-store-v1",
       version: 2,
       migrate: (persistedState: unknown, version: number) => {
         const state = persistedState as Record<string, unknown>;

@@ -1,4 +1,4 @@
-use ergemd_lib::commands::update::is_newer_version;
+use haogemd_lib::commands::update::is_newer_version;
 
 #[test]
 fn detects_patch_upgrade() {

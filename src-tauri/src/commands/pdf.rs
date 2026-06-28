@@ -30,7 +30,7 @@ pub async fn export_pdf(
         &label,
         WebviewUrl::App("index.html".into()),
     )
-    .title("ErgeMD PDF Export")
+    .title("HaogeMD PDF Export")
     .inner_size(800.0, 1100.0)
     .visible(false)
     .decorations(false)

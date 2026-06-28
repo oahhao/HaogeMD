@@ -48,20 +48,20 @@ const renameDir = (dir, oldName, newName) => {
 try {
   if (platform.includes("darwin") || platform.includes("macos")) {
     // macOS 产物：
-    //   src-tauri/target/release/bundle/macos/ErgeMD.app
-    //   src-tauri/target/release/bundle/dmg/ErgeMD_0.4.0_x64.dmg
+    //   src-tauri/target/release/bundle/macos/HaogeMD.app
+    //   src-tauri/target/release/bundle/dmg/HaogeMD_0.4.0_x64.dmg
     const macosDir = join(bundleDir, "macos");
-    const renamedAppName = `ErgeMD-v${version}.app`;
-    renameDir(macosDir, "ErgeMD.app", renamedAppName);
+    const renamedAppName = `HaogeMD-v${version}.app`;
+    renameDir(macosDir, "HaogeMD.app", renamedAppName);
     const dmgDir = join(bundleDir, "dmg");
     // BUILD_PLATFORM 可能是 macos-arm64 或 macos-x64，用它区分两个产物
     const dmgSuffix = platform === "macos-arm64" ? "arm64" : "x64";
-    rename(dmgDir, ".dmg", `ErgeMD-v${version}-macos-${dmgSuffix}.dmg`, true);
+    rename(dmgDir, ".dmg", `HaogeMD-v${version}-macos-${dmgSuffix}.dmg`, true);
 
     // 打包 .app 目录为 tar.gz，供命令行解压安装的用户使用
     const appDir = join(macosDir, renamedAppName);
     if (existsSync(appDir)) {
-      const tarPath = join(releaseDir, `ErgeMD-v${version}-macos.app.tar.gz`);
+      const tarPath = join(releaseDir, `HaogeMD-v${version}-macos.app.tar.gz`);
       try {
         // Windows 10+ / macOS / Linux 自带 tar 均支持 -C
         execSync(`tar -czf "${tarPath}" -C "${macosDir}" "${renamedAppName}"`, {
@@ -77,8 +77,8 @@ try {
     // 当前 macOS CI 仅编译 arm64；把 arm64 dmg 复制为 macos.dmg，
     // 让 README 中"通用 dmg"链接不再 404（Intel Mac 用户仍需自行编译）
     if (platform === "macos-arm64") {
-      const arm64Dmg = join(dmgDir, `ErgeMD-v${version}-macos-arm64.dmg`);
-      const universalDmg = join(dmgDir, `ErgeMD-v${version}-macos.dmg`);
+      const arm64Dmg = join(dmgDir, `HaogeMD-v${version}-macos-arm64.dmg`);
+      const universalDmg = join(dmgDir, `HaogeMD-v${version}-macos.dmg`);
       if (existsSync(arm64Dmg) && !existsSync(universalDmg)) {
         copyFileSync(arm64Dmg, universalDmg);
         console.log(`[rename-bundle] copied ${arm64Dmg} -> ${universalDmg} (note: arm64-only)`);
@@ -86,17 +86,17 @@ try {
     }
   } else if (platform.includes("linux")) {
     // Linux 产物：
-    //   src-tauri/target/release/bundle/appimage/ErgeMD_0.4.0_amd64.AppImage
-    //   src-tauri/target/release/bundle/deb/ergemd_0.4.0_amd64.deb
+    //   src-tauri/target/release/bundle/appimage/HaogeMD_0.4.0_amd64.AppImage
+    //   src-tauri/target/release/bundle/deb/haogemd_0.4.0_amd64.deb
     const appimageDir = join(bundleDir, "appimage");
-    rename(appimageDir, ".AppImage", `ErgeMD-v${version}-linux-x86_64.AppImage`, true);
+    rename(appimageDir, ".AppImage", `HaogeMD-v${version}-linux-x86_64.AppImage`, true);
     const debDir = join(bundleDir, "deb");
-    rename(debDir, ".deb", `ErgeMD-v${version}-linux-x86_64.deb`, true);
+    rename(debDir, ".deb", `HaogeMD-v${version}-linux-x86_64.deb`, true);
   } else {
     // Windows（默认）
     const nsisDir = join(bundleDir, "nsis");
-    rename(nsisDir, "_x64-setup.exe", `ErgeMD-v${version}-setup.exe`, true);
-    rename(releaseDir, "ergemd.exe", `ErgeMD-v${version}.exe`, true);
+    rename(nsisDir, "_x64-setup.exe", `HaogeMD-v${version}-setup.exe`, true);
+    rename(releaseDir, "haogemd.exe", `HaogeMD-v${version}.exe`, true);
   }
   console.log(`[rename-bundle] Done. Version: ${version}, Platform: ${platform}`);
 } catch (e) {

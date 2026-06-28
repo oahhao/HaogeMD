@@ -151,7 +151,7 @@ const TitleBar: React.FC<TitleBarProps> = memo(
                 el.style.textShadow = "none";
               }}
             >
-              ErgeMD
+              HaogeMD
             </span>
           </div>
         </div>
