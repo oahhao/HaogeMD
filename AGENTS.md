@@ -23,25 +23,11 @@
 
 ***
 
-## 双平台同步
+## Git Remote
 
-本项目同时托管在 GitHub 和 Gitee，代码推送时需同步到两个平台。
-
-### Remote 配置
-
-| 平台   | Remote 名称 | 仓库地址                                |
-| ------ | ----------- | --------------------------------------- |
-| GitHub | `origin`    | `https://github.com/ErgeAIA/ErgeMD.git` |
-| Gitee  | `gitee`     | `https://gitee.com/ergeaia/ErgeMD.git`  |
-
-### 推送规范
-
-- 每次 `git push` 必须同时推送到两个平台：
-  ```powershell
-  git push origin main; git push gitee main
-  ```
-- 涉及多分支时，同步所有活跃分支（如 `dev`）
-- **Tag 推送规范**见 [CLAUDE.md](./CLAUDE.md) 「发布与 Tag 约定」章节
+| Remote 名称 | 仓库地址                                 |
+| ----------- | ---------------------------------------- |
+| `origin`    | `https://github.com/oahhao/HaogeMD.git` |
 
 ### 安全边界
 

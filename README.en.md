@@ -26,18 +26,18 @@ A desktop application focused on Markdown reading, with the core philosophy: **u
 
 ## Download
 
-Latest version **v0.2.2**:
+Latest version **v0.5.0**:
 
 | Type | Download Link |
 |------|---------------|
-| Portable (no install) | [HaogeMD-v0.2.2-portable.zip](https://github.com/oahhao/HaogeMD/releases/download/v0.2.2/HaogeMD-v0.2.2-portable.zip) |
-| NSIS Installer | [HaogeMD_0.2.2_x64-setup.exe](https://github.com/oahhao/HaogeMD/releases/download/v0.2.2/HaogeMD_0.2.2_x64-setup.exe) |
+| Portable (no install) | [HaogeMD-v0.5.0-portable.zip](https://github.com/oahhao/HaogeMD/releases/download/v0.5.0/HaogeMD-v0.5.0-portable.zip) |
+| NSIS Installer | [HaogeMD-v0.5.0-setup.exe](https://github.com/oahhao/HaogeMD/releases/download/v0.5.0/HaogeMD-v0.5.0-setup.exe) |
 
 ### macOS Downloads
 
-- [HaogeMD-v0.4.1-macos-arm64.dmg](https://github.com/oahhao/HaogeMD/releases/download/v0.4.1/HaogeMD-v0.4.1-macos-arm64.dmg) — Apple Silicon native installer
-- [HaogeMD-v0.4.1-macos.dmg](https://github.com/oahhao/HaogeMD/releases/download/v0.4.1/HaogeMD-v0.4.1-macos.dmg) — Universal installer (**currently arm64-only; Intel Mac has no native build yet**)
-- [HaogeMD-v0.4.1-macos.app.tar.gz](https://github.com/oahhao/HaogeMD/releases/download/v0.4.1/HaogeMD-v0.4.1-macos.app.tar.gz) — Command-line extractable
+- [HaogeMD-v0.5.0-macos-arm64.dmg](https://github.com/oahhao/HaogeMD/releases/download/v0.5.0/HaogeMD-v0.5.0-macos-arm64.dmg) — Apple Silicon native installer
+- [HaogeMD-v0.5.0-macos.dmg](https://github.com/oahhao/HaogeMD/releases/download/v0.5.0/HaogeMD-v0.5.0-macos.dmg) — Universal installer (**currently arm64-only; Intel Mac has no native build yet**)
+- [HaogeMD-v0.5.0-macos.app.tar.gz](https://github.com/oahhao/HaogeMD/releases/download/v0.5.0/HaogeMD-v0.5.0-macos.app.tar.gz) — Command-line extractable
 
 > **macOS Platform Note**: The CI matrix currently builds only Apple Silicon (arm64). `macos.dmg` and `macos.app.tar.gz` are both arm64 builds; Intel Mac users are not provided a native build yet.
 
@@ -45,8 +45,8 @@ Latest version **v0.2.2**:
 
 ### Linux Downloads
 
-- [HaogeMD-v0.4.1-linux-x86_64.AppImage](https://github.com/oahhao/HaogeMD/releases/download/v0.4.1/HaogeMD-v0.4.1-linux-x86_64.AppImage) — No-install portable
-- [HaogeMD-v0.4.1-linux-x86_64.deb](https://github.com/oahhao/HaogeMD/releases/download/v0.4.1/HaogeMD-v0.4.1-linux-x86_64.deb) — Debian / Ubuntu package
+- [HaogeMD-v0.5.0-linux-x86_64.AppImage](https://github.com/oahhao/HaogeMD/releases/download/v0.5.0/HaogeMD-v0.5.0-linux-x86_64.AppImage) — No-install portable
+- [HaogeMD-v0.5.0-linux-x86_64.deb](https://github.com/oahhao/HaogeMD/releases/download/v0.5.0/HaogeMD-v0.5.0-linux-x86_64.deb) — Debian / Ubuntu package
 
 **System dependencies** (Ubuntu 22.04+ / Debian 12+):
 

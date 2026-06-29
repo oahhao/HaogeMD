@@ -225,11 +225,11 @@
 
 ### 何时打 Tag
 
-| 场景                                                  | 是否打 Tag                                  | 推送方式                                                                      |
-| ----------------------------------------------------- | ------------------------------------------- | ----------------------------------------------------------------------------- |
-| **版本号变更**（升级/降级，含 patch / minor / major） | **必须打 Tag**                              | `git tag v{x.y.z}` 然后 `git push origin v{x.y.z} && git push gitee v{x.y.z}` |
-| 仅文档 / 重构 / 内部调整，版本号未变                  | **不打 Tag**                                | 仅 `git push origin main && git push gitee main`                              |
-| 实验性 / 预发布版本                                   | 用 `v{x.y.z}-rc.N` / `v{x.y.z}-beta.N` 形式 | 同样需要推送 tag                                                              |
+| 场景                                                  | 是否打 Tag                                  | 推送方式                                                         |
+| ----------------------------------------------------- | ------------------------------------------- | ---------------------------------------------------------------- |
+| **版本号变更**（升级/降级，含 patch / minor / major） | **必须打 Tag**                              | `git tag v{x.y.z}` 然后 `git push origin v{x.y.z}`              |
+| 仅文档 / 重构 / 内部调整，版本号未变                  | **不打 Tag**                                | 仅 `git push origin main`                                         |
+| 实验性 / 预发布版本                                   | 用 `v{x.y.z}-rc.N` / `v{x.y.z}-beta.N` 形式 | 同样需要推送 tag                                                  |
 
 ### Tag 命名规范
 
@@ -237,17 +237,12 @@
 - 例：`package.json` 升到 `0.3.2` → tag 必须为 `v0.3.2`
 - 禁止 `0.3.2` / `release-0.3.2` / `v0.3.2.0` 等其他形式
 
-### Tag 必须双平台同步
-
-Tag 推送与 commit 推送一样，必须**同时**推送到 GitHub（origin）和 Gitee（gitee）：
+### Tag 推送
 
 ```powershell
-git tag v{x.y.z}                              # 本地打 tag
-git push origin v{x.y.z}                      # GitHub
-git push gitee v{x.y.z}                       # Gitee
+git tag v{x.y.z}                    # 本地打 tag
+git push origin v{x.y.z}            # 推送到 GitHub
 ```
-
-任一平台缺漏会导致另一平台 release 工作流无法触发，或用户在 Gitee 下载页找不到对应版本。
 
 ### 完整发布流程
 
@@ -255,10 +250,9 @@ git push gitee v{x.y.z}                       # Gitee
 2. 更新 `CHANGELOG.md` 与 `CHANGELOG.en.md`，将 Unreleased 内容归档到新版本
 3. 检查 `README.md` 下载链接版本号
 4. `git add` + `git commit`（含版本升级的 commit）
-5. `git push origin main && git push gitee main`
-6. **额外执行**：`git tag v{x.y.z}` → `git push origin v{x.y.z} && git push gitee v{x.y.z}`
+5. `git push origin main`
+6. **额外执行**：`git tag v{x.y.z}` → `git push origin v{x.y.z}`
 7. GitHub Actions 自动触发 `.github/workflows/release.yml`，构建并发布到 GitHub Releases
-8. Gitee 需手动在 Gitee 仓库「发行版」页面创建对应版本
 
 ### 不要做的事
 

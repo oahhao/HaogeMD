@@ -26,18 +26,18 @@
 
 ## 下载
 
-最新版本 **v0.4.1**：
+最新版本 **v0.5.0**：
 
 | 类型             | 下载链接                                                                                                            |
 | ---------------- | ------------------------------------------------------------------------------------------------------------------- |
-| 便携版（免安装） | [HaogeMD-v0.4.1-portable.zip](https://github.com/oahhao/HaogeMD/releases/download/v0.4.1/HaogeMD-v0.4.1-portable.zip) |
-| NSIS 安装包      | [HaogeMD-v0.4.1-setup.exe](https://github.com/oahhao/HaogeMD/releases/download/v0.4.1/HaogeMD-v0.4.1-setup.exe)       |
+| 便携版（免安装） | [HaogeMD-v0.5.0-portable.zip](https://github.com/oahhao/HaogeMD/releases/download/v0.5.0/HaogeMD-v0.5.0-portable.zip) |
+| NSIS 安装包      | [HaogeMD-v0.5.0-setup.exe](https://github.com/oahhao/HaogeMD/releases/download/v0.5.0/HaogeMD-v0.5.0-setup.exe)       |
 
 ### macOS 下载
 
-- [HaogeMD-v0.4.1-macos-arm64.dmg](https://github.com/oahhao/HaogeMD/releases/download/v0.4.1/HaogeMD-v0.4.1-macos-arm64.dmg) — Apple Silicon 原生安装包
-- [HaogeMD-v0.4.1-macos.dmg](https://github.com/oahhao/HaogeMD/releases/download/v0.4.1/HaogeMD-v0.4.1-macos.dmg) — 通用安装包（**当前实为 arm64 专用，Intel Mac 暂未提供原生构建**）
-- [HaogeMD-v0.4.1-macos.app.tar.gz](https://github.com/oahhao/HaogeMD/releases/download/v0.4.1/HaogeMD-v0.4.1-macos.app.tar.gz) — 命令行解压版本
+- [HaogeMD-v0.5.0-macos-arm64.dmg](https://github.com/oahhao/HaogeMD/releases/download/v0.5.0/HaogeMD-v0.5.0-macos-arm64.dmg) — Apple Silicon 原生安装包
+- [HaogeMD-v0.5.0-macos.dmg](https://github.com/oahhao/HaogeMD/releases/download/v0.5.0/HaogeMD-v0.5.0-macos.dmg) — 通用安装包（**当前实为 arm64 专用，Intel Mac 暂未提供原生构建**）
+- [HaogeMD-v0.5.0-macos.app.tar.gz](https://github.com/oahhao/HaogeMD/releases/download/v0.5.0/HaogeMD-v0.5.0-macos.app.tar.gz) — 命令行解压版本
 
 > **macOS 平台说明**：CI 矩阵当前只编译 Apple Silicon（arm64）。`macos.dmg` 与 `macos.app.tar.gz` 均为 arm64 构建；Intel Mac 用户暂未提供原生包。
 
@@ -45,8 +45,8 @@
 
 ### Linux 下载
 
-- [HaogeMD-v0.4.1-linux-x86_64.AppImage](https://github.com/oahhao/HaogeMD/releases/download/v0.4.1/HaogeMD-v0.4.1-linux-x86_64.AppImage) — 免安装便携
-- [HaogeMD-v0.4.1-linux-x86_64.deb](https://github.com/oahhao/HaogeMD/releases/download/v0.4.1/HaogeMD-v0.4.1-linux-x86_64.deb) — Debian / Ubuntu 安装包
+- [HaogeMD-v0.5.0-linux-x86_64.AppImage](https://github.com/oahhao/HaogeMD/releases/download/v0.5.0/HaogeMD-v0.5.0-linux-x86_64.AppImage) — 免安装便携
+- [HaogeMD-v0.5.0-linux-x86_64.deb](https://github.com/oahhao/HaogeMD/releases/download/v0.5.0/HaogeMD-v0.5.0-linux-x86_64.deb) — Debian / Ubuntu 安装包
 
 **系统依赖**（Ubuntu 22.04+ / Debian 12+）：
 
