@@ -25,6 +25,7 @@ export const ConfigLevelSelector: React.FC<ConfigLevelSelectorProps> =
     const [previewLevel, setPreviewLevel] = useState<ConfigLevel | null>(null);
     const [dropdownPos, setDropdownPos] = useState<DropdownPos | null>(null);
     const btnRef = useRef<HTMLButtonElement>(null);
+    const previewRef = useRef<HTMLDivElement>(null);
 
     const levels: ConfigLevel[] = useMemo(() => ["low", "medium", "high"], []);
     const currentLevelInfo = ConfigLevelInfoMap[configLevel];
@@ -51,17 +52,18 @@ export const ConfigLevelSelector: React.FC<ConfigLevelSelectorProps> =
 
     const toggleExpanded = useCallback(() => {
       if (btnRef.current) {
-        const rect = btnRef.current.getBoundingClientRect();
-        const DROPDOWN_HEIGHT_ESTIMATE = 420;
-        const spaceBelow = window.innerHeight - rect.bottom;
+        const btnRect = btnRef.current.getBoundingClientRect();
+        const previewHeight = previewRef.current?.offsetHeight ?? 0;
+        const DROPDOWN_HEIGHT_ESTIMATE = 280;
+        const spaceBelow = window.innerHeight - (btnRect.bottom + previewHeight);
         const top =
           spaceBelow < DROPDOWN_HEIGHT_ESTIMATE
-            ? Math.max(8, rect.top - DROPDOWN_HEIGHT_ESTIMATE - 8)
-            : rect.bottom + 8;
+            ? Math.max(8, btnRect.top - DROPDOWN_HEIGHT_ESTIMATE - 8)
+            : btnRect.bottom + previewHeight + 8;
         setDropdownPos({
           top,
-          left: rect.left,
-          width: rect.width,
+          left: btnRect.left,
+          width: btnRect.width,
         });
       }
       setIsExpanded((prev) => !prev);
@@ -144,12 +146,14 @@ export const ConfigLevelSelector: React.FC<ConfigLevelSelectorProps> =
             >
               {currentLevelInfo.name}
             </span>
-            <span
-              className="text-xs"
-              style={{ color: "var(--text-secondary)" }}
-            >
-              {currentLevelInfo.description}
-            </span>
+            {!isExpanded && (
+              <span
+                className="text-xs"
+                style={{ color: "var(--text-secondary)" }}
+              >
+                {currentLevelInfo.description}
+              </span>
+            )}
           </div>
           <svg
             className={`w-4 h-4 transition-transform duration-200 ${
@@ -169,6 +173,42 @@ export const ConfigLevelSelector: React.FC<ConfigLevelSelectorProps> =
           </svg>
         </button>
 
+        {/* 预览面板 - 始终显示当前配置场景 */}
+        <div ref={previewRef} className="config-level-preview">
+          <p
+            className="text-xs mb-2 scenario-text"
+            style={{ color: "var(--text-secondary)" }}
+          >
+            {previewLevel ? "预览效果：" : "当前配置："}
+            {(previewLevelInfo || currentLevelInfo).scenario}
+          </p>
+          <div className="space-y-1 effects-list">
+            {(previewLevelInfo || currentLevelInfo).effects.map(
+              (effect, index) => (
+                <div
+                  key={index}
+                  className="flex items-center gap-2 text-xs"
+                  style={{ color: "var(--text-secondary)" }}
+                >
+                  <svg
+                    className="w-3 h-3 shrink-0"
+                    style={{ color: "var(--accent-cyan)" }}
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  {effect}
+                </div>
+              ),
+            )}
+          </div>
+        </div>
+
         {/* 下拉菜单 - 使用 portal 渲染到 body，逃逸面板的 overflow 和 transform */}
         {isExpanded && dropdownPos && createPortal(
           <div
@@ -180,71 +220,6 @@ export const ConfigLevelSelector: React.FC<ConfigLevelSelectorProps> =
               width: Math.max(dropdownPos.width, 320),
             }}
           >
-            {/* 预览面板 */}
-            {(previewLevel || configLevel) && (
-              <div
-                className="p-4 border-b animate-fade-in"
-                style={{
-                  background: "var(--bg-secondary)",
-                  borderColor: "var(--divider)",
-                }}
-              >
-                <div className="flex items-center gap-3 mb-3">
-                  <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold ${getLevelColorClass(previewLevel || configLevel)}`}
-                  >
-                    {getLevelIcon(previewLevel || configLevel)}
-                  </div>
-                  <div>
-                    <h4
-                      className="font-semibold"
-                      style={{ color: "var(--text-primary)" }}
-                    >
-                      {(previewLevelInfo || currentLevelInfo).name}
-                    </h4>
-                    <p
-                      className="text-xs"
-                      style={{ color: "var(--text-secondary)" }}
-                    >
-                      {(previewLevelInfo || currentLevelInfo).description}
-                    </p>
-                  </div>
-                </div>
-                <p
-                  className="text-xs mb-3 scenario-text"
-                  style={{ color: "var(--text-secondary)" }}
-                >
-                  {previewLevel ? "预览效果：" : "当前配置："}
-                  {(previewLevelInfo || currentLevelInfo).scenario}
-                </p>
-                <div className="space-y-1 effects-list">
-                  {(previewLevelInfo || currentLevelInfo).effects.map(
-                    (effect, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center gap-2 text-xs"
-                        style={{ color: "var(--text-secondary)" }}
-                      >
-                        <svg
-                          className="w-3 h-3 shrink-0"
-                          style={{ color: "var(--accent-cyan)" }}
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                        {effect}
-                      </div>
-                    ),
-                  )}
-                </div>
-              </div>
-            )}
-
             {/* 级别列表 */}
             <div className="divide-y" style={{ borderColor: "var(--divider)" }}>
               {levels.map((level) => {
@@ -382,26 +357,33 @@ export const ConfigLevelSelector: React.FC<ConfigLevelSelectorProps> =
             box-shadow: 0 0 0 2px var(--accent-cyan);
           }
 
+          .config-level-preview {
+            background: var(--bg-code);
+            border: 1px solid var(--divider);
+            padding: 10px 14px;
+            border-radius: 0 0 8px 8px;
+            margin-top: 4px;
+          }
+
+          .config-level-preview .effects-list {
+            word-break: break-word;
+            overflow-wrap: break-word;
+            line-height: 1.5;
+          }
+
+          .config-level-preview .scenario-text {
+            word-break: break-word;
+            overflow-wrap: break-word;
+            line-height: 1.5;
+          }
+
           .config-level-dropdown {
             background: var(--bg-sidebar, #1A1A2E);
             border: 1px solid var(--divider);
+            border-radius: 8px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(100, 200, 200, 0.1);
             overflow-y: auto;
             max-height: calc(100vh - 80px);
-            word-break: break-word;
-            overflow-wrap: break-word;
-          }
-
-          .config-level-dropdown .effects-list {
-            word-break: break-word;
-            overflow-wrap: break-word;
-            line-height: 1.5;
-          }
-
-          .config-level-dropdown .scenario-text {
-            word-break: break-word;
-            overflow-wrap: break-word;
-            line-height: 1.5;
           }
 
           /* 级别图标颜色 */
@@ -410,7 +392,7 @@ export const ConfigLevelSelector: React.FC<ConfigLevelSelectorProps> =
           }
 
           .level-icon-medium {
-            background: var(--accent-yellow);
+            background: #B8860B;
           }
 
           .level-icon-high {
