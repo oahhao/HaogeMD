@@ -1,6 +1,6 @@
 [package]
 name = "haogemd"
-version = "0.4.1"
+version = "0.5.0"
 description = "HaogeMD - A Markdown Reader"
 authors = ["豪哥"]
 edition = "2021"
