@@ -221,7 +221,7 @@
 ## 发布与 Tag 约定
 
 > 本节约定版本升级与 Git Tag 的关系，影响 `.github/workflows/release.yml`
-> （该工作流仅在推送 `v*` tag 时触发打包：Windows NSIS 安装包 + portable zip）。
+> （该工作流仅在推送 `v*` tag 时触发打包：Windows NSIS 安装包 + portable zip、macOS dmg + app.tar.gz、Linux AppImage + deb）。
 
 ### 何时打 Tag
 
