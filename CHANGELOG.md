@@ -17,6 +17,7 @@
 - **双击打开 .md 文件只显示上次文件**：`App.tsx` 中标签恢复 effect 和文件关联 effect 存在竞态条件，标签恢复的 `setState()` 会覆盖文件关联的 `currentFilePath`。修复方案：将冷启动文件关联逻辑合并到标签恢复 effect 中，确保顺序执行（先获取 pending file → 恢复标签 → 在恢复基础上打开新文件）
 - **ConfigLevelSelector 图层重叠与文字重影**：预览面板和下拉内容同在 `createPortal` 中导致文字重复渲染。将预览面板移出 portal（始终显示在按钮下方），简化按钮在展开时的显示逻辑，调整下拉定位计算
 - **ConfigLevelSelector 生产构建样式缺失**：Tauri v2 生产 webview 中组件内嵌 `<style>` 标签不生效，导致下拉框/图标/动画全部失效。将全部样式迁移至 `globals.css`，所有 CSS 变量添加 fallback 值
+- **Markdown 链接点击无法打开文件**：`ContextMenuLink` 组件的 `<a>` 标签未拦截点击，Tauri webview 尝试导航到 `tauri://localhost/docs/...` 导致空白页。新增 `onClick` 处理器，相对路径通过 `invoke("read_file")` + `openFile()` 在当前视图打开，外部链接保持浏览器行为
 
 ## [0.5.0] - 2026-06-30
 
