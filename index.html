@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ErgeMD</title>
+    <title>HaogeMD</title>
     <style>
       /* 防白闪：body 在渲染前就有深色背景 */
       body {
@@ -17,7 +17,7 @@
     </style>
     <script>
       try {
-        var s = JSON.parse(localStorage.getItem('ergemd-settings') || '{}');
+        var s = JSON.parse(localStorage.getItem('haogemd-settings') || '{}');
         var t = (s.state && s.state.readingSettings && s.state.readingSettings.theme) || 'cyberpunk';
         if (t === 'system') t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
         document.documentElement.setAttribute('data-theme', t);
@@ -82,7 +82,7 @@
         }
       </style>
       <div class="app-loader">
-        <div class="logo">ErgeMD</div>
+        <div class="logo">HaogeMD</div>
         <div class="spinner"></div>
         <div class="sub">Loading...</div>
       </div>

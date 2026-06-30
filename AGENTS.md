@@ -1,4 +1,4 @@
-# ErgeMD 项目 AI 档案
+# HaogeMD 项目 AI 档案
 
 > 本文件用于指导 AI Agent 在本项目中工作，参考 [AGENTS.md 最佳实践](https://agentsmd.io/agents-md-best-practices)。
 >
@@ -15,11 +15,11 @@
 | Tauri 开发 | `pnpm tauri dev`    | 启动 Tauri 应用开发模式                                          |
 | 前端构建   | `pnpm build`        | 构建前端生产包                                                   |
 | 同步版本   | `pnpm sync-version` | 从 package.json 同步版本到 Cargo.toml 和 tauri.conf.json         |
-| 打包发布   | `pnpm tauri:build`  | 自动同步版本 + 编译 Rust + 打包 + 重命名（输出 ErgeMD-v{x}.exe） |
+| 打包发布   | `pnpm tauri:build`  | 自动同步版本 + 编译 Rust + 打包 + 重命名（输出 HaogeMD-v{x}.exe） |
 | 代码检查   | `pnpm lint`         | 运行 ESLint 检查                                                 |
 | 预览       | `pnpm preview`      | 预览构建后的前端                                                 |
 
-> **打包产物**：`src-tauri/target/release/ErgeMD-v{x}.exe`（独立可执行文件）、`src-tauri/target/release/bundle/nsis/ErgeMD-v{x}-setup.exe`（NSIS 安装包）
+> **打包产物**：`src-tauri/target/release/HaogeMD-v{x}.exe`（独立可执行文件）、`src-tauri/target/release/bundle/nsis/HaogeMD-v{x}-setup.exe`（NSIS 安装包）
 
 ***
 
