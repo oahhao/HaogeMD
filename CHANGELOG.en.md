@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - **Double-clicking .md file only shows previous file**: Race condition between tab restoration effect and file association effect in `App.tsx`, where tab restoration's `setState()` overwrites file association's `currentFilePath`. Fixed by merging cold-start file association logic into the tab restoration effect
+- **ConfigLevelSelector layer overlap and text ghosting**: Preview panel and dropdown content both in `createPortal` caused duplicate text rendering. Extracted preview panel from portal (always visible below button), simplified button text display when expanded, adjusted dropdown positioning calculation
+- **ConfigLevelSelector production build missing styles**: Component inline `<style>` tag not rendering in Tauri v2 production webview, causing dropdown/icon/animation all to fail. Migrated all styles to `globals.css` with CSS variable fallback values
 
 ## [0.5.0] - 2026-06-30
 
