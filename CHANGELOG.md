@@ -16,6 +16,21 @@
 
 - **双击打开 .md 文件只显示上次文件**：`App.tsx` 中标签恢复 effect 和文件关联 effect 存在竞态条件，标签恢复的 `setState()` 会覆盖文件关联的 `currentFilePath`。修复方案：将冷启动文件关联逻辑合并到标签恢复 effect 中，确保顺序执行（先获取 pending file → 恢复标签 → 在恢复基础上打开新文件）
 
+## [0.5.0] - 2026-06-30
+
+### 优化
+
+- **性能模式设置下拉框位置修正**：性能模式选择器列表溢出右面板时不再被裁剪；自动检测视口边界，空间不足时向上弹出
+- **滚动跳转修复**：RightPanel/LeftPanel 焦点陷阱 effect 的 `onToggle` 依赖导致每次 `configLevel` 变化时重新聚焦到面板顶部。改用 `onToggleRef` 避免无关状态变化引起的重执行
+- **ConfigLevelSelector 清理**：移除 scroll 保存/恢复、`tabIndex=-1` 等防御代码；恢复 portal 为条件渲染
+
+### 性能
+
+- **白屏消除**：`tauri.conf.json` 添加 `backgroundColor: #0A0A0F`，原生窗口从创建起即为深色背景
+- **启动速度优化**：工作区扫描延迟到侧边栏打开时执行，不再阻塞启动流程（节省 200-1000ms）
+- **Loading indicator 改进**：深色背景 + 渐变 Logo + spinner + pulse 动画
+- **Tab 恢复降级**：启动时仅加载前 5 个 tab，其余 tab 标记为未加载并按需读取
+
 ## [0.4.1] - 2026-06-12
 
 ### 修复

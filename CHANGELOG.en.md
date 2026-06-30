@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- **Brand customization**: Renamed from ErgeMD to HaogeMD, author info replaced with 豪哥
+- **App icon**: Brand-new HaogeMD icon (H+MD design), embedded as SVG component
+- **Icon size**: Welcome page icon increased from 160px to 240px, About page icon from 104px to 120px
+
+### Fixed
+
+- **Double-clicking .md file only shows previous file**: Race condition between tab restoration effect and file association effect in `App.tsx`, where tab restoration's `setState()` overwrites file association's `currentFilePath`. Fixed by merging cold-start file association logic into the tab restoration effect
+
+## [0.5.0] - 2026-06-30
+
+### Improved
+
+- **Performance mode dropdown positioning**: The dropdown now avoids clipping when overflowing the right panel; detects viewport boundaries and opens upward when space is insufficient
+- **Scroll jump fix**: RightPanel/LeftPanel focus trap effect's `onToggle` dependency caused re-focusing to panel top on every `configLevel` change. Switched to `onToggleRef` to prevent unnecessary re-execution
+- **ConfigLevelSelector cleanup**: Removed scroll save/restore, `tabIndex=-1` defensive code; reverted portal to conditional rendering
+
+### Performance
+
+- **White flash elimination**: Added `backgroundColor: #0A0A0F` to `tauri.conf.json` so the native window is dark from creation
+- **Startup speed optimization**: Deferred workspace scanning to sidebar open, no longer blocking startup (saves 200-1000ms)
+- **Loading indicator improvement**: Dark background + gradient logo + spinner + pulse animation
+- **Tab restoration degradation**: Only loads first 5 tabs at startup; remaining tabs marked as unloaded and read on demand
+
 ## [0.4.1] - 2026-06-12
 
 ### Fixed
