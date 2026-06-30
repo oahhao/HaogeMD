@@ -1,4 +1,4 @@
-# CLAUDE.md — ErgeMD 关键文件索引
+# CLAUDE.md — HaogeMD 关键文件索引
 
 > 本文件是 [AGENTS.md](./AGENTS.md) 的补充，专门记录**关键文件路径索引**，
 > 供 AI 在接手任务时快速定位代码位置。规范、命令、约定等内容以 AGENTS.md 为准。

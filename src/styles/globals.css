@@ -590,3 +590,76 @@ select:focus-visible {
     flex-direction: column;
   }
 }
+
+/* ===== ConfigLevelSelector 样式 ===== */
+.config-level-btn {
+  background: var(--bg-code, #16162A);
+  border: 1px solid var(--divider, rgba(100, 200, 200, 0.1));
+  color: var(--text-primary, #C8C8C8);
+}
+
+.config-level-btn:hover {
+  background: var(--hover-bg-light, rgba(255, 255, 255, 0.05));
+  border-color: var(--accent-cyan, #00FFFF);
+}
+
+.config-level-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--accent-cyan, #00FFFF);
+}
+
+.config-level-preview {
+  background: var(--bg-code, #16162A);
+  border: 1px solid var(--divider, rgba(100, 200, 200, 0.1));
+  padding: 10px 14px;
+  border-radius: 0 0 8px 8px;
+  margin-top: 4px;
+}
+
+.config-level-preview .effects-list {
+  word-break: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.5;
+}
+
+.config-level-preview .scenario-text {
+  word-break: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.5;
+}
+
+.config-level-dropdown {
+  background: var(--bg-sidebar, #1A1A2E);
+  border: 1px solid var(--divider, rgba(100, 200, 200, 0.1));
+  border-radius: 8px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(100, 200, 200, 0.1);
+  overflow-y: auto;
+  max-height: calc(100vh - 80px);
+}
+
+.level-icon-low {
+  background: var(--accent-orange, #CE9178);
+}
+
+.level-icon-medium {
+  background: #B8860B;
+}
+
+.level-icon-high {
+  background: var(--accent-green, #6A9955);
+}
+
+@media (prefers-contrast: high) {
+  .level-icon-low,
+  .level-icon-medium,
+  .level-icon-high {
+    border: 2px solid currentColor;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-slide-down,
+  .animate-fade-in {
+    animation-duration: 0.01ms !important;
+  }
+}
