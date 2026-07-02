@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { save } from "@tauri-apps/plugin-dialog";
-import { resolveAllImages } from "./exportImageHelper";
+import { createImageAdapter } from "./exportImageHelper";
 
 export async function exportDocx(markdownContent: string, basePath?: string): Promise<void> {
   if (!markdownContent) {
@@ -16,29 +16,13 @@ export async function exportDocx(markdownContent: string, basePath?: string): Pr
 
   const { markdownDocx, Packer } = await import("markdown-docx");
 
-  // 解析所有图片为 data URL
-  let resolvedContent = markdownContent;
-  let warnings: string[] = [];
-  
-  if (basePath) {
-    const result = await resolveAllImages(markdownContent, basePath);
-    resolvedContent = result.content;
-    warnings = result.warnings;
-    
-    // 显示警告信息
-    if (warnings.length > 0) {
-      console.warn("Word导出图片大小警告:", warnings.join("\n"));
-      // 可以在这里添加用户提示，比如使用 dialog 显示警告
-    }
-    
-    if (result.totalImages > 0) {
-      console.log(`Word导出: 处理了 ${result.totalImages} 张图片，总大小 ${result.totalSizeMB} MB`);
-    }
-  }
+  // 创建自定义图片适配器（如果提供了 basePath）
+  const imageAdapter = basePath ? createImageAdapter(basePath) : undefined;
 
-  const doc = await markdownDocx(resolvedContent, {
+  const doc = await markdownDocx(markdownContent, {
     gfm: true,
     ignoreHtml: false,
+    imageAdapter
   });
 
   const blob = await Packer.toBlob(doc);

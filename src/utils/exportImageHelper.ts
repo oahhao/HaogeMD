@@ -175,3 +175,172 @@ export async function resolveAllImages(
     totalSizeMB: parseFloat(totalSizeMB.toFixed(2))
   };
 }
+
+/**
+ * markdown-docx 自定义图片适配器
+ * 处理相对路径图片和 data URL 图片
+ * 
+ * @param token - markdown-docx 的图片 token
+ * @param basePath - 当前文档的基础路径（通过闭包传递）
+ * @returns Promise<MarkdownImageItem | null> - 返回图片数据或 null（让库使用默认处理）
+ */
+export function createImageAdapter(basePath: string): (token: any) => Promise<any | null> {
+  return async function customImageAdapter(token: any): Promise<any | null> {
+    const src = token.href;
+    const alt = token.text || '';
+    const title = token.title || '';
+
+    console.log(`图片适配器处理: src=${src}, basePath=${basePath}`);
+    
+    // 处理 data URL
+    if (src.startsWith('data:')) {
+      try {
+        return await handleDataUrl(src, alt, title);
+      } catch (error) {
+        console.error('处理 data URL 失败:', error);
+        return null;
+      }
+    }
+    
+    // 处理远程 URL（交给默认适配器）
+    if (src.startsWith('http://') || src.startsWith('https://')) {
+      console.log('远程 URL，使用默认适配器');
+      return null;
+    }
+    
+    // 处理本地相对路径图片
+    try {
+      return await handleLocalImage(src, basePath, alt, title);
+    } catch (error) {
+      console.error(`处理本地图片失败: ${src}`, error);
+      return null;
+    }
+  };
+}
+
+/**
+ * 处理 data URL 图片
+ */
+async function handleDataUrl(src: string, alt: string, title: string): Promise<any | null> {
+  // 解析 data URL 格式：data:image/png;base64,iVBORw0KGgoAAAAN...
+  const matches = src.match(/^data:([a-zA-Z0-9/+-]+);base64,(.+)$/);
+  
+  if (!matches) {
+    console.warn(`无法解析的 data URL 格式: ${src.substring(0, 50)}...`);
+    return null;
+  }
+
+  const mimeType = matches[1];
+  const base64Data = matches[2];
+  
+  // 解码 base64 数据
+  const binaryString = atob(base64Data);
+  const bytes = new Uint8Array(binaryString.length);
+  
+  for (let i = 0; i < binaryString.length; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+
+  const { width, height } = extractDimensions(title);
+
+  return {
+    type: 'image',
+    data: bytes,
+    mimeType,
+    width,
+    height,
+    alt,
+    title
+  };
+}
+
+/**
+ * 处理本地图片
+ */
+async function handleLocalImage(src: string, basePath: string, alt: string, title: string): Promise<any | null> {
+  try {
+    // 调用 Rust 后端读取图片并转换为 data URL
+    const dataUrl = await invoke<string>("read_image_as_data_url", {
+      basePath,
+      relativePath: src,
+    });
+
+    if (!dataUrl || !dataUrl.startsWith('data:')) {
+      console.warn(`无法读取图片: ${src}`);
+      return null;
+    }
+
+    // 解析 data URL
+    const matches = dataUrl.match(/^data:([a-zA-Z0-9/+-]+);base64,(.+)$/);
+    if (!matches) {
+      console.warn(`无效的 data URL 格式: ${dataUrl.substring(0, 50)}...`);
+      return null;
+    }
+
+    const mimeType = matches[1];
+    const base64Data = matches[2];
+    
+    // 解码 base64 数据
+    const binaryString = atob(base64Data);
+    const bytes = new Uint8Array(binaryString.length);
+    
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+
+    const { width, height } = extractDimensions(title);
+
+    console.log(`成功处理本地图片: ${src}, 大小: ${bytes.length} bytes`);
+
+    return {
+      type: 'image',
+      data: bytes,
+      mimeType,
+      width,
+      height,
+      alt,
+      title
+    };
+
+  } catch (error) {
+    console.error(`读取本地图片失败: ${src}`, error);
+    return null;
+  }
+}
+
+/**
+ * 从 title 中提取尺寸信息
+ */
+function extractDimensions(title: string): { width?: number; height?: number } {
+  let width: number | undefined;
+  let height: number | undefined;
+  
+  if (title && title.includes('x')) {
+    const sizeMatch = title.match(/(\d+)(?:%?)x(\d+)(?:%?)/);
+    if (sizeMatch) {
+      width = parseInt(sizeMatch[1], 10);
+      height = parseInt(sizeMatch[2], 10);
+    }
+  }
+
+  // 限制大图片尺寸，避免 Word 文档过大
+  const MAX_DIMENSION = 1024;
+  
+  if (width !== undefined && height !== undefined) {
+    if (width > MAX_DIMENSION) {
+      const ratio = width / height;
+      width = MAX_DIMENSION;
+      height = Math.round(MAX_DIMENSION / ratio);
+    } else if (height > MAX_DIMENSION) {
+      const ratio = width / height;
+      height = MAX_DIMENSION;
+      width = Math.round(MAX_DIMENSION * ratio);
+    }
+  } else if (width !== undefined && width > MAX_DIMENSION) {
+    width = MAX_DIMENSION;
+  } else if (height !== undefined && height > MAX_DIMENSION) {
+    height = MAX_DIMENSION;
+  }
+
+  return { width, height };
+}
