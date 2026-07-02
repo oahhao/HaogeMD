@@ -1,6 +1,7 @@
 import { parseMarkdownBlocks } from "./markdownBlocks";
 import { renderMermaidForExport } from "@/components/reader/MermaidDiagram";
 import { renderPlantUmlForExport } from "@/components/reader/PlantUMLDiagram";
+import { resolveAllImages } from "./exportImageHelper";
 
 export interface ExportHtmlOptions {
   grayscale?: boolean;
@@ -354,10 +355,28 @@ function buildKatexCssLink(): string {
 export async function generateExportHtml(
   content: string,
   options: ExportHtmlOptions = {},
+  basePath?: string,
 ): Promise<string> {
   const { grayscale = false, fontSize = 16 } = options;
 
-  const { blocks } = parseMarkdownBlocks(content);
+  // 解析所有图片为 data URL
+  let resolvedContent = content;
+  
+  if (basePath) {
+    const result = await resolveAllImages(content, basePath);
+    resolvedContent = result.content;
+    
+    // 显示警告信息
+    if (result.warnings.length > 0) {
+      console.warn("PDF导出图片大小警告:", result.warnings.join("\n"));
+    }
+    
+    if (result.totalImages > 0) {
+      console.log(`PDF导出: 处理了 ${result.totalImages} 张图片，总大小 ${result.totalSizeMB} MB`);
+    }
+  }
+
+  const { blocks } = parseMarkdownBlocks(resolvedContent);
   const cssVariables = collectCssVariables(grayscale);
 
   const cssVarsString = CSS_VARIABLE_NAMES.map((name) => `    --${name}: ${cssVariables[name]};`).join("\n");

@@ -369,7 +369,6 @@
 
 /* ===== Mermaid 图表 ===== */
 .markdown-body .mermaid svg {
-  max-width: 100%;
   height: auto;
 }
 

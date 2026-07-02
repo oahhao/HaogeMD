@@ -9,6 +9,7 @@ import { detectPlatform } from "./platform";
 async function doExportPdf(grayscale: boolean): Promise<void> {
   const fileStore = useFileStore.getState();
   const content = fileStore.currentContent;
+  const basePath = fileStore.currentFilePath;
 
   if (!content || !content.trim()) {
     useReaderStore.getState().addToast({ type: "error", message: "没有可导出的内容" });
@@ -32,13 +33,13 @@ async function doExportPdf(grayscale: boolean): Promise<void> {
     });
   }
 
-  const defaultFileName = fileStore.currentFilePath
-    ? fileStore.currentFilePath.split(/[/\\]/).pop()?.replace(/\.[^.]+$/, "") || "export"
+  const defaultFileName = basePath
+    ? basePath.split(/[/\\]/).pop()?.replace(/\.[^.]+$/, "") || "export"
     : "export";
 
   const fontSize = useSettingsStore.getState().readingSettings.fontSize;
 
-  const htmlPromise = generateExportHtml(content, { grayscale, fontSize });
+  const htmlPromise = generateExportHtml(content, { grayscale, fontSize }, basePath || undefined);
   const filePathPromise = save({
     filters: [{ name: "PDF", extensions: ["pdf"] }],
     defaultPath: `${defaultFileName}.pdf`,

@@ -375,7 +375,7 @@ export function parseMarkdownBlocks(markdown: string): {
         if (next.trim() === "") {
           if (i + 1 < lines.length) {
             const after = lines[i + 1];
-            if (/^\s{2,}/.test(after) || isListStart(after)) {
+            if (/^[\s\t]/.test(after) || isListStart(after)) {
               contentLines.push(next);
               i += 1;
               continue;
@@ -383,7 +383,7 @@ export function parseMarkdownBlocks(markdown: string): {
           }
           break;
         }
-        if (/^\s{2,}/.test(next)) {
+        if (/^[\s\t]/.test(next)) {
           contentLines.push(next);
           i += 1;
           continue;
@@ -796,7 +796,7 @@ function parseChunk(
         if (next.trim() === "") {
           if (i + 1 < lines.length) {
             const after = lines[i + 1];
-            if (/^\s{2,}/.test(after) || isListStart(after)) {
+            if (/^[\s\t]/.test(after) || isListStart(after)) {
               contentLines.push(next);
               i += 1;
               continue;
@@ -804,7 +804,7 @@ function parseChunk(
           }
           break;
         }
-        if (/^\s{2,}/.test(next)) {
+        if (/^[\s\t]/.test(next)) {
           contentLines.push(next);
           i += 1;
           continue;

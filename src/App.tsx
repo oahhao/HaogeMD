@@ -439,7 +439,8 @@ function App() {
         },
         onExportDocx: () => {
           const content = useFileStore.getState().currentContent;
-          exportDocx(content || "").catch(() => {
+          const basePath = useFileStore.getState().currentFilePath;
+          exportDocx(content || "", basePath || undefined).catch(() => {
             useReaderStore
               .getState()
               .addToast({ type: "error", message: "导出失败" });
@@ -661,7 +662,8 @@ function App() {
     onExportHtml: () => exportHtml().catch(() => {}),
     onExportDocx: () => {
       const currentContent = useFileStore.getState().currentContent;
-      exportDocx(currentContent || "").catch(() => {});
+      const basePath = useFileStore.getState().currentFilePath;
+      exportDocx(currentContent || "", basePath || undefined).catch(() => {});
     },
     onExportPdf: () => {
       exportPdf().catch(() => {});

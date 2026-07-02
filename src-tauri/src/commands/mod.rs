@@ -5,6 +5,28 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
+/// URL decode a percent-encoded string (e.g. "%E9%99%84%E4%BB%B6" -> "附件", "%20" -> " ")
+fn url_decode(s: &str) -> String {
+    let bytes = s.as_bytes();
+    let mut result = Vec::with_capacity(bytes.len());
+    let mut i = 0;
+    while i < bytes.len() {
+        if bytes[i] == b'%' && i + 2 < bytes.len() {
+            if let Ok(byte) = u8::from_str_radix(
+                std::str::from_utf8(&bytes[i + 1..i + 3]).unwrap_or(""),
+                16,
+            ) {
+                result.push(byte);
+                i += 3;
+                continue;
+            }
+        }
+        result.push(bytes[i]);
+        i += 1;
+    }
+    String::from_utf8(result).unwrap_or_else(|_| s.to_string())
+}
+
 pub mod fonts;
 pub mod pdf;
 pub mod update;
@@ -179,19 +201,27 @@ pub async fn resolve_image_path(base_path: String, relative_path: String) -> Res
 
 #[tauri::command]
 pub async fn read_image_as_data_url(base_path: String, relative_path: String) -> Result<String, String> {
+    let decoded_path = url_decode(&relative_path);
+    eprintln!("[IMG] decoded={}", decoded_path);
+
     let base = PathBuf::from(&base_path);
     let base_dir = if base.is_file() {
         base.parent().ok_or("Invalid base path")?.to_path_buf()
     } else {
         base.clone()
     };
-    
+
     // 1. 尝试标准路径（相对于当前文件目录）
-    let image_path = base_dir.join(&relative_path);
+    let image_path = base_dir.join(&decoded_path);
+    eprintln!("[IMG] path={}, exists={}", image_path.display(), image_path.exists());
+
     if let Ok(canonical) = image_path.canonicalize() {
+        eprintln!("[IMG] OK: {}", canonical.display());
         if canonical.exists() {
             return read_image_file(&canonical);
         }
+    } else {
+        eprintln!("[IMG] canonicalize FAILED for: {}", image_path.display());
     }
     
     // 2. 尝试 Obsidian 附件目录搜索
@@ -207,7 +237,7 @@ pub async fn read_image_as_data_url(base_path: String, relative_path: String) ->
         // - {fileDir}/attachments/{fileStem}/{filename}
         // - {parentDir}/attachments/{fileStem}/{filename}
         let parent_dir = base_dir.parent().unwrap_or(&base_dir);
-        let filename = Path::new(&relative_path).file_name().unwrap_or_default();
+        let filename = Path::new(&decoded_path).file_name().unwrap_or_default();
         
         let candidates = vec![
             base_dir.join("attachments").join(file_stem).join(filename),
@@ -215,15 +245,23 @@ pub async fn read_image_as_data_url(base_path: String, relative_path: String) ->
         ];
         
         for candidate in candidates {
+            eprintln!("[IMG] trying attachment: {}", candidate.display());
             if let Ok(canonical) = candidate.canonicalize() {
                 if canonical.exists() {
                     return read_image_file(&canonical);
                 }
+            } else {
+                eprintln!("[IMG] attachment canonicalize FAILED: {}", candidate.display());
             }
         }
     }
     
-    Err(format!("Image not found: {}", relative_path))
+    Err(format!(
+        "Image not found: base_dir={}, relative_path={}, image_path={}",
+        base_dir.display(),
+        relative_path,
+        image_path.display()
+    ))
 }
 
 /// 读取图片文件并转换为 data URL
