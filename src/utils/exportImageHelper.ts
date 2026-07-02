@@ -221,37 +221,39 @@ export function createImageAdapter(basePath: string): (token: any) => Promise<an
 /**
  * 处理 data URL 图片
  */
-async function handleDataUrl(src: string, alt: string, title: string): Promise<any | null> {
-  // 解析 data URL 格式：data:image/png;base64,iVBORw0KGgoAAAAN...
-  const matches = src.match(/^data:([a-zA-Z0-9/+-]+);base64,(.+)$/);
-  
-  if (!matches) {
-    console.warn(`无法解析的 data URL 格式: ${src.substring(0, 50)}...`);
+async function handleDataUrl(src: string, _alt: string, title: string): Promise<any | null> {
+  try {
+    // 解析 data URL
+    const { type, data, mimeType } = parseDataUrl(src);
+    
+    // 获取图片实际尺寸
+    const { width: originalWidth, height: originalHeight } = await getImageDimensions(data, mimeType);
+    
+    // 提取用户指定尺寸
+    const userDimensions = extractUserDimensions(title);
+    
+    // 智能缩放尺寸
+    const { width, height } = smartScaleDimensions(
+      originalWidth, 
+      originalHeight, 
+      userDimensions.width, 
+      userDimensions.height
+    );
+    
+    console.log(`处理 data URL 图片: type=${type}, 原始尺寸=${originalWidth}x${originalHeight}, 缩放后=${width}x${height}`);
+    
+    // 返回 markdown-docx 期望的格式
+    return {
+      type,        // 'jpg' | 'png' | 'gif' | 'bmp' | 'webp'
+      data,        // ArrayBuffer
+      width,       // 数字（必填）
+      height       // 数字（必填）
+    };
+    
+  } catch (error) {
+    console.error('处理 data URL 失败:', error);
     return null;
   }
-
-  const mimeType = matches[1];
-  const base64Data = matches[2];
-  
-  // 解码 base64 数据
-  const binaryString = atob(base64Data);
-  const bytes = new Uint8Array(binaryString.length);
-  
-  for (let i = 0; i < binaryString.length; i++) {
-    bytes[i] = binaryString.charCodeAt(i);
-  }
-
-  const { width, height } = extractDimensions(title);
-
-  return {
-    type: 'image',
-    data: bytes,
-    mimeType,
-    width,
-    height,
-    alt,
-    title
-  };
 }
 
 /**
@@ -270,37 +272,14 @@ async function handleLocalImage(src: string, basePath: string, alt: string, titl
       return null;
     }
 
-    // 解析 data URL
-    const matches = dataUrl.match(/^data:([a-zA-Z0-9/+-]+);base64,(.+)$/);
-    if (!matches) {
-      console.warn(`无效的 data URL 格式: ${dataUrl.substring(0, 50)}...`);
-      return null;
-    }
-
-    const mimeType = matches[1];
-    const base64Data = matches[2];
+    // 直接使用 handleDataUrl 处理转换后的 data URL
+    const result = await handleDataUrl(dataUrl, alt, title);
     
-    // 解码 base64 数据
-    const binaryString = atob(base64Data);
-    const bytes = new Uint8Array(binaryString.length);
-    
-    for (let i = 0; i < binaryString.length; i++) {
-      bytes[i] = binaryString.charCodeAt(i);
+    if (result) {
+      console.log(`成功处理本地图片: ${src}, 尺寸: ${result.width}x${result.height}`);
     }
-
-    const { width, height } = extractDimensions(title);
-
-    console.log(`成功处理本地图片: ${src}, 大小: ${bytes.length} bytes`);
-
-    return {
-      type: 'image',
-      data: bytes,
-      mimeType,
-      width,
-      height,
-      alt,
-      title
-    };
+    
+    return result;
 
   } catch (error) {
     console.error(`读取本地图片失败: ${src}`, error);
@@ -309,38 +288,164 @@ async function handleLocalImage(src: string, basePath: string, alt: string, titl
 }
 
 /**
- * 从 title 中提取尺寸信息
+ * 转换 MIME 类型为 markdown-docx 支持的图片类型
  */
-function extractDimensions(title: string): { width?: number; height?: number } {
-  let width: number | undefined;
-  let height: number | undefined;
+function mimeTypeToImageType(mimeType: string): 'jpg' | 'png' | 'gif' | 'bmp' | 'webp' | null {
+  const mimeLower = mimeType.toLowerCase();
   
-  if (title && title.includes('x')) {
-    const sizeMatch = title.match(/(\d+)(?:%?)x(\d+)(?:%?)/);
-    if (sizeMatch) {
-      width = parseInt(sizeMatch[1], 10);
-      height = parseInt(sizeMatch[2], 10);
-    }
+  if (mimeLower.includes('jpeg') || mimeLower.includes('jpg')) {
+    return 'jpg';
+  } else if (mimeLower.includes('png')) {
+    return 'png';
+  } else if (mimeLower.includes('gif')) {
+    return 'gif';
+  } else if (mimeLower.includes('bmp')) {
+    return 'bmp';
+  } else if (mimeLower.includes('webp')) {
+    return 'webp';
   }
-
-  // 限制大图片尺寸，避免 Word 文档过大
-  const MAX_DIMENSION = 1024;
   
-  if (width !== undefined && height !== undefined) {
-    if (width > MAX_DIMENSION) {
-      const ratio = width / height;
-      width = MAX_DIMENSION;
-      height = Math.round(MAX_DIMENSION / ratio);
-    } else if (height > MAX_DIMENSION) {
-      const ratio = width / height;
-      height = MAX_DIMENSION;
-      width = Math.round(MAX_DIMENSION * ratio);
-    }
-  } else if (width !== undefined && width > MAX_DIMENSION) {
-    width = MAX_DIMENSION;
-  } else if (height !== undefined && height > MAX_DIMENSION) {
-    height = MAX_DIMENSION;
-  }
+  return null;
+}
 
-  return { width, height };
+/**
+ * 解析 data URL
+ */
+function parseDataUrl(dataUrl: string): {
+  type: 'jpg' | 'png' | 'gif' | 'bmp' | 'webp';
+  data: ArrayBuffer;
+  mimeType: string;
+} {
+  // 匹配 data:[mime];base64,[data] 或 data:[mime],[data]
+  const match = dataUrl.match(/^data:([^;,]+)(?:;base64)?,(.+)$/);
+  if (!match) {
+    throw new Error(`无效的 data URL 格式: ${dataUrl.substring(0, 50)}...`);
+  }
+  
+  const mimeType = match[1];
+  const encodedData = match[2];
+  
+  // 获取图片类型
+  const imageType = mimeTypeToImageType(mimeType);
+  if (!imageType) {
+    throw new Error(`不支持的图片 MIME 类型: ${mimeType}`);
+  }
+  
+  // 解码 base64 数据
+  const binaryString = atob(encodedData);
+  const bytes = new Uint8Array(binaryString.length);
+  for (let i = 0; i < binaryString.length; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  
+  return {
+    type: imageType,
+    data: bytes.buffer, // 转换为 ArrayBuffer
+    mimeType
+  };
+}
+
+/**
+ * 获取图片实际尺寸
+ */
+async function getImageDimensions(data: ArrayBuffer, mimeType: string): Promise<{width: number, height: number}> {
+  return new Promise((resolve, reject) => {
+    const blob = new Blob([data], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const img = new Image();
+    
+    img.onload = () => {
+      const width = img.naturalWidth || img.width || 0;
+      const height = img.naturalHeight || img.height || 0;
+      
+      URL.revokeObjectURL(url);
+      
+      if (width === 0 || height === 0) {
+        reject(new Error('无法获取图片尺寸'));
+      } else {
+        resolve({ width, height });
+      }
+    };
+    
+    img.onerror = (error) => {
+      URL.revokeObjectURL(url);
+      reject(new Error(`加载图片失败: ${error}`));
+    };
+    
+    img.src = url;
+  });
+}
+
+/**
+ * 从 title 中提取用户指定的尺寸
+ */
+function extractUserDimensions(title: string): { width?: number; height?: number } {
+  if (!title || !title.includes('x')) {
+    return { width: undefined, height: undefined };
+  }
+  
+  const sizeMatch = title.match(/(\d+)(?:%?)x(\d+)(?:%?)/);
+  if (!sizeMatch) {
+    return { width: undefined, height: undefined };
+  }
+  
+  return {
+    width: parseInt(sizeMatch[1], 10),
+    height: parseInt(sizeMatch[2], 10)
+  };
+}
+
+/**
+ * 智能尺寸缩放算法
+ * 根据 Word 页面尺寸自动缩放图片
+ */
+function smartScaleDimensions(
+  originalWidth: number,
+  originalHeight: number,
+  userWidth?: number,
+  userHeight?: number
+): { width: number; height: number } {
+  
+  // 优先级 1：用户指定了完整尺寸
+  if (userWidth !== undefined && userHeight !== undefined) {
+    return { width: userWidth, height: userHeight };
+  }
+  
+  // 优先级 2：用户只指定了宽度或高度，等比计算另一个
+  if (userWidth !== undefined) {
+    const ratio = originalHeight / originalWidth;
+    return { 
+      width: userWidth, 
+      height: Math.max(1, Math.round(userWidth * ratio)) 
+    };
+  }
+  
+  if (userHeight !== undefined) {
+    const ratio = originalWidth / originalHeight;
+    return { 
+      width: Math.max(1, Math.round(userHeight * ratio)), 
+      height: userHeight 
+    };
+  }
+  
+  // 优先级 3：智能缩放到适合 Word 页面的尺寸
+  const WORD_PAGE_MAX_WIDTH = 576;    // 7.5英寸 × 96DPI
+  const WORD_PAGE_MAX_HEIGHT = 720;   // 10英寸 × 96DPI
+  
+  // 如果图片已经适合页面，保持原尺寸
+  if (originalWidth <= WORD_PAGE_MAX_WIDTH && 
+      originalHeight <= WORD_PAGE_MAX_HEIGHT) {
+    return { width: originalWidth, height: originalHeight };
+  }
+  
+  // 计算缩放比例
+  const widthRatio = WORD_PAGE_MAX_WIDTH / originalWidth;
+  const heightRatio = WORD_PAGE_MAX_HEIGHT / originalHeight;
+  const scaleRatio = Math.min(widthRatio, heightRatio);
+  
+  // 应用缩放
+  const scaledWidth = Math.max(1, Math.round(originalWidth * scaleRatio));
+  const scaledHeight = Math.max(1, Math.round(originalHeight * scaleRatio));
+  
+  return { width: scaledWidth, height: scaledHeight };
 }
