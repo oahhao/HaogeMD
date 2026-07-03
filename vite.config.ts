@@ -31,6 +31,12 @@ export default defineConfig(async () => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: [path.resolve(__dirname, './vitest.setup.ts')],
+    include: ['src/**/*.{test,spec}.{ts,tsx}'],
+  },
   build: {
     rollupOptions: {
       output: {

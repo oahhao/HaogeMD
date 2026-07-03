@@ -26,6 +26,7 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["src", "src/hooks/useEdgeTrigger.ts"],
+  "include": ["src"],
+  "exclude": ["src/__tests__", "node_modules"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
