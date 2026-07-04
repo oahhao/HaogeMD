@@ -23,6 +23,7 @@ import {
 import remarkAbbr from "@syenchuk/remark-abbr";
 import remarkSupersub from "remark-supersub";
 import { encodeBlockDataRaw } from "@/utils/quickEditLines";
+import { BlockProvider } from "@/contexts/BlockContext";
 
 // ── 共享的 remarkPlugins / rehypePlugins ──────────────
 
@@ -51,140 +52,7 @@ const MarkdownBlockView: React.FC<MarkdownBlockViewProps> = memo(
       (s) => s.readingSettings.paragraphSpacing,
     );
 
-    // ── Heading block：使用 ReactMarkdown 渲染，支持链接等内联元素 ──
-    if (block.type === "heading") {
-      const level = block.headingLevel ?? 1;
-
-      // 从 raw 中提取标题内容（去掉 # 号）
-      const headingContent = block.raw
-        .replace(/^\s{0,3}#{1,6}\s*/, "")
-        .replace(/\s*#+\s*$/, "")
-        .trim();
-
-      return (
-        <div
-          id={block.tocId}
-          data-block-type="heading"
-          data-raw={encodeURIComponent(block.raw)}
-          className="markdown-body"
-        >
-          <ReactMarkdown
-            remarkPlugins={REMARK_PLUGINS}
-            rehypePlugins={REHYPE_PLUGINS}
-          >
-            {`${"#".repeat(level)} ${headingContent}`}
-          </ReactMarkdown>
-        </div>
-      );
-    }
-
-    // ── Mermaid block：使用 LazyMermaidBlock 懒渲染 ─
-    if (block.type === "mermaid") {
-      const codeLines = block.raw.split("\n");
-      const code = codeLines.slice(1, -1).join("\n").trim();
-
-      return (
-        <div
-          data-block-type="mermaid"
-          data-raw={encodeBlockDataRaw(block.raw, block.startLine, block.endLine)}
-        >
-          <LazyMermaidBlock
-            code={code}
-            raw={block.raw}
-            startLine={block.startLine}
-            endLine={block.endLine}
-          />
-        </div>
-      );
-    }
-
-    // ── PlantUML block：使用 LazyPlantUMLBlock 懒渲染 ─
-    if (block.type === "plantuml") {
-      const codeLines = block.raw.split("\n");
-      const code = codeLines.slice(1, -1).join("\n").trim();
-
-      return (
-        <div
-          data-block-type="plantuml"
-          data-raw={encodeBlockDataRaw(block.raw, block.startLine, block.endLine)}
-        >
-          <LazyPlantUMLBlock
-            code={code}
-            raw={block.raw}
-            startLine={block.startLine}
-            endLine={block.endLine}
-          />
-        </div>
-      );
-    }
-
-    // ── Math block：数学公式 ──
-    if (block.type === "math") {
-      return (
-        <div
-          data-block-type="math"
-          data-raw={encodeURIComponent(block.raw)}
-          className="my-4"
-        >
-          <ReactMarkdown
-            remarkPlugins={REMARK_PLUGINS}
-            rehypePlugins={REHYPE_PLUGINS}
-          >
-            {block.raw}
-          </ReactMarkdown>
-        </div>
-      );
-    }
-
-    // ── Blank block ──
-    if (block.type === "blank") {
-      return <div data-block-type="blank" style={{ height: "0.5em" }} />;
-    }
-
-    // ── Frontmatter block ──
-    if (block.type === "frontmatter") {
-      return (
-        <div
-          data-block-type="frontmatter"
-          data-raw={encodeBlockDataRaw(block.raw, block.startLine, block.endLine)}
-          onDoubleClick={(e) => {
-            const target = e.target as HTMLElement;
-            if (target.closest("a, button, input, select, textarea")) return;
-            startEdit(target);
-          }}
-        >
-          <ObsidianFrontmatter raw={block.raw} />
-        </div>
-      );
-    }
-
-    // ── Thematic break ──
-    if (block.type === "thematicBreak") {
-      return (
-        <div
-          style={{ margin: "2em 0" }}
-          data-raw={encodeBlockDataRaw(block.raw, block.startLine, block.endLine)}
-        >
-          <svg
-            width="100%"
-            height="2"
-            viewBox="0 0 100 2"
-            preserveAspectRatio="none"
-            style={{ display: "block" }}
-          >
-            <defs>
-              <linearGradient id="hr-taper-grad">
-                <stop offset="0%" stopColor="var(--accent-cyan, #00FFFF)" />
-                <stop offset="100%" stopColor="var(--accent-purple, #BF00FF)" />
-              </linearGradient>
-            </defs>
-            <path d="M0,1 Q50,0 100,1 Q50,2 0,1 Z" fill="url(#hr-taper-grad)" />
-          </svg>
-        </div>
-      );
-    }
-
-    // ── 其他 block：使用 ReactMarkdown 渲染 ──
+    // ── 所有 hooks 必须在提前返回之前调用，遵循 React Hooks 规则 ──
     const obsidianComponents = useObsidianModule(
       block.raw,
       block.raw,
@@ -412,33 +280,39 @@ const MarkdownBlockView: React.FC<MarkdownBlockViewProps> = memo(
             children?: React.ReactNode;
           },
         ) {
-          const { className, children, style, ...rest } = props;
+          const { className, children, style, inline, ...rest } = props;
           const match = /language-(\w+)/.exec(className || "");
-          const isInline = !match;
           const incomingStyle = style as React.CSSProperties | undefined;
 
-          if (isInline) {
-            return (
-              <code
-                style={{
-                  background: "var(--inline-code-bg)",
-                  color: "var(--accent-pink)",
-                  padding: "2px 6px",
-                  borderRadius: "3px",
-                  fontSize: "0.9em",
-                  fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
-                  ...incomingStyle,
-                }}
-                {...rest}
-              >
-                {children}
-              </code>
-            );
+          if (match) {
+            const language = match[1];
+            const codeString = String(children).replace(/\n$/, "");
+            const codeHash = `${language}:${codeString.length}:${codeString.slice(0, 50)}`;
+            return <CodeBlock key={codeHash} language={language} code={codeString} />;
           }
 
-          const language = match[1];
-          const codeString = String(children).replace(/\n$/, "");
-          return <CodeBlock language={language} code={codeString} />;
+          if (inline !== true) {
+            const codeString = String(children).replace(/\n$/, "");
+            const codeHash = `:${codeString.length}:${codeString.slice(0, 50)}`;
+            return <CodeBlock key={codeHash} language="" code={codeString} />;
+          }
+
+          return (
+            <code
+              style={{
+                background: "var(--inline-code-bg)",
+                color: "var(--accent-pink)",
+                padding: "2px 6px",
+                borderRadius: "3px",
+                fontSize: "0.9em",
+                fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+                ...incomingStyle,
+              }}
+              {...rest}
+            >
+              {children}
+            </code>
+          );
         },
         pre(
           props: React.HTMLAttributes<HTMLPreElement> & {
@@ -662,45 +536,205 @@ const MarkdownBlockView: React.FC<MarkdownBlockViewProps> = memo(
       [baseComponents, obsidianComponents],
     );
 
-    return (
-      <div
-        className="markdown-body"
-        data-block-type={block.type}
-        data-raw={encodeBlockDataRaw(
-          block.raw,
-          block.startLine,
-          block.endLine,
-        )}
-        onDoubleClick={(e) => {
-          const target = e.target as HTMLElement;
-          if (
-            target.closest(
-              "a, code, pre, button, .mermaid, img, input, select, textarea",
-            )
-          )
-            return;
-          startEdit(target);
-        }}
+    // ── Heading block：使用 ReactMarkdown 渲染，支持链接等内联元素 ──
+    if (block.type === "heading") {
+      const level = block.headingLevel ?? 1;
 
-        style={
-          {
-            color: "var(--text-primary)",
-            wordBreak: "break-word",
-            overflowWrap: "break-word",
-            "--katex-font-size": "1.15em",
-          } as React.CSSProperties
-        }
-      >
-        <ReactMarkdown
-          remarkPlugins={REMARK_PLUGINS}
-          rehypePlugins={REHYPE_PLUGINS}
-          components={components}
+      // 从 raw 中提取标题内容（去掉 # 号）
+      const headingContent = block.raw
+        .replace(/^\s{0,3}#{1,6}\s*/, "")
+        .replace(/\s*#+\s*$/, "")
+        .trim();
+
+      return (
+        <div
+          id={block.tocId}
+          data-block-type="heading"
+          data-raw={encodeURIComponent(block.raw)}
+          className="markdown-body"
         >
-          {referenceDefinitions
-            ? `${processedRaw}\n\n${referenceDefinitions}`
-            : processedRaw}
-        </ReactMarkdown>
-      </div>
+          <ReactMarkdown
+            remarkPlugins={REMARK_PLUGINS}
+            rehypePlugins={REHYPE_PLUGINS}
+          >
+            {`${"#".repeat(level)} ${headingContent}`}
+          </ReactMarkdown>
+        </div>
+      );
+    }
+
+    // ── Mermaid block：使用 LazyMermaidBlock 懒渲染 ─
+    if (block.type === "mermaid") {
+      const codeLines = block.raw.split("\n");
+      const code = codeLines.slice(1, -1).join("\n").trim();
+
+      return (
+        <div
+          data-block-type="mermaid"
+          data-raw={encodeBlockDataRaw(block.raw, block.startLine, block.endLine)}
+        >
+          <LazyMermaidBlock
+            code={code}
+            raw={block.raw}
+            startLine={block.startLine}
+            endLine={block.endLine}
+          />
+        </div>
+      );
+    }
+
+    // ── PlantUML block：使用 LazyPlantUMLBlock 懒渲染 ─
+    if (block.type === "plantuml") {
+      const codeLines = block.raw.split("\n");
+      const code = codeLines.slice(1, -1).join("\n").trim();
+
+      return (
+        <div
+          data-block-type="plantuml"
+          data-raw={encodeBlockDataRaw(block.raw, block.startLine, block.endLine)}
+        >
+          <LazyPlantUMLBlock
+            code={code}
+            raw={block.raw}
+            startLine={block.startLine}
+            endLine={block.endLine}
+          />
+        </div>
+      );
+    }
+
+    // ── Math block：数学公式 ──
+    if (block.type === "math") {
+      return (
+        <div
+          data-block-type="math"
+          data-raw={encodeURIComponent(block.raw)}
+          className="my-4"
+        >
+          <ReactMarkdown
+            remarkPlugins={REMARK_PLUGINS}
+            rehypePlugins={REHYPE_PLUGINS}
+          >
+            {block.raw}
+          </ReactMarkdown>
+        </div>
+      );
+    }
+
+    // ── Blank block ──
+    if (block.type === "blank") {
+      return (
+        <BlockProvider value={block}>
+          <div
+            data-block-type="blank"
+            data-raw={encodeBlockDataRaw(block.raw, block.startLine, block.endLine)}
+            onDoubleClick={(e) => {
+              e.stopPropagation();
+              startEdit(e.target as HTMLElement, block.startLine);
+            }}
+            style={{
+              minHeight: "24px",
+              cursor: "text",
+              width: "100%",
+            }}
+          />
+        </BlockProvider>
+      );
+    }
+
+    // ── Frontmatter block ──
+    if (block.type === "frontmatter") {
+      return (
+        <div
+          data-block-type="frontmatter"
+          data-raw={encodeBlockDataRaw(block.raw, block.startLine, block.endLine)}
+          onDoubleClick={(e) => {
+            const target = e.target as HTMLElement;
+            if (target.closest("a, button, input, select, textarea")) return;
+            startEdit(target);
+          }}
+        >
+          <ObsidianFrontmatter raw={block.raw} />
+        </div>
+      );
+    }
+
+    // ── Thematic break ──
+    if (block.type === "thematicBreak") {
+      return (
+        <div
+          style={{ margin: "2em 0" }}
+          data-raw={encodeBlockDataRaw(block.raw, block.startLine, block.endLine)}
+        >
+          <svg
+            width="100%"
+            height="2"
+            viewBox="0 0 100 2"
+            preserveAspectRatio="none"
+            style={{ display: "block" }}
+          >
+            <defs>
+              <linearGradient id="hr-taper-grad">
+                <stop offset="0%" stopColor="var(--accent-cyan, #00FFFF)" />
+                <stop offset="100%" stopColor="var(--accent-purple, #BF00FF)" />
+              </linearGradient>
+            </defs>
+            <path d="M0,1 Q50,0 100,1 Q50,2 0,1 Z" fill="url(#hr-taper-grad)" />
+          </svg>
+        </div>
+      );
+    }
+
+    return (
+      <BlockProvider value={block}>
+        <div
+          className="markdown-body"
+          data-block-type={block.type}
+          data-raw={encodeBlockDataRaw(
+            block.raw,
+            block.startLine,
+            block.endLine,
+          )}
+          onDoubleClick={(e) => {
+            const target = e.target as HTMLElement;
+            
+            // 基础排除
+            if (
+              target.closest("a, button, .mermaid, img, input, select, textarea")
+            )
+              return;
+
+            // 行内代码不触发（不在 pre 内的 code）
+            if (target.closest("code") && !target.closest("pre"))
+              return;
+
+            // 代码块由 CodeBlock 自己处理
+            if (target.closest("pre"))
+              return;
+
+            startEdit(target);
+          }}
+
+          style={
+            {
+              color: "var(--text-primary)",
+              wordBreak: "break-word",
+              overflowWrap: "break-word",
+              "--katex-font-size": "1.15em",
+            } as React.CSSProperties
+          }
+        >
+          <ReactMarkdown
+            remarkPlugins={REMARK_PLUGINS}
+            rehypePlugins={REHYPE_PLUGINS}
+            components={components}
+          >
+            {referenceDefinitions
+              ? `${processedRaw}\n\n${referenceDefinitions}`
+              : processedRaw}
+          </ReactMarkdown>
+        </div>
+      </BlockProvider>
     );
   },
 );
