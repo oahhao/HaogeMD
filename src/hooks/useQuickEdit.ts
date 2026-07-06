@@ -21,12 +21,21 @@ export function useQuickEdit() {
   const startQuickEdit = useReaderStore((s) => s.startQuickEdit);
   const updateQuickEditText = useReaderStore((s) => s.updateQuickEditText);
   const cancelQuickEdit = useReaderStore((s) => s.cancelQuickEdit);
-  const finishQuickEdit = useReaderStore((s) => s.finishQuickEdit);
 
   const isEditing = quickEditElement !== null;
 
   const startEdit = useCallback(
-    (element: HTMLElement) => {
+    (element: HTMLElement, lineNumber?: number) => {
+      // 空白块编辑：原始文本为空，记录行号
+      if (lineNumber !== undefined) {
+        startQuickEdit(
+          element,
+          "",
+          { startLine: lineNumber, endLine: lineNumber },
+        );
+        return;
+      }
+
       // 优先查找带有 data-raw 属性的块级元素
       const rawElement = element.closest("[data-raw]");
 
@@ -43,6 +52,7 @@ export function useQuickEdit() {
           originalText = decoded || (rawElement.textContent ?? "");
         }
 
+        console.log('[startEdit] originalText:', JSON.stringify(originalText.slice(0, 200)), 'len:', originalText.length);
         startQuickEdit(
           rawElement as HTMLElement,
           originalText,
@@ -104,83 +114,113 @@ export function useQuickEdit() {
     [updateQuickEditText],
   );
 
-  const saveEdit = useCallback(async () => {
-    const { currentFilePath, currentContent, updateContent } =
-      useFileStore.getState();
-    const {
-      addToast,
-      finishQuickEdit: finish,
-      quickEditElement,
-      quickEditLineRange,
-    } = useReaderStore.getState();
-    const originalText = quickEditOriginalText;
-    const editText = quickEditText;
+  const executeDelete = useCallback(async () => {
+    const { currentFilePath, currentContent, updateContent } = useFileStore.getState();
+    const { addToast, finishQuickEdit: finish, quickEditLineRange, hideConfirmDialog } = useReaderStore.getState();
 
-    if (originalText === editText) {
+    hideConfirmDialog();
+
+    if (!currentFilePath || !quickEditLineRange) {
       finish();
       return;
     }
 
-    if (!currentFilePath) return;
-
-    // 检查是否是链接编辑（[text](url) 格式）
-    const isLinkEdit = quickEditElement?.tagName === "A";
-    if (isLinkEdit) {
-      const linkMatch = editText.match(/^\[([^\]]*)\]\(([^)]*)\)$/);
-      if (linkMatch) {
-        const newText = linkMatch[1];
-        const newHref = linkMatch[2];
-        // 直接更新 DOM 中的链接
-        if (quickEditElement) {
-          quickEditElement.textContent = newText;
-          quickEditElement.setAttribute("href", newHref);
-        }
-        addToast({ type: "success", message: t("quickEdit.linkUpdated") });
-        finish();
-        return;
-      }
-    }
-
     try {
-      // 优先按行号精确定位（处理 callout 等 raw 与 currentContent 存在
-      // 微妙差异的场景：trailing whitespace / 行尾规范化等）
-      let newContent: string;
-      if (
-        quickEditLineRange &&
-        typeof quickEditLineRange.startLine === "number" &&
-        typeof quickEditLineRange.endLine === "number"
-      ) {
-        const result = replaceLinesByRange(
-          currentContent,
-          quickEditLineRange,
-          editText,
-        );
-        // 行号越界时 replaceLinesByRange 返回原 content，降级到字符串 replace
-        newContent =
-          result === currentContent
-            ? currentContent.replace(originalText, editText)
-            : result;
-      } else {
-        newContent = currentContent.replace(originalText, editText);
+      const newContent = replaceLinesByRange(currentContent, quickEditLineRange, "");
+      if (newContent !== currentContent) {
+        await invoke("write_file", { path: currentFilePath, content: newContent });
+        updateContent(newContent);
+        addToast({ type: "success", message: "内容已删除" });
       }
-      if (newContent === currentContent) {
-        addToast({ type: "warning", message: t("quickEdit.noMatch") });
-        return;
-      }
-
-      await invoke("write_file", {
-        path: currentFilePath,
-        content: newContent,
-      });
-
-      updateContent(newContent);
-      addToast({ type: "success", message: t("quickEdit.saveSuccess") });
     } catch {
       addToast({ type: "error", message: t("quickEdit.saveFailed") });
     }
 
     finish();
-  }, [quickEditOriginalText, quickEditText, finishQuickEdit]);
+  }, [t]);
+
+  const cancelDelete = useCallback(() => {
+    const { finishQuickEdit: finish, hideConfirmDialog } = useReaderStore.getState();
+    hideConfirmDialog();
+    finish();
+  }, []);
+
+  const saveEdit = useCallback(() => {
+    setTimeout(() => {
+      const { currentFilePath, currentContent, updateContent } = useFileStore.getState();
+      const {
+        addToast,
+        finishQuickEdit: finish,
+        quickEditElement,
+        quickEditLineRange,
+        showConfirmDialog,
+      } = useReaderStore.getState();
+      const originalText = quickEditOriginalText;
+      const editText = quickEditText;
+
+      // 空白块编辑，内容为空，询问是否删除
+      if (originalText === editText && originalText === "" && quickEditLineRange && currentFilePath) {
+        showConfirmDialog("内容为空，是否删除此块？", executeDelete, cancelDelete);
+        return;
+      }
+
+      if (originalText === editText) {
+        finish();
+        return;
+      }
+
+      if (!currentFilePath) return;
+
+      // 检查是否是链接编辑（[text](url) 格式）
+      const isLinkEdit = quickEditElement?.tagName === "A";
+      if (isLinkEdit) {
+        const linkMatch = editText.match(/^\[([^\]]*)\]\(([^)]*)\)$/);
+        if (linkMatch) {
+          const newText = linkMatch[1];
+          const newHref = linkMatch[2];
+          if (quickEditElement) {
+            quickEditElement.textContent = newText;
+            quickEditElement.setAttribute("href", newHref);
+          }
+          addToast({ type: "success", message: t("quickEdit.linkUpdated") });
+          finish();
+          return;
+        }
+      }
+
+      // 内容为空时，弹出确认提示
+      if (editText === "" && quickEditLineRange) {
+        showConfirmDialog("内容已清空，是否删除此块？", executeDelete, cancelDelete);
+        return;
+      }
+
+      // 正常保存
+      const doSave = async () => {
+        try {
+          let newContent: string;
+          if (quickEditLineRange && typeof quickEditLineRange.startLine === "number" && typeof quickEditLineRange.endLine === "number") {
+            const result = replaceLinesByRange(currentContent, quickEditLineRange, editText);
+            newContent = result === currentContent ? currentContent.replace(originalText, editText) : result;
+          } else {
+            newContent = currentContent.replace(originalText, editText);
+          }
+          if (newContent === currentContent) {
+            addToast({ type: "warning", message: t("quickEdit.noMatch") });
+            return;
+          }
+
+          await invoke("write_file", { path: currentFilePath, content: newContent });
+          updateContent(newContent);
+          addToast({ type: "success", message: t("quickEdit.saveSuccess") });
+        } catch {
+          addToast({ type: "error", message: t("quickEdit.saveFailed") });
+        }
+        finish();
+      };
+
+      doSave();
+    }, 0);
+  }, [quickEditOriginalText, quickEditText, executeDelete, cancelDelete, t]);
 
   const cancelEdit = useCallback(() => {
     cancelQuickEdit();

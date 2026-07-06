@@ -6,22 +6,37 @@ export function getEditorTheme(): Extension {
     "&": {
       height: "100%",
       fontSize: "14px",
+      display: "flex",
+      flexDirection: "row",
+      outline: "none",
+    },
+    "&.cm-focused": {
+      outline: "none",
     },
     ".cm-scroller": {
       fontFamily: "inherit",
       overflow: "auto",
+      display: "flex",
+      flexDirection: "row",
+      flex: 1,
     },
     ".cm-content": {
       padding: "8px 0",
       caretColor: "var(--accent-cyan, #00FFFF)",
+      boxSizing: "content-box",
+      flex: 1,
+      minWidth: 0,
     },
     ".cm-line": {
       padding: "0 8px",
+      minHeight: "1.5em",
     },
     ".cm-gutters": {
       backgroundColor: "transparent",
       border: "none",
       color: "var(--text-muted, #666)",
+      flexShrink: 0,
+      order: -1,
     },
     ".cm-gutter": {
       minWidth: "36px",

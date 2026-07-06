@@ -1,29 +1,46 @@
-import React, { memo, useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
+import EditorCore, { type EditorCoreRef } from "@/components/editor/EditorCore";
+import QuickEditToolbar from "@/components/reader/QuickEditToolbar";
+import type { EditorView } from "@codemirror/view";
 
 interface QuickEditProps {
   text: string;
+  originalText: string;
   targetElement: HTMLElement;
   onSave: () => void;
   onCancel: () => void;
-  onUpdate: (text: string) => void;
+  onUpdate?: (text: string) => void;
+  visible?: boolean;
 }
 
-const QuickEdit: React.FC<QuickEditProps> = memo(
-  ({ text, targetElement, onSave, onCancel, onUpdate }) => {
-    const textareaRef = useRef<HTMLTextAreaElement>(null);
+const QuickEdit = memo(
+  ({ text, originalText: _originalText, targetElement, onSave, onCancel, onUpdate, visible = true }: QuickEditProps) => {
+    const editorRef = useRef<EditorCoreRef>(null);
+    const [editorView, setEditorView] = useState<EditorView | null>(null);
     const [position, setPosition] = useState({ top: 0, left: 0, width: 0 });
-    const [height, setHeight] = useState(200);
+    const [height, setHeight] = useState(100);
     const isDraggingRef = useRef(false);
     const startYRef = useRef(0);
     const startHeightRef = useRef(0);
+
+    // 根据内容动态调整高度
+    useEffect(() => {
+      if (text) {
+        const lineCount = text.split('\n').length;
+        const lineHeight = 20; // 每行大约 20px
+        const padding = 40; // 上下 padding
+        const newHeight = Math.max(100, Math.min(400, lineCount * lineHeight + padding));
+        setHeight(newHeight);
+      }
+    }, [text]);
 
     useEffect(() => {
       const updatePosition = () => {
         const rect = targetElement.getBoundingClientRect();
         const windowHeight = window.innerHeight;
         const windowWidth = window.innerWidth;
-        const editHeight = height + 36;
-        const editWidth = rect.width;
+        const editHeight = height + 80;
+        const editWidth = Math.min(rect.width, 800);
 
         const top = rect.top;
         let left = rect.left;
@@ -50,7 +67,7 @@ const QuickEdit: React.FC<QuickEditProps> = memo(
       const scrollContainer =
         targetElement.closest('[data-scroll-container="true"]') ||
         targetElement.closest('[data-virtuoso-scroller="true"]') ||
-        targetElement.closest('.reading-scroll-container') ||
+        targetElement.closest(".reading-scroll-container") ||
         document.body;
       scrollContainer.addEventListener("scroll", updatePosition);
 
@@ -63,22 +80,19 @@ const QuickEdit: React.FC<QuickEditProps> = memo(
 
     useEffect(() => {
       const handleClickOutside = (e: MouseEvent) => {
-        const container = textareaRef.current?.parentElement;
+        const container = document.getElementById("quick-edit-container");
         if (container && !container.contains(e.target as Node)) {
-          onCancel();
+          onSave();
         }
       };
       document.addEventListener("mousedown", handleClickOutside);
       return () =>
         document.removeEventListener("mousedown", handleClickOutside);
-    }, [onCancel]);
+    }, [onSave]);
 
     useEffect(() => {
-      if (textareaRef.current) {
-        textareaRef.current.focus();
-        const len = textareaRef.current.value.length;
-        textareaRef.current.selectionStart = len;
-        textareaRef.current.selectionEnd = len;
+      if (editorRef.current) {
+        editorRef.current.focus();
       }
     }, []);
 
@@ -93,25 +107,22 @@ const QuickEdit: React.FC<QuickEditProps> = memo(
       return () => document.removeEventListener("keydown", handleGlobalKeyDown);
     }, [onCancel]);
 
-    const handleResizeStart = useCallback(
-      (e: React.MouseEvent) => {
-        e.preventDefault();
-        isDraggingRef.current = true;
-        startYRef.current = e.clientY;
-        startHeightRef.current = height;
-        document.body.style.cursor = "ns-resize";
-        document.body.style.userSelect = "none";
-      },
-      [height],
-    );
+    const handleResizeStart = useCallback((e: React.MouseEvent) => {
+      e.preventDefault();
+      isDraggingRef.current = true;
+      startYRef.current = e.clientY;
+      startHeightRef.current = height;
+      document.body.style.cursor = "ns-resize";
+      document.body.style.userSelect = "none";
+    }, [height]);
 
     useEffect(() => {
       const handleResizeMove = (e: MouseEvent) => {
         if (!isDraggingRef.current) return;
         const deltaY = e.clientY - startYRef.current;
         const newHeight = Math.min(
-          400,
-          Math.max(200, startHeightRef.current + deltaY),
+          500,
+          Math.max(150, startHeightRef.current + deltaY),
         );
         setHeight(newHeight);
       };
@@ -131,53 +142,56 @@ const QuickEdit: React.FC<QuickEditProps> = memo(
       };
     }, []);
 
-    const handleKeyDown = useCallback(
-      (e: React.KeyboardEvent) => {
-        if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
-          e.preventDefault();
-          onSave();
-        } else if (e.key === "Escape") {
-          e.preventDefault();
-          onCancel();
+    const handleEditorReady = useCallback((view: EditorView) => {
+      setEditorView(view);
+    }, []);
+
+    const handleTextChange = useCallback(
+      (newText: string) => {
+        if (visible && onUpdate) {
+          onUpdate(newText);
         }
       },
-      [onSave, onCancel],
+      [visible, onUpdate],
     );
 
+    const handleSave = useCallback(() => {
+      onSave();
+    }, [onSave]);
+
     return (
-      <div
-        style={{
-          position: "fixed",
-          top: position.top,
-          left: position.left,
-          width: position.width,
-          zIndex: 999999,
-          border: "1px solid var(--accent-cyan, #00FFFF)",
-          borderRadius: "4px",
-          boxShadow: "0 4px 24px var(--shadow-popup)",
-        }}
-      >
-        <textarea
-          ref={textareaRef}
-          value={text}
-          onChange={(e) => onUpdate(e.target.value)}
-          onKeyDown={handleKeyDown}
+      <>
+        <div
+          id="quick-edit-container"
           style={{
-            width: "100%",
-            padding: "8px",
-            background: "var(--bg-code, #16162A)",
-            color: "var(--text-primary)",
-            border: "none",
-            outline: "none",
-            height: `${height}px`,
-            resize: "none",
-            fontFamily: "inherit",
-            lineHeight: "inherit",
-            fontSize: "inherit",
-            borderRadius: "4px 4px 0 0",
-            boxSizing: "border-box",
+            display: visible ? "flex" : "none",
+            position: "fixed",
+            top: visible ? position.top : 0,
+            left: visible ? position.left : 0,
+            width: visible ? position.width : 0,
+            zIndex: 999999,
+            border: "1px solid var(--accent-cyan, #00FFFF)",
+            borderRadius: "4px",
+            boxShadow: "0 4px 24px var(--shadow-popup)",
+            flexDirection: "column",
           }}
-        />
+        >
+        <QuickEditToolbar editorView={editorView} />
+
+        <div style={{ flex: 1, overflow: "hidden" }}>
+          {text && text.length > 0 && (
+            <EditorCore
+              ref={editorRef}
+              value={text}
+              onChange={handleTextChange}
+              autoFocus
+              minHeight={Math.max(100, text.split('\n').length * 20 + 40)}
+              maxHeight={Math.max(100, text.split('\n').length * 20 + 40)}
+              onEditorReady={handleEditorReady}
+            />
+          )}
+        </div>
+
         <div
           onMouseDown={handleResizeStart}
           style={{
@@ -187,27 +201,19 @@ const QuickEdit: React.FC<QuickEditProps> = memo(
             height: "8px",
             background: "var(--bg-code, #16162A)",
             cursor: "ns-resize",
-            position: "relative",
-            overflow: "hidden",
           }}
         >
           <div
             style={{
-              display: "flex",
-              gap: "3px",
+              width: "24px",
+              height: "2px",
+              borderRadius: "1px",
+              background: "var(--accent-cyan, #00FFFF)",
+              opacity: 0.4,
             }}
-          >
-            <div
-              style={{
-                width: "24px",
-                height: "2px",
-                borderRadius: "1px",
-                background: "var(--accent-cyan, #00FFFF)",
-                opacity: 0.4,
-              }}
-            />
-          </div>
+          />
         </div>
+
         <div
           style={{
             display: "flex",
@@ -237,7 +243,7 @@ const QuickEdit: React.FC<QuickEditProps> = memo(
               取消
             </button>
             <button
-              onClick={onSave}
+              onClick={handleSave}
               style={{
                 color: "var(--accent-cyan)",
                 background: "none",
@@ -252,6 +258,7 @@ const QuickEdit: React.FC<QuickEditProps> = memo(
           </div>
         </div>
       </div>
+      </>
     );
   },
 );

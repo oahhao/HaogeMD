@@ -38,6 +38,12 @@ const REMARK_PLUGINS = [
 >[0]["remarkPlugins"];
 const REHYPE_PLUGINS = [rehypeRaw, rehypeSlug, rehypeKatex];
 
+function extractTextFromNode(node: any): string {
+  if (node.type === "text") return node.value;
+  if (node.children) return node.children.map(extractTextFromNode).join("");
+  return "";
+}
+
 // ── 组件 ──────────────────────────────────────────────
 
 interface MarkdownBlockViewProps {
@@ -274,28 +280,13 @@ const MarkdownBlockView: React.FC<MarkdownBlockViewProps> = memo(
         },
         code(
           props: React.HTMLAttributes<HTMLElement> & {
-            inline?: boolean;
             node?: unknown;
             className?: string;
             children?: React.ReactNode;
           },
         ) {
-          const { className, children, style, inline, ...rest } = props;
-          const match = /language-(\w+)/.exec(className || "");
+          const { className: _className, children, style, node: _node, ...rest } = props;
           const incomingStyle = style as React.CSSProperties | undefined;
-
-          if (match) {
-            const language = match[1];
-            const codeString = String(children).replace(/\n$/, "");
-            const codeHash = `${language}:${codeString.length}:${codeString.slice(0, 50)}`;
-            return <CodeBlock key={codeHash} language={language} code={codeString} />;
-          }
-
-          if (inline !== true) {
-            const codeString = String(children).replace(/\n$/, "");
-            const codeHash = `:${codeString.length}:${codeString.slice(0, 50)}`;
-            return <CodeBlock key={codeHash} language="" code={codeString} />;
-          }
 
           return (
             <code
@@ -320,24 +311,43 @@ const MarkdownBlockView: React.FC<MarkdownBlockViewProps> = memo(
             children?: React.ReactNode;
           },
         ) {
-          const { children, ...rest } = props;
-          const child = React.Children.toArray(children)[0] as
-            | React.ReactElement
-            | undefined;
-          if (
-            child &&
-            child.props &&
-            typeof (child.props as { className?: string }).className ===
-              "string" &&
-            (child.props as { className?: string }).className?.includes(
-              "language-mermaid",
-            )
-          ) {
-            const codeString = String(
-              (child.props as { children?: React.ReactNode }).children,
-            ).replace(/\n$/, "");
-            return <LazyMermaidBlock code={codeString} />;
+          const { children, node, ...rest } = props;
+          const preNode = node as {
+            children?: Array<{
+              tagName?: string;
+              properties?: Record<string, unknown>;
+              children?: unknown[];
+            }>;
+          } | undefined;
+          const codeNode = preNode?.children?.[0];
+
+          if (codeNode?.tagName === "code") {
+            const codeClassName = codeNode.properties?.className as string[] | undefined;
+            const language = codeClassName?.[0]?.replace(/^language-/, "") || "";
+            
+            const extractedText = extractTextFromNode(codeNode);
+            console.warn('[pre] extractTextFromNode result:');
+            console.warn('  - raw:', extractedText);
+            console.warn('  - escape:', JSON.stringify(extractedText));
+            console.warn('  - lines:', extractedText.split('\n').length);
+            console.warn('  - split:', extractedText.split('\n'));
+            
+            const codeContent = extractedText.replace(/\n$/, "");
+            console.warn('[pre] after replace:');
+            console.warn('  - raw:', codeContent);
+            console.warn('  - escape:', JSON.stringify(codeContent));
+            console.warn('  - lines:', codeContent.split('\n').length);
+            console.warn('  - split:', codeContent.split('\n'));
+            
+            console.log('[pre] codeContent:', JSON.stringify(codeContent.slice(0, 200)), 'len:', codeContent.length);
+
+            if (language === "mermaid") {
+              return <LazyMermaidBlock code={codeContent} />;
+            }
+
+            return <CodeBlock language={language} code={codeContent} />;
           }
+
           return <pre {...rest}>{children}</pre>;
         },
         hr() {

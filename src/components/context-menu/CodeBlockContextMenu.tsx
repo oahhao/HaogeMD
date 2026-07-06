@@ -6,14 +6,9 @@ export interface CodeBlockContextMenuProps {
   onCopyCode: () => void;
   onCopySelection: () => void;
   onEditCodeBlock: () => void;
+  onDeleteCodeBlock?: () => void;
 }
 
-/**
- * 代码块右键菜单项（PDR 6.5.2）。
- * - 复制代码（始终）
- * - 复制选中（有选中文本时）
- * - 编辑代码块（Task 9 快速编辑实现后替换占位 action）
- */
 export function getCodeBlockContextMenuItems(
   props: CodeBlockContextMenuProps,
 ): ContextMenuEntry[] {
@@ -41,6 +36,14 @@ export function getCodeBlockContextMenuItems(
     label: "编辑代码块",
     action: props.onEditCodeBlock,
   });
+
+  if (props.onDeleteCodeBlock) {
+    items.push({
+      id: "deleteCodeBlock",
+      label: "删除代码块",
+      action: props.onDeleteCodeBlock,
+    });
+  }
 
   return items;
 }

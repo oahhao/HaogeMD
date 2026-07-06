@@ -73,10 +73,10 @@ export function replaceLinesByRange(
   }
   const before = lines.slice(0, startLine).join("\n");
   const after = lines.slice(endLine + 1).join("\n");
-  return (
-    before +
-    (before.length > 0 ? "\n" : "") +
-    replacement +
-    (after.length > 0 ? "\n" + after : "")
-  );
+  
+  const parts: string[] = [];
+  if (before.length > 0) parts.push(before);
+  if (replacement.length > 0) parts.push(replacement);
+  if (after.length > 0) parts.push(after);
+  return parts.join("\n");
 }

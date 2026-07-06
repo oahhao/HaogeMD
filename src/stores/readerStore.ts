@@ -29,6 +29,12 @@ interface ReaderState {
   quickEditOriginalText: string;
   quickEditText: string;
 
+  // 确认对话框状态
+  confirmDialogVisible: boolean;
+  confirmDialogMessage: string;
+  confirmDialogOnConfirm: (() => void) | null;
+  confirmDialogOnCancel: (() => void) | null;
+
   // ===== Actions =====
   setSearchQuery: (query: string) => void;
   setSearchResults: (results: number[]) => void;
@@ -53,6 +59,10 @@ interface ReaderState {
   updateQuickEditText: (text: string) => void;
   cancelQuickEdit: () => void;
   finishQuickEdit: () => void;
+
+  // 确认对话框 Actions
+  showConfirmDialog: (message: string, onConfirm: () => void, onCancel?: () => void) => void;
+  hideConfirmDialog: () => void;
 }
 
 // Toast 定时器管理
@@ -73,6 +83,11 @@ export const useReaderStore = create<ReaderState>((set, get) => ({
   quickEditOriginalText: "",
   quickEditText: "",
   quickEditLineRange: null,
+
+  confirmDialogVisible: false,
+  confirmDialogMessage: "",
+  confirmDialogOnConfirm: null,
+  confirmDialogOnCancel: null,
 
   setSearchQuery: (query) => {
     set({ searchQuery: query, searchResults: [], currentSearchIndex: -1 });
@@ -209,6 +224,24 @@ export const useReaderStore = create<ReaderState>((set, get) => ({
       quickEditText: "",
       quickEditLineRange: null,
       contextMenuEditTarget: null,
+    });
+  },
+
+  showConfirmDialog: (message, onConfirm, onCancel) => {
+    set({
+      confirmDialogVisible: true,
+      confirmDialogMessage: message,
+      confirmDialogOnConfirm: onConfirm,
+      confirmDialogOnCancel: onCancel ?? (() => {}),
+    });
+  },
+
+  hideConfirmDialog: () => {
+    set({
+      confirmDialogVisible: false,
+      confirmDialogMessage: "",
+      confirmDialogOnConfirm: null,
+      confirmDialogOnCancel: null,
     });
   },
 }));

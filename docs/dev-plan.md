@@ -80,29 +80,74 @@
 
 在现有 QuickEdit 基础上扩展为所见即所得编辑模式。
 
-#### 2.1 编辑/阅读模式切换
+#### 2.0 QuickEdit 增强（已完成 ✅ 2026-07-03）
+
+将 QuickEdit 的 textarea 替换为 CodeMirror 6 编辑器，提升编辑体验。
+
+**已完成功能：**
+- [x] 安装 CodeMirror 6 核心依赖（@codemirror/state, view, lang-markdown, language-data, commands, language）
+- [x] 创建 EditorCore 组件封装 CodeMirror 6
+- [x] 实现 Markdown 语法高亮扩展
+- [x] 创建 QuickEditToolbar 组件（基础工具按钮）
+- [x] 改造 QuickEdit 组件集成 CodeMirror
+- [x] 实现快捷键插入功能（Ctrl+B/I/S/`/1-6/K）
+- [x] 编辑器主题适配（继承应用主题变量）
+
+#### 2.0.1 代码块编辑增强（已完成 ✅ 2026-07-03）
+
+增强 CodeBlock 组件，支持双击/右键菜单触发编辑，编辑后保存到源文件。
+
+**已完成功能：**
+- [x] 修复右键菜单显示问题（App.tsx handleReaderContextMenu 添加代码块排除）
+- [x] 添加双击代码块触发编辑（CodeBlock.tsx onDoubleClick）
+- [x] 创建 BlockContext 传递 block 信息（src/contexts/BlockContext.tsx）
+- [x] 实现保存到源文件功能（replaceLinesByRange + write_file）
+- [x] 替换 textarea 为 CodeMirror 编辑器（EditorCore 组件）
+- [x] 动态语言高亮（codeHighlight.ts + 14种语言包）
+
+**触发方式：**
+- 双击代码块区域
+- 右键菜单 → "编辑代码块"
+
+**新增文件：**
+- `src/contexts/BlockContext.tsx` - Block Context
+- `src/components/editor/EditorCore.tsx` - CodeMirror 封装组件
+- `src/components/editor/extensions.ts` - 编辑器扩展配置
+- `src/components/editor/theme.ts` - 编辑器主题样式
+- `src/components/editor/keymap.ts` - 快捷键映射
+- `src/components/editor/codeHighlight.ts` - 动态语言高亮
+- `src/components/reader/QuickEditToolbar.tsx` - 工具栏组件
+- `src/utils/markdownInsert.ts` - Markdown 插入工具函数
+
+**新增依赖：**
+- @codemirror/lang-javascript, python, java, cpp, rust, sql, json, xml, html, css, lezer, php, sass, wast（14个语言包）
+
+**依赖增量：约 260KB gzip**
+
+#### 2.1 编辑/阅读模式切换（待实现）
 
 - 工具栏增加编辑模式切换按钮
 - 编辑模式下显示 Markdown 源码
 - 支持分屏预览（左编辑右预览）和纯源码两种模式
 - 快捷键 `Ctrl+E` 在阅读/编辑间切换（现有导出 HTML 快捷键需调整）
 
-#### 2.2 编辑工具栏
+#### 2.2 编辑工具栏（部分完成）
 
-- 加粗、斜体、删除线、行内代码
-- 标题（H1-H6）
-- 链接、图片插入
-- 代码块、引用块
-- 无序列表、有序列表、任务列表
-- 表格插入助手
+- [x] 加粗、斜体、删除线、行内代码
+- [x] 标题（H1-H3）
+- [x] 链接、图片插入
+- [x] 代码块、引用块
+- [x] 无序列表、有序列表
+- [ ] 任务列表
+- [ ] 表格插入助手
 
-#### 2.3 编辑增强
+#### 2.3 编辑增强（部分完成）
 
-- 自动保存（可配置间隔，默认 30s）
-- 撤销/重做（基于命令模式）
-- 语法高亮（编辑器中 Markdown 语法着色）
-- 自动补全（链接路径、图片路径）
-- 查找替换（支持正则）
+- [ ] 自动保存（可配置间隔，默认 30s）
+- [x] 撤销/重做（CodeMirror 内置）
+- [x] 语法高亮（编辑器中 Markdown 语法着色）
+- [ ] 自动补全（链接路径、图片路径）
+- [ ] 查找替换（支持正则）
 
 #### 2.4 技术方案
 
@@ -241,4 +286,4 @@ ErgeMD/
 
 ---
 
-*最后更新：2026-06-30（ConfigLevelSelector 样式修复）*
+*最后更新：2026-07-03（为 CodeBlock 添加稳定 key + 彻底移除条件渲染）*

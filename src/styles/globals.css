@@ -311,6 +311,47 @@ html:not([data-theme]) {
   box-sizing: border-box;
 }
 
+/* CodeMirror 编辑器保护：重置全局样式影响 */
+.cm-editor,
+.cm-editor *,
+.cm-scroller,
+.cm-content,
+.cm-line,
+.cm-gutters,
+.cm-gutter {
+  box-sizing: content-box !important;
+  outline: none !important;
+}
+
+/* 确保 CodeMirror 使用正确的 flexbox 布局 */
+.cm-scroller {
+  display: flex !important;
+  flex-direction: row !important;
+}
+
+.cm-content {
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
+.cm-gutters {
+  flex-shrink: 0 !important;
+  order: -1 !important;
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+}
+
+/* 确保 CodeMirror 行高不受全局 line-height 影响 */
+.cm-line {
+  line-height: normal !important;
+  min-height: 1.5em !important;
+}
+
+/* 防御浏览器原生 contenteditable 焦点环 */
+[contenteditable]:focus {
+  outline: none !important;
+}
+
 html,
 body,
 #root {

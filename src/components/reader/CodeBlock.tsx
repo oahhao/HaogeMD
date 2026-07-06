@@ -3,6 +3,10 @@ import ContextMenu from "@/components/context-menu/ContextMenu";
 import { useInteractionConfig } from "@/hooks/useActiveConfig";
 import { useContextMenu } from "@/hooks/useContextMenu";
 import { useReaderStore } from "@/stores/readerStore";
+import { useFileStore } from "@/stores/fileStore";
+import { useBlockContext } from "@/contexts/BlockContext";
+import { invoke } from "@tauri-apps/api/core";
+import { replaceLinesByRange } from "@/utils/quickEditLines";
 import hljs from "highlight.js/lib/core";
 import bash from "highlight.js/lib/languages/bash";
 import c from "highlight.js/lib/languages/c";
@@ -32,6 +36,7 @@ import {
 } from "highlight.js/lib/languages/xml";
 import yaml from "highlight.js/lib/languages/yaml";
 import React, { memo, useCallback, useEffect, useRef, useState } from "react";
+import EditorCore from "@/components/editor/EditorCore";
 
 hljs.registerLanguage("javascript", javascript);
 hljs.registerLanguage("typescript", typescript);
@@ -87,6 +92,7 @@ interface CodeBlockProps {
 
 const CodeBlock: React.FC<CodeBlockProps> = memo(({ language, code }) => {
   const interactionConfig = useInteractionConfig();
+  const block = useBlockContext();
   const [copied, setCopied] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editCode, setEditCode] = useState(code);
@@ -154,6 +160,52 @@ const CodeBlock: React.FC<CodeBlockProps> = memo(({ language, code }) => {
     }
   }, [code]);
 
+  const handleDeleteCode = useCallback(async () => {
+    if (!block?.raw || block.startLine === undefined || block.endLine === undefined) {
+      useReaderStore.getState().addToast({
+        type: "warning",
+        message: "无法删除：缺少行号信息",
+      });
+      return;
+    }
+
+    const currentFilePath = useFileStore.getState().currentFilePath;
+    const currentContent = useFileStore.getState().currentContent;
+
+    if (!currentFilePath) {
+      useReaderStore.getState().addToast({
+        type: "error",
+        message: "无法删除：未找到文件路径",
+      });
+      return;
+    }
+
+    const newContent = replaceLinesByRange(
+      currentContent,
+      { startLine: block.startLine, endLine: block.endLine },
+      ""
+    );
+
+    try {
+      await invoke("write_file", {
+        path: currentFilePath,
+        content: newContent,
+      });
+
+      useFileStore.getState().updateContent(newContent);
+      useReaderStore.getState().addToast({
+        type: "success",
+        message: "代码块已删除",
+      });
+    } catch (error) {
+      useReaderStore.getState().addToast({
+        type: "error",
+        message: "删除失败",
+      });
+      console.error("Delete code block failed:", error);
+    }
+  }, [block]);
+
   const handleContextMenu = useCallback(
     (e: React.MouseEvent) => {
       e.preventDefault();
@@ -174,12 +226,154 @@ const CodeBlock: React.FC<CodeBlockProps> = memo(({ language, code }) => {
           setEditCode(code);
           setIsEditing(true);
         },
+        onDeleteCodeBlock: handleDeleteCode,
       });
 
       showContextMenu(e, items);
     },
-    [code, handleCopy, showContextMenu],
+    [code, handleCopy, showContextMenu, handleDeleteCode],
   );
+
+  const executeDeleteCodeBlock = useCallback(async () => {
+    if (!block || block.startLine === undefined || block.endLine === undefined) {
+      useReaderStore.getState().addToast({
+        type: "warning",
+        message: "无法删除：缺少行号信息",
+      });
+      useReaderStore.getState().hideConfirmDialog();
+      setIsEditing(false);
+      return;
+    }
+
+    const currentFilePath = useFileStore.getState().currentFilePath;
+    const currentContent = useFileStore.getState().currentContent;
+
+    if (!currentFilePath) {
+      useReaderStore.getState().addToast({
+        type: "error",
+        message: "无法删除：未找到文件路径",
+      });
+      useReaderStore.getState().hideConfirmDialog();
+      return;
+    }
+
+    useReaderStore.getState().hideConfirmDialog();
+
+    try {
+      const newContent = replaceLinesByRange(
+        currentContent,
+        { startLine: block.startLine, endLine: block.endLine },
+        "",
+      );
+      if (newContent !== currentContent) {
+        await invoke("write_file", {
+          path: currentFilePath,
+          content: newContent,
+        });
+        useFileStore.getState().updateContent(newContent);
+        useReaderStore.getState().addToast({
+          type: "success",
+          message: "代码块已删除",
+        });
+      }
+    } catch {
+      useReaderStore.getState().addToast({
+        type: "error",
+        message: "删除失败",
+      });
+    }
+    setIsEditing(false);
+  }, [block]);
+
+  const cancelDeleteCodeBlock = useCallback(() => {
+    useReaderStore.getState().hideConfirmDialog();
+    setEditCode(code);
+    setIsEditing(false);
+  }, [code]);
+
+  const handleSaveCode = useCallback(() => {
+    setTimeout(() => {
+      if (!block?.raw || block.startLine === undefined || block.endLine === undefined) {
+        useReaderStore.getState().addToast({
+          type: "warning",
+          message: "无法保存：缺少行号信息",
+        });
+        setIsEditing(false);
+        return;
+      }
+
+      const currentFilePath = useFileStore.getState().currentFilePath;
+      const currentContent = useFileStore.getState().currentContent;
+
+      if (!currentFilePath) {
+        useReaderStore.getState().addToast({
+          type: "error",
+          message: "无法保存：未找到文件路径",
+        });
+        return;
+      }
+
+      if (editCode === "") {
+        useReaderStore.getState().showConfirmDialog(
+          "内容已清空，是否删除此代码块？",
+          executeDeleteCodeBlock,
+          cancelDeleteCodeBlock,
+        );
+        return;
+      }
+
+      const newRaw = language ? "```" + language + "\n" + editCode + "\n```\n" : "```\n" + editCode + "\n```\n";
+
+      const newContent = replaceLinesByRange(
+        currentContent,
+        { startLine: block.startLine, endLine: block.endLine },
+        newRaw,
+      );
+
+      const doSave = async () => {
+        try {
+          await invoke("write_file", {
+            path: currentFilePath,
+            content: newContent,
+          });
+          useFileStore.getState().updateContent(newContent);
+          useReaderStore.getState().addToast({
+            type: "success",
+            message: "代码已保存",
+          });
+          setIsEditing(false);
+        } catch (error) {
+          useReaderStore.getState().addToast({
+            type: "error",
+            message: "保存失败",
+          });
+          console.error("Save code block failed:", error);
+        }
+      };
+
+      doSave();
+    }, 0);
+  }, [block, language, editCode, executeDeleteCodeBlock, cancelDeleteCodeBlock]);
+
+  useEffect(() => {
+    if (!isEditing) return;
+
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (codeRef.current && !codeRef.current.contains(target)) {
+        if (editCode !== code) {
+          handleSaveCode();
+        } else {
+          setIsEditing(false);
+        }
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isEditing, editCode, code, handleSaveCode]);
 
   return (
     <>
@@ -191,9 +385,16 @@ const CodeBlock: React.FC<CodeBlockProps> = memo(({ language, code }) => {
           border: "1px solid var(--code-border)",
         }}
         onContextMenu={handleContextMenu}
+        onDoubleClick={() => {
+          if (!isEditing) {
+            console.log('[CodeBlock] double-click code:', JSON.stringify(code.slice(0, 200)));
+            setEditCode(code);
+            setIsEditing(true);
+          }
+        }}
       >
-        {/* 语言标签 — 左上角 */}
-        {!isEditing && (
+        {/* 语言标签 — 左上角，无语言时不显示 */}
+        {!isEditing && language && (
           <div
             className="absolute top-0 left-0 px-3 py-1 text-[11px] z-[1] select-none rounded-br-md"
             style={{
@@ -256,65 +457,69 @@ const CodeBlock: React.FC<CodeBlockProps> = memo(({ language, code }) => {
         </button>
 
         {/* 代码内容 / 编辑模式 */}
-        {isEditing ? (
-          <div className="px-4 pt-4 pb-4">
-            <textarea
+        {/* 编辑器只在编辑模式且有内容时渲染 */}
+        <div
+          className="px-4 pt-4 pb-4"
+          style={{ display: isEditing ? "block" : "none" }}
+        >
+          {isEditing && editCode && editCode.length > 0 && (
+            <EditorCore
               value={editCode}
-              onChange={(e) => setEditCode(e.target.value)}
-              className="w-full bg-transparent border-none outline-none resize-y text-sm"
-              style={{
-                fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
-                lineHeight: 1.6,
-                color: "var(--text-primary)",
-                minHeight: "200px",
-                caretColor: "var(--accent-cyan)",
-              }}
-              autoFocus
-              spellCheck={false}
+              onChange={setEditCode}
+              readOnly={!isEditing}
+              autoFocus={isEditing}
+              minHeight={200}
+              maxHeight={400}
+              language={language}
             />
-            <div className="flex justify-end gap-3 mt-2">
-              <button
-                onClick={() => setIsEditing(false)}
-                className="px-3 py-1.5 text-sm rounded border-none cursor-pointer"
-                style={{
-                  background: "var(--hover-bg-subtle)",
-                  color: "var(--text-secondary)",
-                }}
-              >
-                取消
-              </button>
-              <button
-                onClick={() => {
-                  setIsEditing(false);
-                  useReaderStore.getState().addToast({
-                    type: "success",
-                    message: "代码已更新（仅当前会话）",
-                  });
-                }}
-                className="px-3 py-1.5 text-sm rounded border-none cursor-pointer"
-                style={{
-                  background: "var(--accent-cyan)",
-                  color: "var(--bg-page)",
-                }}
-              >
-                保存
-              </button>
-            </div>
+          )}
+          {/* 按钮始终渲染 */}
+          <div
+            className="flex justify-end gap-3 mt-2"
+            style={{ display: isEditing ? "flex" : "none" }}
+          >
+            <button
+              onClick={() => setIsEditing(false)}
+              className="px-3 py-1.5 text-sm rounded border-none cursor-pointer"
+              style={{
+                background: "var(--hover-bg-subtle)",
+                color: "var(--text-secondary)",
+              }}
+            >
+              取消
+            </button>
+            <button
+              onClick={handleSaveCode}
+              className="px-3 py-1.5 text-sm rounded border-none cursor-pointer"
+              style={{
+                background: "var(--accent-cyan)",
+                color: "var(--bg-page)",
+              }}
+            >
+              保存
+            </button>
           </div>
-        ) : (
-          <pre className="overflow-x-auto px-4 pt-8 pb-4 m-0 [scrollbar-width:thin]" style={{ fontSize: "0.9em" }}>
-            <code
-              className="hljs"
-              style={{
-                fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
-                lineHeight: 1.6,
-              }}
-              dangerouslySetInnerHTML={{
-                __html: highlightedCode ?? code,
-              }}
-            />
-          </pre>
-        )}
+        </div>
+
+        {/* 代码显示 - 始终渲染 */}
+        <pre
+          className="overflow-x-auto px-4 pt-8 pb-4 m-0 [scrollbar-width:thin]"
+          style={{
+            fontSize: "0.9em",
+            display: isEditing ? "none" : "block",
+          }}
+        >
+          <code
+            className="hljs"
+            style={{
+              fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+              lineHeight: 1.6,
+            }}
+            dangerouslySetInnerHTML={{
+              __html: highlightedCode ?? code,
+            }}
+          />
+        </pre>
       </div>
 
       {/* 右键菜单 */}

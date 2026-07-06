@@ -1,5 +1,5 @@
-import { memo, useEffect, useRef, useImperativeHandle, forwardRef, useState } from "react";
-import { EditorState, type Extension, Compartment } from "@codemirror/state";
+import { memo, useEffect, useRef, useImperativeHandle, forwardRef } from "react";
+import { EditorState, Compartment } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import { getEditorExtensions } from "./extensions";
 import { getEditorTheme, getHighlightStyle } from "./theme";
@@ -21,6 +21,40 @@ interface EditorCoreProps {
   className?: string;
   onEditorReady?: (view: EditorView) => void;
   language?: string;
+  onDebugInfo?: (info: { 
+    action: string; 
+    value: string;
+    valueEscape: string;
+    valueLines: number;
+    valueSplit: string[];
+    current?: string;
+    currentEscape?: string;
+    currentLines?: number;
+    currentSplit?: string[];
+    docContent?: string;
+    docContentEscape?: string;
+    docLines?: number;
+    docSplit?: string[];
+    domInfo?: {
+      cmLineCount: number;
+      cmLinesContent: string[];
+      containerChildCount: number;
+      containerChildren: string[];
+      containerHeight: number;
+      containerWidth: number;
+      contentHeight: number;
+      contentWidth: number;
+      cmEditorHeight: number;
+      cmScrollerHeight: number;
+      cmGutterHeight: number;
+      contentPaddingTop: number;
+      contentPaddingBottom: number;
+      contentMarginTop: number;
+      contentMarginBottom: number;
+      editorMinHeight: number;
+      editorMaxHeight: number;
+    };
+  }) => void;
 }
 
 const EditorCore = memo(
@@ -36,20 +70,29 @@ const EditorCore = memo(
         className,
         onEditorReady,
         language,
+        onDebugInfo,
       },
       ref,
     ) => {
       const containerRef = useRef<HTMLDivElement>(null);
       const editorViewRef = useRef<EditorView | null>(null);
       const isExternalUpdateRef = useRef(false);
-      const [dynamicExtensions, setDynamicExtensions] = useState<Extension[]>([]);
+      const isInternalUpdateRef = useRef(false);
+      const isInitializedRef = useRef(false);
       const readOnlyCompartment = useRef(new Compartment());
+      const languageCompartment = useRef(new Compartment());
+
+      const valueRef = useRef(value);
+      valueRef.current = value;
 
       const onChangeRef = useRef(onChange);
       onChangeRef.current = onChange;
 
       const onEditorReadyRef = useRef(onEditorReady);
       onEditorReadyRef.current = onEditorReady;
+
+      const onDebugInfoRef = useRef(onDebugInfo);
+      onDebugInfoRef.current = onDebugInfo;
 
       const readOnlyRef = useRef(readOnly);
       readOnlyRef.current = readOnly;
@@ -64,37 +107,29 @@ const EditorCore = memo(
       }));
 
       useEffect(() => {
-        async function loadLanguageExtension() {
-          if (language) {
-            const langExt = await getCodeLanguageExtension(language);
-            setDynamicExtensions(langExt ? [langExt] : []);
-          } else {
-            setDynamicExtensions([]);
-          }
-        }
-        loadLanguageExtension();
-      }, [language]);
-
-      useEffect(() => {
         const container = containerRef.current;
-        if (!container) {
+        if (!container || isInitializedRef.current) {
           return () => {};
         }
+
+        // 如果 value 是空的，使用空字符串作为初始值
+        const initialDoc = valueRef.current || "";
 
         const updateListener = EditorView.updateListener.of((update) => {
           if (update.docChanged && !isExternalUpdateRef.current) {
             const newValue = update.state.doc.toString();
+            isInternalUpdateRef.current = true;
             onChangeRef.current(newValue);
           }
         });
 
         const state = EditorState.create({
-          doc: value,
+          doc: initialDoc,
           extensions: [
             ...getEditorExtensions(),
             getEditorTheme(),
             getHighlightStyle(),
-            ...dynamicExtensions,
+            languageCompartment.current.of([]),
             updateListener,
             EditorView.lineWrapping,
             readOnlyCompartment.current.of(EditorState.readOnly.of(readOnlyRef.current)),
@@ -108,26 +143,129 @@ const EditorCore = memo(
 
         editorViewRef.current = view;
 
+        // 立即获取文档状态并传递给调试回调
+        if (onDebugInfoRef.current) {
+          const docContent = view.state.doc.toString();
+          const docLines = view.state.doc.lines;
+          
+          // 获取 DOM 结构信息
+          const cmContent = container.querySelector('.cm-content');
+          const cmLines = cmContent ? Array.from(cmContent.querySelectorAll('.cm-line')) : [];
+          const containerChildren = container.children;
+          
+          // 获取高度信息
+          const containerRect = container.getBoundingClientRect();
+          const contentRect = cmContent ? cmContent.getBoundingClientRect() : null;
+          const cmEditor = container.querySelector('.cm-editor');
+          const cmScroller = container.querySelector('.cm-scroller');
+          const cmGutter = container.querySelector('.cm-gutters');
+          
+          onDebugInfoRef.current({
+            action: 'CREATE',
+            value: valueRef.current,
+            valueEscape: JSON.stringify(valueRef.current),
+            valueLines: valueRef.current.split('\n').length,
+            valueSplit: valueRef.current.split('\n'),
+            docContent: docContent,
+            docContentEscape: JSON.stringify(docContent),
+            docLines: docLines,
+            docSplit: docContent.split('\n'),
+            domInfo: {
+              cmLineCount: cmLines.length,
+              cmLinesContent: cmLines.map(line => line.textContent || ''),
+              containerChildCount: containerChildren.length,
+              containerChildren: Array.from(containerChildren).map(child => child.tagName),
+              containerHeight: containerRect.height,
+              containerWidth: containerRect.width,
+              contentHeight: contentRect ? contentRect.height : 0,
+              contentWidth: contentRect ? contentRect.width : 0,
+              cmEditorHeight: cmEditor ? cmEditor.getBoundingClientRect().height : 0,
+              cmScrollerHeight: cmScroller ? cmScroller.getBoundingClientRect().height : 0,
+              cmGutterHeight: cmGutter ? cmGutter.getBoundingClientRect().height : 0,
+              contentPaddingTop: cmContent ? parseInt(getComputedStyle(cmContent).paddingTop) : 0,
+              contentPaddingBottom: cmContent ? parseInt(getComputedStyle(cmContent).paddingBottom) : 0,
+              contentMarginTop: cmContent ? parseInt(getComputedStyle(cmContent).marginTop) : 0,
+              contentMarginBottom: cmContent ? parseInt(getComputedStyle(cmContent).marginBottom) : 0,
+              editorMinHeight: parseInt(container.style.minHeight) || 0,
+              editorMaxHeight: parseInt(container.style.maxHeight) || 0,
+            },
+          });
+        }
+        isInitializedRef.current = true;
+
         if (onEditorReadyRef.current) {
           onEditorReadyRef.current(view);
         }
 
         if (autoFocusRef.current) {
           view.focus();
+          view.dispatch({
+            selection: { anchor: view.state.doc.length, head: view.state.doc.length },
+          });
         }
 
         return () => {
           view.destroy();
           editorViewRef.current = null;
+          isInitializedRef.current = false;
         };
-      }, [dynamicExtensions]);
+      }, []);  // 只在挂载时执行一次
 
       useEffect(() => {
         const view = editorViewRef.current;
         if (!view) return;
 
+        if (!language) {
+          view.dispatch({
+            effects: languageCompartment.current.reconfigure([]),
+          });
+          return;
+        }
+
+        let cancelled = false;
+        async function loadAndReconfigure(lang: string) {
+          const langExt = await getCodeLanguageExtension(lang);
+          if (cancelled) return;
+          const currentView = editorViewRef.current;
+          if (!currentView) return;
+          currentView.dispatch({
+            effects: languageCompartment.current.reconfigure(langExt ? [langExt] : []),
+          });
+        }
+        loadAndReconfigure(language);
+        return () => {
+          cancelled = true;
+        };
+      }, [language]);
+
+      useEffect(() => {
+        const view = editorViewRef.current;
+        if (!view) return;
+
+        if (isInternalUpdateRef.current) {
+          isInternalUpdateRef.current = false;
+          return;
+        }
+
         const currentValue = view.state.doc.toString();
         if (value !== currentValue) {
+          if (onDebugInfoRef.current) {
+            onDebugInfoRef.current({
+              action: 'SYNC',
+              value: value,
+              valueEscape: JSON.stringify(value),
+              valueLines: value.split('\n').length,
+              valueSplit: value.split('\n'),
+              current: currentValue,
+              currentEscape: JSON.stringify(currentValue),
+              currentLines: currentValue.split('\n').length,
+              currentSplit: currentValue.split('\n'),
+              docContent: currentValue,
+              docContentEscape: JSON.stringify(currentValue),
+              docLines: view.state.doc.lines,
+              docSplit: currentValue.split('\n'),
+            });
+          }
           isExternalUpdateRef.current = true;
 
           const main = view.state.selection.main;
@@ -164,6 +302,7 @@ const EditorCore = memo(
           ref={containerRef}
           className={className}
           style={{
+            width: "100%",
             minHeight: `${minHeight}px`,
             maxHeight: `${maxHeight}px`,
             overflow: "auto",

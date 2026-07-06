@@ -3,8 +3,10 @@ import { listen } from "@tauri-apps/api/event";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { open } from "@tauri-apps/plugin-dialog";
 import React, { useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import ToastContainer from "./components/common/Toast";
 import UpdateChecker from "./components/common/UpdateChecker";
+import ConfirmDialog from "./components/common/ConfirmDialog";
 import ContextMenu from "./components/context-menu/ContextMenu";
 import { getReaderContextMenuItems } from "./components/context-menu/ReaderContextMenu";
 import AppLayout from "./components/layout/AppLayout";
@@ -66,6 +68,12 @@ function App() {
   // About / EasterEgg 显示状态
   const [showAbout, setShowAbout] = useState(false);
   const [showEasterEgg, setShowEasterEgg] = useState(false);
+
+  // 确认对话框状态
+  const confirmDialogVisible = useReaderStore((s) => s.confirmDialogVisible);
+  const confirmDialogMessage = useReaderStore((s) => s.confirmDialogMessage);
+  const confirmDialogOnConfirm = useReaderStore((s) => s.confirmDialogOnConfirm);
+  const confirmDialogOnCancel = useReaderStore((s) => s.confirmDialogOnCancel);
 
   // 恢复期间防闪
   const [isRestoring, setIsRestoring] = useState(true);
@@ -354,7 +362,16 @@ function App() {
         target.closest(".mermaid")
       );
       if (isMermaidArea) {
-        return; // 完全不处理Mermaid区域的右键菜单
+        return;
+      }
+
+      // 检查是否在代码块区域内，如果是则不处理，让CodeBlock组件自己处理
+      const isCodeBlockArea = !!(
+        target.closest("pre") ||
+        target.closest('[data-block-type="code"]')
+      );
+      if (isCodeBlockArea) {
+        return;
       }
 
       const selection = window.getSelection();
@@ -817,15 +834,18 @@ function App() {
       {/* 图片预览 */}
       <ImagePreview />
 
-      {/* 快速编辑 */}
-      {editState.isEditing && editState.editingElement && (
+      {/* 快速编辑 - 使用 Portal 隔离，CSS 控制可见性 */}
+      {createPortal(
         <QuickEdit
           text={editState.editText}
-          targetElement={editState.editingElement}
+          originalText={editState.originalText}
+          targetElement={editState.editingElement || document.body}
           onSave={saveEdit}
           onCancel={cancelEdit}
-          onUpdate={updateEditText}
-        />
+          onUpdate={editState.isEditing && editState.editingElement ? updateEditText : undefined}
+          visible={editState.isEditing && editState.editingElement !== null}
+        />,
+        document.body
       )}
 
       {/* 右键菜单 */}
@@ -840,6 +860,14 @@ function App() {
 
       {/* Toast 通知 */}
       <ToastContainer />
+
+      {/* 确认对话框 */}
+      <ConfirmDialog
+        message={confirmDialogMessage}
+        visible={confirmDialogVisible}
+        onConfirm={confirmDialogOnConfirm ?? (() => {})}
+        onCancel={confirmDialogOnCancel ?? (() => {})}
+      />
 
       {/* 版本更新检测 */}
       <UpdateChecker />
