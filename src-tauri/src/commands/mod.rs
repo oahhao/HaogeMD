@@ -1,4 +1,5 @@
 use base64::{engine::general_purpose, Engine as _};
+use chardetng::EncodingDetector;
 use encoding_rs;
 use serde::Serialize;
 use std::fs;
@@ -50,7 +51,19 @@ pub struct ReadFileResult {
 pub async fn read_file(path: String) -> Result<ReadFileResult, String> {
     validate_path(&path)?;
     let bytes = fs::read(&path).map_err(|e| format!("Failed to read file: {}", e))?;
-    let (content, _, _) = encoding_rs::UTF_8.decode(&bytes);
+    
+    // 创建编码检测器（禁用 ISO-2022-JP，Markdown 不需要）
+    let mut detector = EncodingDetector::new(chardetng::Iso2022JpDetection::Deny);
+    
+    // 喂入字节流
+    detector.feed(&bytes, true);
+    
+    // 检测编码（本地文件无 TLD，允许 UTF-8）
+    let encoding = detector.guess(None, chardetng::Utf8Detection::Allow);
+    
+    // 用检测到的编码解码
+    let (content, _, _) = encoding.decode(&bytes);
+    
     let word_count = count_words(&content);
     Ok(ReadFileResult {
         content: content.into_owned(),
