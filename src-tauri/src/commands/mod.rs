@@ -1,6 +1,5 @@
 use base64::{engine::general_purpose, Engine as _};
 use chardetng::EncodingDetector;
-use encoding_rs;
 use serde::Serialize;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -52,14 +51,14 @@ pub async fn read_file(path: String) -> Result<ReadFileResult, String> {
     validate_path(&path)?;
     let bytes = fs::read(&path).map_err(|e| format!("Failed to read file: {}", e))?;
     
-    // 创建编码检测器（禁用 ISO-2022-JP，Markdown 不需要）
-    let mut detector = EncodingDetector::new(chardetng::Iso2022JpDetection::Deny);
+    // 创建编码检测器
+    let mut detector = EncodingDetector::new();
     
     // 喂入字节流
     detector.feed(&bytes, true);
     
-    // 检测编码（本地文件无 TLD，允许 UTF-8）
-    let encoding = detector.guess(None, chardetng::Utf8Detection::Allow);
+    // 检测编码
+    let encoding = detector.guess(None, true);
     
     // 用检测到的编码解码
     let (content, _, _) = encoding.decode(&bytes);
