@@ -24,6 +24,7 @@ sqlx = { version = "0.8.6", features = ["runtime-tokio", "sqlite", "macros"] }
 dirs = "6.0.0"
 chrono = "0.4.44"
 encoding_rs = "0.8.34"
+chardetng = "0.1"
 urlencoding = "2"
 tokio = { version = "1", features = ["sync"] }
 base64 = "0.22.1"
