@@ -197,12 +197,20 @@ export function useQuickEdit() {
       // 正常保存
       const doSave = async () => {
         try {
+          const blockElement = quickEditElement?.closest('[data-block-type]');
+          const blockType = blockElement?.getAttribute('data-block-type');
+          
+          let textToSave = editText;
+          if (blockType === 'paragraph') {
+            textToSave = editText.replace(/([^\s])\n([^\s])/g, '$1  \n$2');
+          }
+          
           let newContent: string;
           if (quickEditLineRange && typeof quickEditLineRange.startLine === "number" && typeof quickEditLineRange.endLine === "number") {
-            const result = replaceLinesByRange(currentContent, quickEditLineRange, editText);
-            newContent = result === currentContent ? currentContent.replace(originalText, editText) : result;
+            const result = replaceLinesByRange(currentContent, quickEditLineRange, textToSave);
+            newContent = result === currentContent ? currentContent.replace(originalText, textToSave) : result;
           } else {
-            newContent = currentContent.replace(originalText, editText);
+            newContent = currentContent.replace(originalText, textToSave);
           }
           if (newContent === currentContent) {
             addToast({ type: "warning", message: t("quickEdit.noMatch") });
