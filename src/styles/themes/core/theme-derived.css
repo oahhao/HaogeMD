@@ -203,6 +203,10 @@ ErgeMD 主题系统 - theme-derived.css
    ============================================ */
 [data-theme] {
 
+  /* === 字体 === */
+  --font-family-sans: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+
   /* === Admonition 变量 === */
   --admonition-note-bg: rgba(var(--accent-cyan-rgb), 0.08);
   --admonition-note-border: rgba(var(--accent-cyan-rgb), 0.20);

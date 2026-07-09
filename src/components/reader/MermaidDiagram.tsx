@@ -369,12 +369,43 @@ interface ChartColors {
   };
 }
 
+function normalizeColor(color: string): string {
+  if (!color) return color;
+  const trimmed = color.trim().toLowerCase();
+  if (/^#[0-9a-f]{3}$/i.test(trimmed)) {
+    const r = trimmed[1];
+    const g = trimmed[2];
+    const b = trimmed[3];
+    return `#${r}${r}${g}${g}${b}${b}`;
+  }
+  const namedColors: Record<string, string> = {
+    gray: "#808080",
+    black: "#000000",
+    white: "#ffffff",
+    red: "#ff0000",
+    green: "#008000",
+    blue: "#0000ff",
+    yellow: "#ffff00",
+    cyan: "#00ffff",
+    magenta: "#ff00ff",
+    orange: "#ffa500",
+    purple: "#800080",
+    pink: "#ffc0cb",
+    brown: "#a52a2a",
+    silver: "#c0c0c0",
+    gold: "#ffd700",
+  };
+  if (namedColors[trimmed]) {
+    return namedColors[trimmed];
+  }
+  return color.trim();
+}
+
 function getCSSVar(name: string, fallback: string = ""): string {
   if (typeof document === "undefined") return fallback;
-  return (
-    getComputedStyle(document.documentElement).getPropertyValue(name).trim() ||
-    fallback
-  );
+  const raw = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  const result = normalizeColor(raw || fallback);
+  return result;
 }
 
 function getMermaidColors(): {
@@ -422,7 +453,7 @@ function getMermaidColors(): {
     lineColor,
     secondaryColor,
     tertiaryColor,
-    fontFamily: "inherit",
+    fontFamily: getCSSVar("--font-family-sans", "system-ui, -apple-system, BlinkMacSystemFont, sans-serif"),
     isLight,
     backgroundColor,
     pieTextColor: primaryTextColor,
@@ -1108,7 +1139,7 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = memo(
       theme: resolvedTheme,
       signature: themeSignature,
       chart,
-      _version: "v36",
+      _version: "v40-text-center",
     });
 
     useEffect(() => {
@@ -1895,7 +1926,11 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = memo(
               }
             `;
 
-            svg = svg.replace("<style>", `<style>${treemapInlineStyle}`);
+            if (svg.includes("<style>")) {
+              svg = svg.replace("<style>", `<style>${treemapInlineStyle}`);
+            } else {
+              svg = svg.replace(/<svg([^>]*)>/, `<svg$1><style>${treemapInlineStyle}</style>`);
+            }
           }
 
           if (isErDiagram && colors.charts.erDiagram) {
@@ -1927,52 +1962,11 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = memo(
               }
             `;
 
-            svg = svg.replace("<style>", `<style>${inlineStyle}`);
-          }
-
-          if (isFlowchart && colors.charts.flowchart) {
-            const flowchartColors = colors.charts.flowchart;
-            const textColor = colors.primaryTextColor;
-
-            const inlineStyle = `
-              .nodeLabel text,
-              .edgeLabel text,
-              text {
-                fill: ${textColor} !important;
-              }
-
-              .node rect,
-              .node circle,
-              .node polygon {
-                fill: ${flowchartColors.nodeBg} !important;
-                stroke: ${flowchartColors.nodeBorder} !important;
-              }
-
-              .edgePath path,
-              .edgePath line {
-                stroke: ${flowchartColors.edgeColor} !important;
-              }
-
-              .edgeLabel {
-                background-color: ${flowchartColors.edgeLabelBg} !important;
-                color: ${flowchartColors.edgeLabelText} !important;
-              }
-
-              .label rect {
-                fill: ${flowchartColors.edgeLabelBg} !important;
-              }
-
-              .label text {
-                fill: ${flowchartColors.edgeLabelText} !important;
-              }
-
-              .cluster rect {
-                fill: ${colors.tertiaryColor} !important;
-                stroke: ${flowchartColors.subgraphBorderColor} !important;
-              }
-            `;
-
-            svg = svg.replace("<style>", `<style>${inlineStyle}`);
+            if (svg.includes("<style>")) {
+              svg = svg.replace("<style>", `<style>${inlineStyle}`);
+            } else {
+              svg = svg.replace(/<svg([^>]*)>/, `<svg$1><style>${inlineStyle}</style>`);
+            }
           }
 
           if (isSequence) {
@@ -1999,7 +1993,11 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = memo(
               }
             `;
 
-            svg = svg.replace("<style>", `<style>${inlineStyle}`);
+            if (svg.includes("<style>")) {
+              svg = svg.replace("<style>", `<style>${inlineStyle}`);
+            } else {
+              svg = svg.replace(/<svg([^>]*)>/, `<svg$1><style>${inlineStyle}</style>`);
+            }
           }
 
           if (isGantt && colors.charts.gantt) {
@@ -2034,7 +2032,11 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = memo(
               }
             `;
 
-            svg = svg.replace("<style>", `<style>${ganttInlineStyle}`);
+            if (svg.includes("<style>")) {
+              svg = svg.replace("<style>", `<style>${ganttInlineStyle}`);
+            } else {
+              svg = svg.replace(/<svg([^>]*)>/, `<svg$1><style>${ganttInlineStyle}</style>`);
+            }
           }
 
           if (isGitGraph && colors.charts.gitgraph) {
@@ -2117,7 +2119,11 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = memo(
               }
             `;
 
-            svg = svg.replace("<style>", `<style>${gitgraphInlineStyle}`);
+            if (svg.includes("<style>")) {
+              svg = svg.replace("<style>", `<style>${gitgraphInlineStyle}`);
+            } else {
+              svg = svg.replace(/<svg([^>]*)>/, `<svg$1><style>${gitgraphInlineStyle}</style>`);
+            }
           }
 
           if (
@@ -2195,6 +2201,98 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = memo(
           }
 
           if (!cancelled) {
+            const fixSvgColors = (svgStr: string): string => {
+              let result = svgStr;
+              const pc = colors.primaryColor;
+              const pbc = colors.primaryBorderColor;
+              const ptc = colors.primaryTextColor;
+              const lc = colors.lineColor;
+
+              // 不修改 <style> 标签，保留 Mermaid 布局 CSS
+              // 仅修复颜色属性和 foreignObject 尺寸
+
+              // 修复 rect - 只添加缺失的颜色属性
+              result = result.replace(/<rect((?![^>]*fill=)[^>]*)>/g, `<rect$1 fill="${pc}">`);
+              result = result.replace(/<rect((?![^>]*stroke=)[^>]*)>/g, `<rect$1 stroke="${pbc}">`);
+
+              // 修复 polygon - 只添加缺失的颜色属性
+              result = result.replace(/<polygon((?![^>]*fill=)[^>]*)>/g, `<polygon$1 fill="${pc}">`);
+              result = result.replace(/<polygon((?![^>]*stroke=)[^>]*)>/g, `<polygon$1 stroke="${pbc}">`);
+
+              // 修复 circle - 只添加缺失的颜色属性
+              result = result.replace(/<circle((?![^>]*fill=)[^>]*)>/g, `<circle$1 fill="${pc}">`);
+              result = result.replace(/<circle((?![^>]*stroke=)[^>]*)>/g, `<circle$1 stroke="${pbc}">`);
+
+              // 修复 path - 只添加缺失的颜色属性
+              result = result.replace(/<path((?![^>]*fill=)[^>]*)>/g, `<path$1 fill="none">`);
+              result = result.replace(/<path((?![^>]*stroke=)[^>]*)>/g, `<path$1 stroke="${lc}">`);
+
+              // 修复 text - 只添加缺失的颜色属性
+              result = result.replace(/<text((?![^>]*fill=)[^>]*)>/g, `<text$1 fill="${ptc}">`);
+
+              // 修复 foreignObject 尺寸 - 增加最小尺寸到 250x60
+              result = result.replace(
+                /<foreignObject([^>]*)>/gi,
+                (_match, attrs) => {
+                  let newAttrs = attrs;
+                  // 增加 width
+                  newAttrs = newAttrs.replace(/width="(\d+)"/, (_m: string, w: string) => {
+                    return `width="${Math.max(parseInt(w), 250)}"`;
+                  });
+                  // 增加 height
+                  newAttrs = newAttrs.replace(/height="(\d+)"/, (_m: string, h: string) => {
+                    return `height="${Math.max(parseInt(h), 60)}"`;
+                  });
+                  // 如果没有 width/height，添加它们
+                  if (!newAttrs.includes('width="')) newAttrs += ' width="250"';
+                  if (!newAttrs.includes('height="')) newAttrs += ' height="60"';
+                  return `<foreignObject${newAttrs}>`;
+                }
+              );
+
+              // 修复 foreignObject 内的 div 样式
+              result = result.replace(
+                /<div([^>]*)>/gi,
+                (match, attrs) => {
+                  if (attrs.includes('style="')) {
+                    // 已有 style，添加 flex 居中样式
+                    return match.replace(/style="([^"]*)"/, (_m, styles) => {
+                      let newStyles = styles;
+                      if (!newStyles.includes('overflow')) newStyles += ';overflow:visible';
+                      if (!newStyles.includes('white-space')) newStyles += ';white-space:nowrap';
+                      if (!newStyles.includes('height')) newStyles += ';height:100%';
+                      if (!newStyles.includes('display')) newStyles += ';display:flex';
+                      if (!newStyles.includes('align-items')) newStyles += ';align-items:center';
+                      if (!newStyles.includes('justify-content')) newStyles += ';justify-content:center';
+                      return `style="${newStyles}"`;
+                    });
+                  }
+                  // 没有 style，添加完整的 flex 居中样式
+                  return `<div${attrs} style="overflow:visible;white-space:nowrap;height:100%;display:flex;align-items:center;justify-content:center;">`;
+                }
+              );
+
+              return result;
+            };
+
+            svg = fixSvgColors(svg);
+
+            // 修复 SVG viewBox 防止裁剪
+            const viewBoxMatch = svg.match(/viewBox="([^"]*)"/);
+            if (viewBoxMatch) {
+              const viewBoxStr = viewBoxMatch[1];
+              const [x, y, w, h] = viewBoxStr.split(/\s+/).map(Number);
+              // 增大 viewBox 尺寸以防止文字裁剪
+              const newX = x - 50;
+              const newY = y - 50;
+              const newW = w + 100;
+              const newH = h + 100;
+              svg = svg.replace(
+                /viewBox="[^"]*"/,
+                `viewBox="${newX} ${newY} ${newW} ${newH}"`
+              );
+            }
+
             if (svg && svg.includes("<svg")) {
               cleanupCache();
               mermaidCache.set(cacheKey, {
@@ -2258,6 +2356,10 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = memo(
         );
       };
     }, [showContextMenu]);
+
+    useEffect(() => {
+      // SVG 颜色已在 SVG 字符串级别修复，无需 DOM 操作
+    }, [svgHtml, chart]);
 
     const placeholder = (
       <div
@@ -2356,8 +2458,7 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = memo(
               margin: "1.5em -1.5em",
               width: "calc(100% + 3em)",
               maxWidth: "none",
-              overflowX: "auto",
-              overflowY: "hidden",
+              overflow: "visible",
               letterSpacing: "normal",
               display: "flex",
               justifyContent: "center",
@@ -2390,8 +2491,7 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = memo(
             margin: "1.5em -1.5em",
             width: "calc(100% + 3em)",
             maxWidth: "none",
-            overflowX: "auto",
-            overflowY: "hidden",
+            overflow: "visible",
             letterSpacing: "normal",
             display: "flex",
             justifyContent: "center",

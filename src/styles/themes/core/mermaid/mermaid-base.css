@@ -22,6 +22,7 @@ ErgeMD 主题系统 - mermaid-base.css
   --mermaid-edge: var(--chart-edge);
   --mermaid-cluster-fill: var(--chart-surface-1);
   --mermaid-label-bg: var(--chart-surface-1);
+  --mermaid-label-font-size: 14px;
 
   /* === 通用节点边框 === */
   --mermaid-node-stroke: var(--chart-stroke-0);

@@ -364,12 +364,43 @@
 .markdown-body .katex-display {
   margin: 1em 0;
   overflow-x: auto;
-  overflow-y: hidden;
+  overflow-y: visible;
 }
 
 /* ===== Mermaid 图表 ===== */
+.markdown-body .mermaid {
+  overflow: visible !important;
+}
+
 .markdown-body .mermaid svg {
   height: auto;
+  max-width: none !important;
+  width: intrinsic !important;
+  width: -moz-max-content !important;
+  width: -webkit-max-content !important;
+  overflow: visible !important;
+}
+
+/* 强制 Mermaid foreignObject 不裁剪内容 */
+.markdown-body .mermaid foreignObject {
+  overflow: visible !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.markdown-body .mermaid foreignObject > div {
+  overflow: visible !important;
+  white-space: nowrap !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.markdown-body .mermaid foreignObject > div > span {
+  overflow: visible !important;
+  white-space: nowrap !important;
 }
 
 /* Mermaid 内部文字不受全局字间距影响 */

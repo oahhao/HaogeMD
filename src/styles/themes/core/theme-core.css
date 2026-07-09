@@ -40,6 +40,10 @@ html:not([data-theme]) {
   --h5-color: #9ECE6A;
   --h6-color: #788090;
 
+  /* === 字体 === */
+  --font-family-sans: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+
   /* === Accent 色 fallback === */
   --accent-cyan: #7DCFFF;
   --accent-pink: #F7768E;
@@ -147,6 +151,22 @@ html:not([data-theme]) {
   --chart-series-5: #FF9E64;
   --chart-series-6: #7AA2F7;
   --chart-series-7: #C586C0;
+
+  /* === Mermaid 基础变量 fallback（硬编码值，不引用 chart 变量）=== */
+  --mermaid-text: #E0E0E0;
+  --mermaid-edge: #808080;
+  --mermaid-cluster-fill: #2E2E38;
+  --mermaid-label-bg: #2E2E38;
+  --mermaid-label-font-size: 14px;
+  --mermaid-node-stroke: #6AB0FF;
+
+  /* === Mermaid Flowchart 变量 fallback（硬编码值）=== */
+  --mermaid-flowchart-node-bg: #2E2E38;
+  --mermaid-flowchart-node-border: #6AB0FF;
+  --mermaid-flowchart-node-text: #E0E0E0;
+  --mermaid-flowchart-edge: #808080;
+  --mermaid-flowchart-edge-label-bg: #282830;
+  --mermaid-flowchart-subgraph-border: #6AB0FF;
 
   /* === 搜索高亮 fallback === */
   --search-highlight: rgba(224, 175, 104, 0.25);
