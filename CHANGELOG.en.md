@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **App icon**: Brand-new HaogeMD icon (H+MD design), embedded as SVG component
 - **Icon size**: Welcome page icon increased from 160px to 240px, About page icon from 104px to 120px
 
+### Fixed
+
+- **Mermaid node label foreignObject rendering issue in WebView2**: In Tauri build, Mermaid flowchart node labels were truncated and not centered. Root cause: WebView2 does not parse the style attribute of HTML elements inside foreignObject. Solution: Convert node label foreignObjects to native SVG text elements at SVG string level, using text-anchor and dominant-baseline for centering. Also set htmlLabels: false to make edge labels use native text. See `docs/experience/mermaid-webview2-foreignobject-issue.md`
+
 ## [0.5.0] - 2026-06-30
 
 ### Fixed
