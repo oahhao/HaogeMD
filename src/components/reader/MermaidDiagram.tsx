@@ -7,7 +7,7 @@ import SVGPreview from "./SVGPreview";
  * Mermaid 渲染结果缓存（内存级别，页面刷新失效）。
  * key: JSON.stringify({ theme, chart }), value: { svgHtml, timestamp }
  */
-const mermaidCache = new Map<string, { svgHtml: string; timestamp: number }>();
+const mermaidCache = new Map<string, { svgHtml: string; timestamp: number; _version: string }>();
 const CACHE_MAX_AGE = 1000 * 60 * 60 * 24; // 24小时
 const CACHE_MAX_SIZE = 100; // 最多缓存100个图表
 
@@ -70,7 +70,7 @@ export function renderMermaidForExport(chart: string): Promise<string> {
           startOnLoad: false,
           theme: "default",
           securityLevel: "loose",
-          flowchart: { useMaxWidth: false, htmlLabels: true },
+          flowchart: { useMaxWidth: false, htmlLabels: false },
         });
 
         const id = `export-mermaid-${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -1139,7 +1139,7 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = memo(
       theme: resolvedTheme,
       signature: themeSignature,
       chart,
-      _version: "v40-text-center",
+      _version: "v48-node-text",
     });
 
     useEffect(() => {
@@ -1164,7 +1164,7 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = memo(
       if (!isVisible) return;
 
       const cached = mermaidCache.get(cacheKey);
-      if (cached) {
+      if (cached && cached._version === "v48-node-text") {
         setSvgHtml(cached.svgHtml);
         setError(false);
         return;
@@ -1695,7 +1695,7 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = memo(
             themeCSS: erThemeCSS,
             flowchart: {
               useMaxWidth: false,
-              htmlLabels: true,
+              htmlLabels: false,
               curve: "basis",
               diagramPadding: 20,
               padding: 15,
@@ -2208,9 +2208,6 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = memo(
               const ptc = colors.primaryTextColor;
               const lc = colors.lineColor;
 
-              // 不修改 <style> 标签，保留 Mermaid 布局 CSS
-              // 仅修复颜色属性和 foreignObject 尺寸
-
               // 修复 rect - 只添加缺失的颜色属性
               result = result.replace(/<rect((?![^>]*fill=)[^>]*)>/g, `<rect$1 fill="${pc}">`);
               result = result.replace(/<rect((?![^>]*stroke=)[^>]*)>/g, `<rect$1 stroke="${pbc}">`);
@@ -2230,45 +2227,23 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = memo(
               // 修复 text - 只添加缺失的颜色属性
               result = result.replace(/<text((?![^>]*fill=)[^>]*)>/g, `<text$1 fill="${ptc}">`);
 
-              // 修复 foreignObject 尺寸 - 增加最小尺寸到 250x60
+              // 将节点标签的 foreignObject 转换为原生 SVG text 元素
+              // WebView2 不支持 foreignObject 内 HTML 元素的 style 属性，因此用原生 text 替代
               result = result.replace(
-                /<foreignObject([^>]*)>/gi,
-                (_match, attrs) => {
-                  let newAttrs = attrs;
-                  // 增加 width
-                  newAttrs = newAttrs.replace(/width="(\d+)"/, (_m: string, w: string) => {
-                    return `width="${Math.max(parseInt(w), 250)}"`;
-                  });
-                  // 增加 height
-                  newAttrs = newAttrs.replace(/height="(\d+)"/, (_m: string, h: string) => {
-                    return `height="${Math.max(parseInt(h), 60)}"`;
-                  });
-                  // 如果没有 width/height，添加它们
-                  if (!newAttrs.includes('width="')) newAttrs += ' width="250"';
-                  if (!newAttrs.includes('height="')) newAttrs += ' height="60"';
-                  return `<foreignObject${newAttrs}>`;
-                }
-              );
-
-              // 修复 foreignObject 内的 div 样式
-              result = result.replace(
-                /<div([^>]*)>/gi,
-                (match, attrs) => {
-                  if (attrs.includes('style="')) {
-                    // 已有 style，添加 flex 居中样式
-                    return match.replace(/style="([^"]*)"/, (_m, styles) => {
-                      let newStyles = styles;
-                      if (!newStyles.includes('overflow')) newStyles += ';overflow:visible';
-                      if (!newStyles.includes('white-space')) newStyles += ';white-space:nowrap';
-                      if (!newStyles.includes('height')) newStyles += ';height:100%';
-                      if (!newStyles.includes('display')) newStyles += ';display:flex';
-                      if (!newStyles.includes('align-items')) newStyles += ';align-items:center';
-                      if (!newStyles.includes('justify-content')) newStyles += ';justify-content:center';
-                      return `style="${newStyles}"`;
-                    });
+                /<foreignObject width="([^"]*)" height="([^"]*)"[^>]*>([\s\S]*?)<span class="nodeLabel"[^>]*>(?:<p>)?([^<]*)(?:<\/p>)?<\/span>[\s\S]*?<\/foreignObject>/g,
+                (match, width, height, _before, text) => {
+                  const w = parseFloat(width);
+                  const h = parseFloat(height);
+                  if (w > 0 && h > 0 && text) {
+                    const x = w / 2;
+                    const y = h / 2;
+                    const escapedText = text
+                      .replace(/&/g, "&amp;")
+                      .replace(/</g, "&lt;")
+                      .replace(/>/g, "&gt;");
+                    return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" fill="${ptc}">${escapedText}</text>`;
                   }
-                  // 没有 style，添加完整的 flex 居中样式
-                  return `<div${attrs} style="overflow:visible;white-space:nowrap;height:100%;display:flex;align-items:center;justify-content:center;">`;
+                  return match;
                 }
               );
 
@@ -2298,6 +2273,7 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = memo(
               mermaidCache.set(cacheKey, {
                 svgHtml: svg,
                 timestamp: Date.now(),
+      _version: "v48-node-text",
               });
             }
             setSvgHtml(svg);
