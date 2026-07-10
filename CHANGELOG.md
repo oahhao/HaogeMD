@@ -16,6 +16,10 @@
 - **应用图标**：替换为全新的 HaogeMD 图标（H+MD 设计），嵌入 SVG 组件中
 - **图标尺寸**：欢迎页图标从 160px 增大到 240px，关于页图标从 104px 增大到 120px
 
+### 修复
+
+- **Mermaid 节点标签在 WebView2 下 foreignObject 渲染问题**：Tauri 打包后的 build 版本中，Mermaid 流程图节点标签文字被截断无法正确居中显示。根因是 WebView2 不解析 foreignObject 内 HTML 元素的 style 属性。解决方案：在 SVG 字符串级别将节点标签的 foreignObject 转换为原生 SVG text 元素，使用 text-anchor 和 dominant-baseline 实现文字居中。同时设置 htmlLabels: false 让边标签也使用原生 text 元素。详见 `docs/experience/mermaid-webview2-foreignobject-issue.md`
+
 ## [0.5.0] - 2026-06-30
 
 ### 修复
