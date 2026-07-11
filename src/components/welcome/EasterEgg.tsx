@@ -3,10 +3,8 @@ import { useTranslation } from "react-i18next";
 
 const QR_TIP_IMG = "/images/qr-tip.png";
 const QR_FRIEND_IMG = "/images/qr-friend.png";
-const QR_BILIBILI_QR = "/images/qr-bilibili.png";
 const ICO_REWARD = "/images/reward-ico.png";
 const ICO_WECHAT = "/images/Wechat-ico.png";
-const ICO_BILIBILI = "/images/bilibili-ico.png";
 
 interface EasterEggProps {
   onClose: () => void;
@@ -58,15 +56,11 @@ QrButton.displayName = "QrButton";
 
 const EasterEgg: React.FC<EasterEggProps> = memo(({ onClose }) => {
   const { t } = useTranslation();
-  const [hoveredQr, setHoveredQr] = useState<
-    "tip" | "friend" | "bilibili" | null
-  >(null);
+  const [hoveredQr, setHoveredQr] = useState<"tip" | "friend" | null>(null);
 
-  // 弹窗数据映射
   const qrMap: Record<string, { src: string; label: string }> = {
     tip: { src: QR_TIP_IMG, label: t("about.qrTipLabel") },
     friend: { src: QR_FRIEND_IMG, label: t("about.qrFriendLabel") },
-    bilibili: { src: QR_BILIBILI_QR, label: t("about.bilibiliTitle") },
   };
 
   // ESC 关闭
@@ -155,11 +149,7 @@ const EasterEgg: React.FC<EasterEggProps> = memo(({ onClose }) => {
             hovered={hoveredQr === "friend"}
             onHover={(v) => setHoveredQr(v ? "friend" : null)}
           />
-          <QrButton
-            imgSrc={ICO_BILIBILI}
-            hovered={hoveredQr === "bilibili"}
-            onHover={(v) => setHoveredQr(v ? "bilibili" : null)}
-          />
+
         </div>
 
         {/* 关闭按钮 */}
