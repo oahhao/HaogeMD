@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **Brand customization**: Renamed from ErgeMD to HaogeMD, author info replaced with 豪哥
+- **Brand customization**: Renamed from ErgeMD to HaogeMD, author info replaced with 阿星学AI
 - **App icon**: Brand-new HaogeMD icon (H+MD design), embedded as SVG component
 - **Icon size**: Welcome page icon increased from 160px to 240px, About page icon from 104px to 120px
 

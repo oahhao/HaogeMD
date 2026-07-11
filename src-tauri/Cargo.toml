@@ -1,8 +1,8 @@
 [package]
-name = "haogemd"
+name = "HaogeMD"
 version = "0.5.0"
 description = "HaogeMD - A Markdown Reader"
-authors = ["豪哥"]
+authors = ["阿星学AI"]
 edition = "2021"
 
 [lib]
