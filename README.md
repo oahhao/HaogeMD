@@ -42,7 +42,6 @@
 > **macOS 平台说明**：CI 矩阵当前只编译 Apple Silicon（arm64）。`macos.dmg` 与 `macos.app.tar.gz` 均为 arm64 构建；Intel Mac 用户暂未提供原生包。
 
 > **注意**：由于 v0.4.0 未启用 macOS 代码签名（免费软件策略），macOS 首次打开请 **右键 → 打开** 绕过 Gatekeeper。
-
 ### Linux 下载
 
 - [HaogeMD-v0.5.0-linux-x86_64.AppImage](https://github.com/oahhao/HaogeMD/releases/download/v0.5.0/HaogeMD-v0.5.0-linux-x86_64.AppImage) — 免安装便携
@@ -175,7 +174,6 @@ pnpm build
 | 导出为 HTML | `Ctrl + E`         |
 | 导出为 PDF  | `Ctrl + P`         |
 | 导出为 Word | `Ctrl + Shift + E` |
-
 ### 阅读区右键菜单
 
 - **复制** (`Ctrl + C`) — 复制选中文本

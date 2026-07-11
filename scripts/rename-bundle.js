@@ -49,7 +49,7 @@ try {
   if (platform.includes("darwin") || platform.includes("macos")) {
     // macOS 产物：
     //   src-tauri/target/release/bundle/macos/HaogeMD.app
-    //   src-tauri/target/release/bundle/dmg/HaogeMD_0.4.0_x64.dmg
+    //   src-tauri/target/release/bundle/dmg/HaogeMD_0.5.0_x64.dmg
     const macosDir = join(bundleDir, "macos");
     const renamedAppName = `HaogeMD-v${version}.app`;
     renameDir(macosDir, "HaogeMD.app", renamedAppName);
