@@ -5,14 +5,6 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
-### Changed
-
-- **Brand customization**: Renamed from ErgeMD to HaogeMD, author info replaced with 阿星学AI
-- **App icon**: Brand-new HaogeMD icon (H+MD design), embedded as SVG component
-- **Icon size**: Welcome page icon increased from 160px to 240px, About page icon from 104px to 120px
-
 ### Fixed
 
 - **Mermaid node label foreignObject rendering issue in WebView2**: In Tauri build, Mermaid flowchart node labels were truncated and not centered. Root cause: WebView2 does not parse the style attribute of HTML elements inside foreignObject. Solution: Convert node label foreignObjects to native SVG text elements at SVG string level, using text-anchor and dominant-baseline for centering. Also set htmlLabels: false to make edge labels use native text. See `docs/experience/mermaid-webview2-foreignobject-issue.md`
@@ -69,7 +61,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Notes
 
 - The first cross-platform release **does not enable** macOS code signing (free-software strategy); users need to right-click → Open to bypass Gatekeeper
-
 ### Fixed
 
 - Floating TOC misaligned on the ZenUML section: the `@mermaid-js/mermaid-zenuml` plugin injects @zenuml/core's bundled CSS via `vite-plugin-css-injected-by-js`, which contains an unlayered universal selector `*, ::before, ::after { --tw-translate-y: 0; }` that outranks the host's Tailwind v4 `@layer utilities` rule and resets `--tw-translate-y` to 0, breaking the `.-translate-y-1/2` utility. The nav then starts at the 50% top anchor and extends straight down to the bottom-right corner. FloatingTOC's `-translate-y-1/2` is replaced with an inline `transform: translateY(-50%)`; the same latent risk in `SearchBar` / `UpdateChecker` (`-translate-x-1/2`) is replaced with inline `transform: translateX(-50%)` as well

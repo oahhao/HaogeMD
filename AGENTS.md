@@ -47,54 +47,40 @@
 - TypeScript 类型检查（单文件）
 - ESLint / Prettier 格式化（单文件）
 - 运行构建命令验证
-
 ### AI 必须先询问
 
 - 安装依赖（`pnpm add`）
 - Git 操作（push、commit、branch）
 - 删除文件
 - 运行完整构建
-
 ### 禁止操作
 
 未经明确授权，不得执行：
-
 - `git push`、`git commit --amend`、`rm -rf`
 - 数据库迁移
 - 部署命令
 - 修改 CI 配置
-
 ***
-
 ## 编码规范
-
 ### 命名规范
-
 - **组件文件**：PascalCase（如 `MermaidDiagram.tsx`）
 - **其他文件**：camelCase（如 `fileStore.ts`）
 - **Rust 命令**：snake_case（如 `read_file`）
 - **CSS 变量**：kebab-case（如 `--mermaid-text`）
-
 ### 必须遵循
-
 - **前后端分离**：前端负责 UI 渲染，所有文件 IO、编码检测、数据库操作必须下沉至 Rust 后端
 - **状态管理**：使用 Zustand 选择器订阅，严禁订阅整个 store
 - **React 性能**：所有子组件用 `React.memo` 包裹，计算结果用 `useMemo`/`useCallback` 缓存
 - **动画性能**：只动画 `transform` 和 `opacity`，绝不触发布局重排
 - **虚拟滚动**：长文档必须使用 `@tanstack/react-virtual`
-
 ### 禁止操作
-
 - 禁止使用 DOM drag 事件（`onDragEnter`/`onDragOver`/`onDrop`），必须使用 Tauri 的 `onDragDropEvent`
 - 禁止在 Tauri 无边框窗口中使用会创建 stacking context 的 CSS 属性（`overflow`、`transform`、`filter` 等）
 - 禁止在 React 合成事件中使用 `e.stopPropagation()` 阻止原生事件传播，必须使用原生 `addEventListener`
-
 ### 禁止修改的文件
-
 - 不要修改 `.trae/rules/` 下的规则文件
 - 不要修改 `docs/phase/` 下的阶段计划文件
 - 不要修改 `tsconfig.json`、`vite.config.ts` 等构建配置（除非明确授权）
-
 ### 文件写入规范
 
 **铁律**：写文件仅允许使用 SearchReplace 或 Write 工具，禁止其他写入方式。
@@ -104,13 +90,10 @@
 ### 不确定即问
 
 编码不明、old_str 多处匹配、需求歧义时必须停下提问。
-
 ***
-
 ## 项目结构
 
-详细目录结构与关键文件路径索引见 [CLAUDE.md](./CLAUDE.md)。
-
+详细目录结构与关键文件路径索引见 [CLAUDE.md](./CLAUDE.md)。  
 简要结构参考：
 
 ```
@@ -144,9 +127,7 @@ src-tauri/
 - **ERROR_LOG.md** → 开发错误记录和修复经验
 - **CHANGELOG.md** → 版本更新日志
 - **[CLAUDE.md](./CLAUDE.md)** → 关键文件路径索引
-
 ***
-
 ## 协作规则
 
 ### 本地 IDE 场景
@@ -155,11 +136,9 @@ src-tauri/
 - 任何文件改动必须先经用户在 diff 视图中审核并 accept 后才生效
 - 每个阶段完成后，必须由用户在本地确认测试通过
 - 每次响应只处理一个阶段或一个聚焦问题
-
 ### 高风险操作前必须询问
 
 跨 >3 文件或 >100 行变更前，先检查 git status。
-
 ### 预提交检查清单
 
 每次提交前（执行 `git commit` 之前），必须检查以下项目：

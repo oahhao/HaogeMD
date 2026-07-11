@@ -253,7 +253,6 @@ git push origin v{x.y.z}            # 推送到 GitHub
 5. `git push origin main`
 6. **额外执行**：`git tag v{x.y.z}` → `git push origin v{x.y.z}`
 7. GitHub Actions 自动触发 `.github/workflows/release.yml`，构建并发布到 GitHub Releases
-
 ### 不要做的事
 
 - 不要在版本未升级时打 tag（会触发无意义 release 构建）

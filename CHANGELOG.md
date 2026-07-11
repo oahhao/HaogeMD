@@ -9,13 +9,6 @@
 ### 新增
 
 - **GBK 编码支持**：自动检测文件编码（GBK/GB2312/Big5/Shift_JIS 等），打开非 UTF-8 文件无乱码，保存时自动转换为 UTF-8
-
-### 变更
-
-- **品牌定制**：从 ErgeMD 重命名为 HaogeMD，作者信息替换为阿星学AI
-- **应用图标**：替换为全新的 HaogeMD 图标（H+MD 设计），嵌入 SVG 组件中
-- **图标尺寸**：欢迎页图标从 160px 增大到 240px，关于页图标从 104px 增大到 120px
-
 ### 修复
 
 - **Mermaid 节点标签在 WebView2 下 foreignObject 渲染问题**：Tauri 打包后的 build 版本中，Mermaid 流程图节点标签文字被截断无法正确居中显示。根因是 WebView2 不解析 foreignObject 内 HTML 元素的 style 属性。解决方案：在 SVG 字符串级别将节点标签的 foreignObject 转换为原生 SVG text 元素，使用 text-anchor 和 dominant-baseline 实现文字居中。同时设置 htmlLabels: false 让边标签也使用原生 text 元素。详见 `docs/experience/mermaid-webview2-foreignobject-issue.md`
