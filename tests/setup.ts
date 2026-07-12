@@ -1,5 +1,6 @@
 import { vi } from "vitest";
 
+//
 // 全局 Tauri API mock，避免测试中触发真实 invoke
 vi.mock("@tauri-apps/api/core", () => ({
   invoke: vi.fn(() => Promise.resolve(null)),
