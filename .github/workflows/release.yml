@@ -71,23 +71,36 @@ jobs:
         if: matrix.platform == 'windows-latest'
         shell: pwsh
         run: |
-          $src = "src-tauri/target/release"
-          $exe = "$src/HaogeMD.exe"
-          if (-not (Test-Path $exe)) {
-            Write-Warning "HaogeMD.exe not found at $exe, trying to find it..."
-            $found = Get-ChildItem $src -Filter "*.exe" | Select-Object -First 1
-            if ($found) { $exe = $found.FullName; Write-Host "Found: $exe" }
-            else { Write-Error "No .exe found in $src"; exit 1 }
+          # tauri-action 可能使用 target/release 或 target/<triple>/release
+          $possibleDirs = @(
+            "src-tauri/target/x86_64-pc-windows-msvc/release",
+            "src-tauri/target/release"
+          )
+          $src = $null
+          foreach ($dir in $possibleDirs) {
+            if (Test-Path $dir) {
+              $exe = Get-ChildItem $dir -Filter "*.exe" | Where-Object { $_.Name -match "^(ErgeMD|HaogeMD)" } | Select-Object -First 1
+              if ($exe) {
+                $src = $dir
+                $exePath = $exe.FullName
+                Write-Host "Found exe: $exePath"
+                break
+              }
+            }
+          }
+          if (-not $src) {
+            Write-Error "No exe found in any target directory"
+            exit 1
           }
           $dst = "HaogeMD-portable"
           New-Item -ItemType Directory -Path $dst -Force
-          Copy-Item $exe "$dst/HaogeMD.exe"
-          if (Test-Path "$src/WebView2Loader.dll") {
-            Copy-Item "$src/WebView2Loader.dll" $dst/
+          Copy-Item $exePath "$dst/HaogeMD.exe"
+          $dll = Join-Path $src "WebView2Loader.dll"
+          if (Test-Path $dll) {
+            Copy-Item $dll $dst/
           }
           Compress-Archive -Path $dst -DestinationPath "HaogeMD-${{ github.ref_name }}-portable.zip" -Force
           gh release upload ${{ github.ref_name }} "HaogeMD-${{ github.ref_name }}-portable.zip" --clobber
-          # 确保 release 名称正确（tauri-action 可能使用了错误的名称）
           gh release edit ${{ github.ref_name }} --title "HaogeMD ${{ github.ref_name }}"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
