@@ -1,3 +1,5 @@
+# pnpm 工作空间配置（monorepo 用）
+# 当前项目没有子包，此文件暂未使用，保留以备后续扩展
 packages:
   - "."
 allowBuilds:
