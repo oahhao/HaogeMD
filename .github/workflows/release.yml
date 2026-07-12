@@ -55,52 +55,98 @@ jobs:
       - name: Install frontend dependencies
         run: pnpm install
 
-      - name: Build and release
-        uses: tauri-apps/tauri-action@v0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tagName: ${{ github.ref_name }}
-          releaseName: "HaogeMD ${{ github.ref_name }}"
-          releaseBody: "See the assets below to download and install."
-          releaseDraft: false
-          prerelease: false
-          args: ${{ matrix.args }}
+      - name: Build Tauri app
+        run: pnpm tauri build ${{ matrix.args }}
 
-      - name: Create portable package (Windows)
+      - name: Rename and upload artifacts (Windows)
         if: matrix.platform == 'windows-latest'
         shell: pwsh
         run: |
-          # tauri-action 可能使用 target/release 或 target/<triple>/release
-          $possibleDirs = @(
-            "src-tauri/target/x86_64-pc-windows-msvc/release",
-            "src-tauri/target/release"
-          )
-          $src = $null
-          foreach ($dir in $possibleDirs) {
-            if (Test-Path $dir) {
-              $exe = Get-ChildItem $dir -Filter "*.exe" | Where-Object { $_.Name -match "^(ErgeMD|HaogeMD)" } | Select-Object -First 1
-              if ($exe) {
-                $src = $dir
-                $exePath = $exe.FullName
-                Write-Host "Found exe: $exePath"
-                break
-              }
-            }
+          $targetDir = "src-tauri/target/release"
+          if (Test-Path "src-tauri/target/x86_64-pc-windows-msvc/release") {
+            $targetDir = "src-tauri/target/x86_64-pc-windows-msvc/release"
           }
-          if (-not $src) {
-            Write-Error "No exe found in any target directory"
-            exit 1
+          
+          # 查找并重命名 exe
+          $exe = Get-ChildItem $targetDir -Filter "*.exe" | Where-Object { $_.Name -match "^(ErgeMD|HaogeMD)" -and $_.Name -notmatch "setup" } | Select-Object -First 1
+          if ($exe) {
+            Copy-Item $exe.FullName "HaogeMD.exe"
+            Write-Host "Portable exe ready: HaogeMD.exe"
           }
+          
+          # 查找 NSIS 安装包
+          $nsisDir = Join-Path $targetDir "bundle/nsis"
+          $setup = Get-ChildItem $nsisDir -Filter "*setup.exe" | Select-Object -First 1
+          if ($setup) {
+            $newName = "HaogeMD-${{ github.ref_name }}-setup.exe"
+            Copy-Item $setup.FullName $newName
+            Write-Host "Setup exe ready: $newName"
+          }
+          
+          # 创建便携包
           $dst = "HaogeMD-portable"
           New-Item -ItemType Directory -Path $dst -Force
-          Copy-Item $exePath "$dst/HaogeMD.exe"
-          $dll = Join-Path $src "WebView2Loader.dll"
+          Copy-Item "HaogeMD.exe" "$dst/HaogeMD.exe"
+          $dll = Join-Path $targetDir "WebView2Loader.dll"
           if (Test-Path $dll) {
             Copy-Item $dll $dst/
           }
           Compress-Archive -Path $dst -DestinationPath "HaogeMD-${{ github.ref_name }}-portable.zip" -Force
+          
+          # 创建 release 并上传
+          gh release create ${{ github.ref_name }} --title "HaogeMD ${{ github.ref_name }}" --notes "See the assets below to download and install." || true
+          gh release upload ${{ github.ref_name }} "HaogeMD-${{ github.ref_name }}-setup.exe" --clobber
           gh release upload ${{ github.ref_name }} "HaogeMD-${{ github.ref_name }}-portable.zip" --clobber
-          gh release edit ${{ github.ref_name }} --title "HaogeMD ${{ github.ref_name }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Rename and upload artifacts (macOS)
+        if: matrix.platform == 'macos-latest'
+        shell: bash
+        run: |
+          targetDir="src-tauri/target/aarch64-apple-darwin/release"
+          [ -d "src-tauri/target/release" ] && targetDir="src-tauri/target/release"
+          
+          # 查找 dmg
+          dmgDir="$targetDir/bundle/dmg"
+          dmg=$(find "$dmgDir" -name "*.dmg" | head -1)
+          if [ -n "$dmg" ]; then
+            newName="HaogeMD-${{ github.ref_name }}-macos-arm64.dmg"
+            cp "$dmg" "$newName"
+            gh release upload ${{ github.ref_name }} "$newName" --clobber || true
+          fi
+          
+          # 查找 app
+          appDir="$targetDir/bundle/macos"
+          if [ -d "$appDir" ]; then
+            tar -czf "HaogeMD-${{ github.ref_name }}-macos.app.tar.gz" -C "$appDir" .
+            gh release upload ${{ github.ref_name }} "HaogeMD-${{ github.ref_name }}-macos.app.tar.gz" --clobber || true
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Rename and upload artifacts (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        shell: bash
+        run: |
+          targetDir="src-tauri/target/release"
+          
+          # AppImage
+          appimageDir="$targetDir/bundle/appimage"
+          appimage=$(find "$appimageDir" -name "*.AppImage" | head -1)
+          if [ -n "$appimage" ]; then
+            newName="HaogeMD-${{ github.ref_name }}-linux-x86_64.AppImage"
+            cp "$appimage" "$newName"
+            gh release upload ${{ github.ref_name }} "$newName" --clobber || true
+          fi
+          
+          # deb
+          debDir="$targetDir/bundle/deb"
+          deb=$(find "$debDir" -name "*.deb" | head -1)
+          if [ -n "$deb" ]; then
+            newName="HaogeMD-${{ github.ref_name }}-linux-x86_64.deb"
+            cp "$deb" "$newName"
+            gh release upload ${{ github.ref_name }} "$newName" --clobber || true
+          fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

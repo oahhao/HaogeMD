@@ -96,14 +96,13 @@ try {
     // Windows（默认）
     const nsisDir = join(bundleDir, "nsis");
     rename(nsisDir, "_x64-setup.exe", `HaogeMD-v${version}-setup.exe`, true);
-    // 兼容旧名称 ErgeMD 和新名称 HaogeMD
-    const files = existsSync(releaseDir) ? readdirSync(releaseDir) : [];
-    const exeFile = files.find((f) => f === "HaogeMD.exe" || f === "ErgeMD.exe");
-    if (exeFile) {
-      renameSync(join(releaseDir, exeFile), join(releaseDir, `HaogeMD-v${version}.exe`));
-      console.log(`[rename-bundle] ${exeFile} -> HaogeMD-v${version}.exe`);
+    // 只处理 HaogeMD 名称
+    const exePath = join(releaseDir, "HaogeMD.exe");
+    if (existsSync(exePath)) {
+      renameSync(exePath, join(releaseDir, `HaogeMD-v${version}.exe`));
+      console.log(`[rename-bundle] HaogeMD.exe -> HaogeMD-v${version}.exe`);
     } else {
-      console.log(`[rename-bundle] skip: no exe found in ${releaseDir}`);
+      console.log(`[rename-bundle] skip: HaogeMD.exe not found in ${releaseDir}`);
     }
   }
   console.log(`[rename-bundle] Done. Version: ${version}, Platform: ${platform}`);
