@@ -87,5 +87,7 @@ jobs:
           }
           Compress-Archive -Path $dst -DestinationPath "HaogeMD-${{ github.ref_name }}-portable.zip" -Force
           gh release upload ${{ github.ref_name }} "HaogeMD-${{ github.ref_name }}-portable.zip" --clobber
+          # 确保 release 名称正确（tauri-action 可能使用了错误的名称）
+          gh release edit ${{ github.ref_name }} --title "HaogeMD ${{ github.ref_name }}"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
