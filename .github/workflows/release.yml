@@ -69,11 +69,19 @@ jobs:
 
       - name: Create portable package (Windows)
         if: matrix.platform == 'windows-latest'
+        shell: pwsh
         run: |
           $src = "src-tauri/target/release"
+          $exe = "$src/HaogeMD.exe"
+          if (-not (Test-Path $exe)) {
+            Write-Warning "HaogeMD.exe not found at $exe, trying to find it..."
+            $found = Get-ChildItem $src -Filter "*.exe" | Select-Object -First 1
+            if ($found) { $exe = $found.FullName; Write-Host "Found: $exe" }
+            else { Write-Error "No .exe found in $src"; exit 1 }
+          }
           $dst = "HaogeMD-portable"
           New-Item -ItemType Directory -Path $dst -Force
-          Copy-Item "$src/HaogeMD.exe" "$dst/HaogeMD.exe"
+          Copy-Item $exe "$dst/HaogeMD.exe"
           if (Test-Path "$src/WebView2Loader.dll") {
             Copy-Item "$src/WebView2Loader.dll" $dst/
           }
